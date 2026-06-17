@@ -31,6 +31,12 @@
             margin: 0;
             padding: 0;
             -webkit-tap-highlight-color: transparent;
+            /* Hide scrollbars globally */
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        *::-webkit-scrollbar {
+            display: none; /* Chrome, Safari and Opera */
         }
 
         html,
@@ -960,7 +966,7 @@
                     <input type="password" class="form-control" id="loginPw" placeholder="비밀번호"
                         autocomplete="current-password" required>
                 </div>
-                <div id="loginError">⚠️ 아이디 또는 비밀번호가 올바르지 않습니다.</div>
+                <div id="loginError">아이디 또는 비밀번호가 올바르지 않습니다.</div>
                 <button type="submit" class="btn-primary">LOGIN</button>
             </form>
             <div style="text-align:center;">
@@ -982,22 +988,22 @@
             </div>
             <div class="admin-header-actions">
                 <a href="index.html" target="_blank" class="btn-home">↗ 리더보드</a>
-                <div class="admin-user-chip">🔓 admin</div>
+                <div class="admin-user-chip">admin</div>
                 <button class="btn-logout" onclick="handleLogout()">Logout</button>
             </div>
         </header>
 
         <!-- Tab Navigation -->
         <div class="admin-tabs">
-            <button class="admin-tab-btn active" id="tabBtnEntry" onclick="switchTab('entry')">📝 전적 등록</button>
-            <button class="admin-tab-btn" id="tabBtnHistory" onclick="switchTab('history')">📋 매치 관리</button>
-            <button class="admin-tab-btn" id="tabBtnConfig" onclick="switchTab('config')">⚙️ GitHub 설정</button>
+            <button class="admin-tab-btn active" id="tabBtnEntry" onclick="switchTab('entry')">전적 등록</button>
+            <button class="admin-tab-btn" id="tabBtnHistory" onclick="switchTab('history')">매치 관리</button>
+            <button class="admin-tab-btn" id="tabBtnConfig" onclick="switchTab('config')">GitHub 설정</button>
         </div>
 
         <!-- ===== TAB: 전적 등록 ===== -->
         <div class="tab-panel active" id="panelEntry">
             <div class="glass-panel">
-                <div class="panel-title">⚔️ Match Entry — 전적 등록</div>
+                <div class="panel-title">Match Entry — 전적 등록</div>
                 <form id="matchForm" onsubmit="event.preventDefault();">
                     <div class="form-row" style="margin-bottom:12px;">
                         <div class="form-group">
@@ -1136,8 +1142,8 @@
                     </div>
 
                     <div class="action-row">
-                        <button type="button" class="btn-secondary" onclick="submitMatch(false)">💾 로컬 저장</button>
-                        <button type="button" class="btn-green" onclick="submitMatch(true)">🚀 저장 및 GitHub 배포</button>
+                        <button type="button" class="btn-secondary" onclick="submitMatch(false)">로컬 저장</button>
+                        <button type="button" class="btn-green" onclick="submitMatch(true)">저장 및 GitHub 배포</button>
                     </div>
                 </form>
             </div>
@@ -1151,7 +1157,9 @@
                     <div class="match-filter-chips">
                         <div class="filter-chip active" id="filterAll" onclick="setHistoryFilter('all')">ALL</div>
                         <div class="filter-chip" id="filter1v1" onclick="setHistoryFilter('1v1')">1V1</div>
-                        <div class="filter-chip" id="filter2v2" style="opacity: 0.4; pointer-events: none; background: #27272a; color: #71717a; border-color: #3f3f46; cursor: not-allowed;">2V2</div>
+                        <div class="filter-chip" id="filter2v2"
+                            style="opacity: 0.4; pointer-events: none; background: #27272a; color: #71717a; border-color: #3f3f46; cursor: not-allowed;">
+                            2V2</div>
                     </div>
                     <div style="font-size:0.72rem;color:var(--text-muted);font-weight:700;" id="historyCount">0 rounds
                     </div>
@@ -1189,7 +1197,7 @@
         <!-- ===== TAB: GitHub 설정 ===== -->
         <div class="tab-panel" id="panelConfig">
             <div class="glass-panel">
-                <div class="panel-title">⚙️ GitHub Configuration — 깃허브 연동 설정</div>
+                <div class="panel-title">GitHub Configuration — 깃허브 연동 설정</div>
                 <div class="config-section">
 
                     <!-- Current status -->
@@ -1206,7 +1214,7 @@
 
                     <!-- Encryption Helper -->
                     <div class="helper-box">
-                        <div class="helper-box-title">🔐 Step 1 — GitHub 연동 정보 암호화 (최초 1회 설정)</div>
+                        <div class="helper-box-title">Step 1 — GitHub 연동 정보 암호화 (최초 1회 설정)</div>
                         <div class="notice" style="margin-bottom:12px;">
                             아래 폼에 GitHub 정보를 입력하고 <strong>[암호문 생성]</strong>을 눌러 나온 암호문을 <code>admin.html</code> 소스코드의
                             <code>ENCRYPTED_GIT_CONFIG</code> 변수에 붙여넣으면 모든 관리자가 추가 설정 없이 배포 가능합니다.
@@ -1239,16 +1247,15 @@
                                 <input type="password" class="form-control" id="cfgToken"
                                     placeholder="github_pat_... 또는 ghp_...">
                             </div>
-                            <button class="btn-primary" onclick="generateEncryptedConfig()" style="height:42px;">🔐 암호문 생성</button>
+                            <button class="btn-primary" onclick="generateEncryptedConfig()" style="height:42px;">암호문
+                                생성</button>
                             <div>
                                 <div class="encrypted-output" id="encryptedOutput">암호문이 여기에 생성됩니다...</div>
-                                <button class="copy-btn" onclick="copyEncryptedOutput()">📋 복사</button>
+                                <button class="copy-btn" onclick="copyEncryptedOutput()">복사</button>
                             </div>
                             <div class="notice">
-                                <strong>📌 적용 방법:</strong> 위 암호문을 복사한 뒤, <code>admin.html</code> 소스코드에서<br>
-                                <code>const ENCRYPTED_GIT_CONFIG = '';</code> 부분의 따옴표 안에 붙여넣고 저장하세요.<br><br>
-                                <strong>🛡️ 보안 팁:</strong> GitHub 토큰은 <strong>Fine-grained Personal Access
-                                    Token</strong>으로 생성하고, <strong>이 저장소에만 Contents: Write 권한만</strong> 부여하세요.
+                                <strong>적용 방법:</strong> 위 암호문을 복사한 뒤, <code>admin.html</code> 소스코드에서<br>
+                                <code>const ENCRYPTED_GIT_CONFIG = '';</code> 부분의 따옴표 안에 붙여넣고 저장하세요.<br>
                             </div>
                         </div>
                     </div>
@@ -1257,7 +1264,7 @@
 
                     <!-- Direct localStorage override (fallback) -->
                     <div class="helper-box">
-                        <div class="helper-box-title">🔧 Step 2 (대안) — 이 브라우저에만 임시 토큰 저장</div>
+                        <div class="helper-box-title">Step 2 (대안) — 이 브라우저에만 임시 토큰 저장</div>
                         <div class="notice" style="margin-bottom:12px;">
                             암호문 내장이 완료되기 전까지 <strong>이 브라우저에만</strong> GitHub 토큰을 임시로 저장해 사용할 수 있습니다. 브라우저
                             <code>localStorage</code>에만 저장되며 다른 사람에게는 공유되지 않습니다.
@@ -1290,7 +1297,7 @@
                                 <input type="password" class="form-control" id="lsToken"
                                     placeholder="ghp_ 또는 github_pat_">
                             </div>
-                            <button class="btn-primary" onclick="saveLocalStorageConfig()" style="height:42px;">💾 이
+                            <button class="btn-primary" onclick="saveLocalStorageConfig()" style="height:42px;">이
                                 브라우저에 임시 저장</button>
                         </div>
                     </div>
@@ -1299,19 +1306,21 @@
 
                     <!-- Admin password hash helper -->
                     <div class="helper-box">
-                        <div class="helper-box-title">🔐 Step 3 (옵션) — 관리자 비밀번호 해시 생성기</div>
+                        <div class="helper-box-title">Step 3 (옵션) — 관리자 비밀번호 해시 생성기</div>
                         <div class="notice" style="margin-bottom:12px;">
-                            새로운 관리자를 추가하거나 비밀번호를 변경하려면 SHA-256 해시가 필요합니다. 아래에 원하는 비밀번호를 입력하고 <strong>[해시 생성]</strong>을 눌러 나온 해시값을 <code>admin.html</code> 소스코드의 <code>ADMIN_ACCOUNTS</code> 객체에 추가하세요.
+                            새로운 관리자를 추가하거나 비밀번호를 변경하려면 SHA-256 해시가 필요합니다. 아래에 원하는 비밀번호를 입력하고 <strong>[해시 생성]</strong>을
+                            눌러 나온 해시값을 <code>admin.html</code> 소스코드의 <code>ADMIN_ACCOUNTS</code> 객체에 추가하세요.
                         </div>
                         <div style="display:flex;flex-direction:column;gap:10px;">
                             <div class="form-group">
                                 <label>비밀번호 입력</label>
                                 <input type="password" class="form-control" id="newAdminPw" placeholder="새 관리자 비밀번호 입력">
                             </div>
-                            <button class="btn-primary" onclick="generateAdminHash()" style="height:42px;">🔐 해시 생성</button>
+                            <button class="btn-primary" onclick="generateAdminHash()" style="height:42px;">해시
+                                생성</button>
                             <div>
                                 <div class="encrypted-output" id="adminHashOutput">해시값이 여기에 생성됩니다...</div>
-                                <button class="copy-btn" onclick="copyAdminHashOutput()">📋 복사</button>
+                                <button class="copy-btn" onclick="copyAdminHashOutput()">복사</button>
                             </div>
                         </div>
                     </div>
@@ -1934,12 +1943,12 @@
         function updateConfigStatus() {
             const statusEl = document.getElementById('configStatus');
             const textEl = document.getElementById('configStatusText');
-            
+
             const hasConfig = ENCRYPTED_GIT_CONFIG && (
-                typeof ENCRYPTED_GIT_CONFIG === 'string' || 
+                typeof ENCRYPTED_GIT_CONFIG === 'string' ||
                 (typeof ENCRYPTED_GIT_CONFIG === 'object' && Object.keys(ENCRYPTED_GIT_CONFIG).length > 0)
             );
-            
+
             if (hasConfig) {
                 statusEl.className = 'config-status unlocked';
                 statusEl.querySelector('.config-status-icon').textContent = '✅';
@@ -1967,13 +1976,13 @@
 
             showSpinner(true);
             const plaintext = JSON.stringify({ owner, repo, branch, path, token });
-            
+
             const password = currentAdminPassword || prompt('암호화를 진행할 관리자 비밀번호를 입력하세요:');
             if (!password) {
                 showSpinner(false);
                 return;
             }
-            
+
             const encrypted = await encryptData(plaintext, password);
             showSpinner(false);
 
