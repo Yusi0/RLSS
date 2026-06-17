@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko" data-theme="dark">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,7 +12,9 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Orbitron:wght@700;900&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Orbitron:wght@700;900&family=Outfit:wght@500;700;800&display=swap"
+        rel="stylesheet">
 
     <style>
         :root {
@@ -37,13 +40,14 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        html, body {
+        html,
+        body {
             height: 100vh;
             overflow: hidden;
             font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-primary);
-            background-image: 
+            background-image:
                 radial-gradient(at 10% 20%, rgba(255, 0, 60, 0.05) 0px, transparent 50%),
                 radial-gradient(at 90% 80%, rgba(0, 210, 255, 0.04) 0px, transparent 50%);
             background-size: cover;
@@ -344,14 +348,38 @@
         }
 
         /* Tier labels coloring */
-        .tier-copper { color: #d97706; }
-        .tier-bronze { color: #b45309; }
-        .tier-silver { color: #94a3b8; }
-        .tier-gold { color: var(--gold); }
-        .tier-platinum { color: #38bdf8; }
-        .tier-diamond { color: #a78bfa; }
-        .tier-champion { color: var(--red-neon); text-shadow: 0 0 4px var(--red-neon); }
-        .tier-unranked { color: #64748b; }
+        .tier-copper {
+            color: #d97706;
+        }
+
+        .tier-bronze {
+            color: #b45309;
+        }
+
+        .tier-silver {
+            color: #94a3b8;
+        }
+
+        .tier-gold {
+            color: var(--gold);
+        }
+
+        .tier-platinum {
+            color: #38bdf8;
+        }
+
+        .tier-diamond {
+            color: #a78bfa;
+        }
+
+        .tier-champion {
+            color: var(--red-neon);
+            text-shadow: 0 0 4px var(--red-neon);
+        }
+
+        .tier-unranked {
+            color: #64748b;
+        }
 
         /* Modal Styles */
         .modal {
@@ -481,6 +509,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <!-- Main Container -->
@@ -490,7 +519,8 @@
         <div class="glass-panel topbar">
             <button id="backButton" class="back-btn" title="뒤로 가기" onclick="window.location.href='index.html';">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M15 8a.5.5 0 0 1-.5.5H2.707l3.147 3.146a.5.5 0 0 1-.708.708l-4-4a.5.5 0 0 1 0-.708l4-4a.5.5 0 0 1 .708.708L2.707 7.5H14.5a.5.5 0 0 1 .5.5z" />
+                    <path fill-rule="evenodd"
+                        d="M15 8a.5.5 0 0 1-.5.5H2.707l3.147 3.146a.5.5 0 0 1-.708.708l-4-4a.5.5 0 0 1 0-.708l4-4a.5.5 0 0 1 .708.708L2.707 7.5H14.5a.5.5 0 0 1 .5.5z" />
                 </svg>
             </button>
             <h1 id="topbarTitle">PLAYER STATUS</h1>
@@ -526,7 +556,7 @@
                             <span class="stat-value" id="statElo2v2" style="color:var(--blue-neon);">1500</span>
                         </div>
                     </div>
-                    
+
                     <div class="stat-box">
                         <div class="stat-title">1v1 Win Rate</div>
                         <div class="stat-value" id="statWr1v1">0%</div>
@@ -557,11 +587,14 @@
 
             <!-- ELO Trend Chart Card -->
             <div class="glass-panel chart-card">
-                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px dashed rgba(255, 0, 60, 0.1); padding-bottom: 4px;">
+                <div
+                    style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px dashed rgba(255, 0, 60, 0.1); padding-bottom: 4px;">
                     <div class="chart-title" style="border:none; padding:0;">ELO Rating Trend</div>
                     <div class="chart-mode-toggle">
-                        <button class="chart-toggle-btn active" id="btnElo1v1" onclick="switchChartData('elo', '1v1')">1v1</button>
-                        <button class="chart-toggle-btn" id="btnElo2v2" onclick="switchChartData('elo', '2v2')">2v2</button>
+                        <button class="chart-toggle-btn active" id="btnElo1v1"
+                            onclick="switchChartData('elo', '1v1')">1v1</button>
+                        <button class="chart-toggle-btn" id="btnElo2v2"
+                            onclick="switchChartData('elo', '2v2')">2v2</button>
                     </div>
                 </div>
                 <div class="chart-wrapper">
@@ -571,11 +604,14 @@
 
             <!-- KDR Trend Chart Card -->
             <div class="glass-panel chart-card">
-                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px dashed rgba(255, 0, 60, 0.1); padding-bottom: 4px;">
+                <div
+                    style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px dashed rgba(255, 0, 60, 0.1); padding-bottom: 4px;">
                     <div class="chart-title" style="border:none; padding:0;">KDR Performance Trend</div>
                     <div class="chart-mode-toggle">
-                        <button class="chart-toggle-btn active" id="btnKdr1v1" onclick="switchChartData('kdr', '1v1')">1v1</button>
-                        <button class="chart-toggle-btn" id="btnKdr2v2" onclick="switchChartData('kdr', '2v2')">2v2</button>
+                        <button class="chart-toggle-btn active" id="btnKdr1v1"
+                            onclick="switchChartData('kdr', '1v1')">1v1</button>
+                        <button class="chart-toggle-btn" id="btnKdr2v2"
+                            onclick="switchChartData('kdr', '2v2')">2v2</button>
                     </div>
                 </div>
                 <div class="chart-wrapper">
@@ -619,7 +655,8 @@
                 </div>
                 <div style="display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 12px;">
                     <button id="prevPageBtn" class="back-btn">&lt;</button>
-                    <span id="pageInfo" style="font-size: 0.72rem; font-weight: 800; color: var(--text-primary);">1 / 1</span>
+                    <span id="pageInfo" style="font-size: 0.72rem; font-weight: 800; color: var(--text-primary);">1 /
+                        1</span>
                     <button id="nextPageBtn" class="back-btn">&gt;</button>
                 </div>
             </div>
@@ -651,7 +688,8 @@
                     </thead>
                     <tbody id="matchDetailsBody"></tbody>
                 </table>
-                <div style="margin-top: 10px; font-size: 0.65rem; color: var(--text-muted); display: flex; justify-content: space-between; border-top: 1px dashed rgba(255, 255, 255, 0.08); padding-top: 8px;">
+                <div
+                    style="margin-top: 10px; font-size: 0.65rem; color: var(--text-muted); display: flex; justify-content: space-between; border-top: 1px dashed rgba(255, 255, 255, 0.08); padding-top: 8px;">
                     <span id="modalRegistrantText">등록 관리자: -</span>
                 </div>
             </div>
@@ -665,10 +703,10 @@
         let playerStats = [];
         let aftercalcData = [];
         let filteredMatches = [];
-        
+
         let currentPage = 1;
         const itemsPerPage = 8;
-        
+
         let eloChartInstance = null;
         let kdrChartInstance = null;
         let currentEloChartMode = '1v1';
@@ -970,7 +1008,7 @@
             const primaryMode = player.Matches1v1 >= player.Matches2v2 ? '1v1' : '2v2';
             const tierVal = primaryMode === '1v1' ? player.Tier1v1 : player.Tier2v2;
             const matchesCount = primaryMode === '1v1' ? player.Matches1v1 : player.Matches2v2;
-            
+
             const badge = document.getElementById('statTier');
             badge.innerText = matchesCount > 0 ? tierVal : 'Unranked';
             badge.className = 'tier-label ' + `tier-${(matchesCount > 0 ? tierVal : 'unranked').toLowerCase().split(' ')[0]}`;
@@ -1002,7 +1040,7 @@
             maps.forEach(m => {
                 const stat = mapStats[m];
                 const wr = stat.total > 0 ? ((stat.wins / stat.total) * 100).toFixed(0) + '%' : '0%';
-                
+
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td style="text-transform:uppercase; font-weight:800;">${m}</td>
@@ -1020,7 +1058,7 @@
             body.innerHTML = '';
 
             // Sort matches round descending
-            filteredMatches.sort((a,b) => parseInt(b.Round) - parseInt(a.Round));
+            filteredMatches.sort((a, b) => parseInt(b.Round) - parseInt(a.Round));
 
             const totalPages = Math.ceil(filteredMatches.length / itemsPerPage) || 1;
             if (currentPage > totalPages) currentPage = totalPages;
@@ -1055,7 +1093,7 @@
                     eloDisplay = aftercalc.EloAfterRound;
                     // Find previous ELO
                     const prevCalc = aftercalcData.filter(a => a.Nickname.toLowerCase() === playerNickname.toLowerCase() && a.Mode === m.Mode && a.Round < roundNum)
-                                             .sort((a,b) => b.Round - a.Round)[0];
+                        .sort((a, b) => b.Round - a.Round)[0];
                     const prevElo = prevCalc ? prevCalc.EloAfterRound : 1500;
                     const diff = aftercalc.EloAfterRound - prevElo;
                     eloDiff = diff >= 0 ? ` (+${diff})` : ` (${diff})`;
@@ -1100,7 +1138,7 @@
             const roundMatches = csvMatches.filter(m => parseInt(m.Round) === roundId);
             const redTeam = roundMatches.filter(m => m.Team === 'RED');
             const blueTeam = roundMatches.filter(m => m.Team === 'BLUE');
-            
+
             const registrant = roundMatches[0].Registrant || '-';
             document.getElementById('modalRegistrantText').innerText = `등록 관리자: ${registrant}`;
 
@@ -1168,9 +1206,9 @@
         function updateEloChart() {
             // Filter player aftercalc data by mode
             const dataPoints = aftercalcData.filter(a => a.Nickname.toLowerCase() === playerNickname.toLowerCase() && a.Mode === currentEloChartMode)
-                                            .sort((a,b) => a.Round - b.Round);
+                .sort((a, b) => a.Round - b.Round);
 
-            const labels = dataPoints.map((d, i) => `${i + 1}번째 스크림`);
+            const labels = dataPoints.map((d, i) => `R${i + 1}`);
             const eloValues = dataPoints.map(d => d.EloAfterRound);
 
             if (eloChartInstance) {
@@ -1178,7 +1216,7 @@
             }
 
             const ctx = document.getElementById('eloTrendCanvas').getContext('2d');
-            
+
             // Neon red line gradient
             const grad = ctx.createLinearGradient(0, 0, 0, 150);
             grad.addColorStop(0, 'rgba(255, 0, 60, 0.2)');
@@ -1208,7 +1246,7 @@
                         legend: { display: false },
                         tooltip: {
                             callbacks: {
-                                label: function(context) {
+                                label: function (context) {
                                     return ` ELO: ${context.parsed.y}`;
                                 }
                             }
@@ -1230,9 +1268,9 @@
 
         function updateKdrChart() {
             const dataPoints = aftercalcData.filter(a => a.Nickname.toLowerCase() === playerNickname.toLowerCase() && a.Mode === currentKdrChartMode)
-                                            .sort((a,b) => a.Round - b.Round);
+                .sort((a, b) => a.Round - b.Round);
 
-            const labels = dataPoints.map((d, i) => `${i + 1}번째`);
+            const labels = dataPoints.map((d, i) => `R${i + 1}`);
             const kdrValues = dataPoints.map(d => d.KdrAfterRound);
 
             if (kdrChartInstance) {
@@ -1268,7 +1306,7 @@
                         legend: { display: false },
                         tooltip: {
                             callbacks: {
-                                label: function(context) {
+                                label: function (context) {
                                     return ` KDR: ${context.parsed.y.toFixed(2)}`;
                                 }
                             }
@@ -1289,4 +1327,5 @@
         }
     </script>
 </body>
+
 </html>
