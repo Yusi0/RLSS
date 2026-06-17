@@ -1,0 +1,2079 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>REDLINER Admin Panel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Orbitron:wght@700;900&family=Outfit:wght@500;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #09090b;
+            --bg-card: rgba(18, 18, 22, 0.75);
+            --border-neon: rgba(255, 0, 60, 0.18);
+            --border-neon-hover: rgba(255, 0, 60, 0.5);
+            --red-neon: #ff003c;
+            --blue-neon: #00d2ff;
+            --green-neon: #00e676;
+            --text-primary: #f8fafc;
+            --text-muted: #94a3b8;
+            --gold: #fbbf24;
+            --shadow-red: rgba(255, 0, 60, 0.12);
+            --shadow-red-hover: rgba(255, 0, 60, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html,
+        body {
+            min-height: 100vh;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            background-image:
+                radial-gradient(at 10% 20%, rgba(255, 0, 60, 0.06) 0px, transparent 50%),
+                radial-gradient(at 90% 80%, rgba(0, 210, 255, 0.05) 0px, transparent 50%);
+        }
+
+        /* ===== LOGIN GATE ===== */
+        #loginGate {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-color);
+            background-image:
+                radial-gradient(at 10% 20%, rgba(255, 0, 60, 0.07) 0px, transparent 50%),
+                radial-gradient(at 90% 80%, rgba(0, 210, 255, 0.05) 0px, transparent 50%);
+            z-index: 9999;
+        }
+
+        .login-box {
+            width: 100%;
+            max-width: 380px;
+            padding: 36px 32px 32px;
+            background: rgba(18, 18, 22, 0.9);
+            border: 1px solid var(--border-neon);
+            border-radius: 20px;
+            box-shadow: 0 0 40px rgba(255, 0, 60, 0.15), 0 20px 60px rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            animation: loginFadeIn 0.4s ease;
+        }
+
+        @keyframes loginFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px) scale(0.97);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .login-logo {
+            text-align: center;
+        }
+
+        .login-logo h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: var(--text-primary);
+            text-shadow: 0 0 12px rgba(255, 0, 60, 0.7);
+        }
+
+        .login-logo .sub {
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: var(--red-neon);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-top: 2px;
+            display: block;
+        }
+
+        .login-logo .lock-icon {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            display: block;
+            animation: pulseLock 2s infinite;
+        }
+
+        @keyframes pulseLock {
+
+            0%,
+            100% {
+                text-shadow: 0 0 6px rgba(255, 0, 60, 0.5);
+            }
+
+            50% {
+                text-shadow: 0 0 18px rgba(255, 0, 60, 0.9);
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            font-size: 0.68rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-control {
+            background: rgba(10, 10, 12, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 11px 14px;
+            outline: none;
+            width: 100%;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: inherit;
+        }
+
+        .form-control:focus {
+            border-color: var(--red-neon);
+            box-shadow: 0 0 0 2px rgba(255, 0, 60, 0.15);
+        }
+
+        .form-control::placeholder {
+            color: #444455;
+        }
+
+        .btn-primary {
+            border: none;
+            border-radius: 10px;
+            height: 44px;
+            background: var(--red-neon);
+            color: white;
+            font-weight: 800;
+            font-size: 0.88rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 16px rgba(255, 0, 60, 0.3);
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+            box-shadow: 0 6px 20px rgba(255, 0, 60, 0.5);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            height: 38px;
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-muted);
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--red-neon);
+            color: var(--text-primary);
+        }
+
+        .btn-green {
+            border: none;
+            border-radius: 10px;
+            height: 40px;
+            background: #059669;
+            color: white;
+            font-weight: 800;
+            font-size: 0.82rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
+        }
+
+        .btn-green:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(5, 150, 105, 0.4);
+        }
+
+        #loginError {
+            font-size: 0.75rem;
+            color: var(--red-neon);
+            text-align: center;
+            display: none;
+            font-weight: 700;
+        }
+
+        /* ===== ADMIN DASHBOARD ===== */
+        #adminDashboard {
+            display: none;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            gap: 16px;
+        }
+
+        .admin-header {
+            background: rgba(18, 18, 22, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-neon);
+            border-left: 4px solid var(--red-neon);
+            border-radius: 16px;
+            padding: 14px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 32px var(--shadow-red);
+        }
+
+        .admin-header-logo h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-shadow: 0 0 8px rgba(255, 0, 60, 0.6);
+        }
+
+        .admin-header-logo .sub {
+            font-size: 0.6rem;
+            font-weight: 800;
+            color: var(--red-neon);
+            text-transform: uppercase;
+            letter-spacing: 2.5px;
+            display: block;
+            margin-top: -1px;
+        }
+
+        .admin-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .admin-user-chip {
+            background: rgba(255, 0, 60, 0.1);
+            border: 1px solid rgba(255, 0, 60, 0.3);
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: var(--red-neon);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-logout {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-logout:hover {
+            border-color: var(--red-neon);
+            color: var(--red-neon);
+        }
+
+        .btn-home {
+            background: rgba(0, 210, 255, 0.07);
+            border: 1px solid rgba(0, 210, 255, 0.25);
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: var(--blue-neon);
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+
+        .btn-home:hover {
+            background: rgba(0, 210, 255, 0.12);
+            box-shadow: 0 0 10px rgba(0, 210, 255, 0.2);
+        }
+
+        /* Tab Navigation */
+        .admin-tabs {
+            display: flex;
+            gap: 4px;
+            padding: 4px;
+            background: rgba(10, 10, 12, 0.8);
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .admin-tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            border-radius: 10px;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 800;
+            padding: 10px 0;
+            transition: all 0.25s ease;
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .admin-tab-btn.active {
+            background: var(--red-neon);
+            color: white;
+            box-shadow: 0 2px 10px rgba(255, 0, 60, 0.4);
+        }
+
+        .admin-tab-btn:not(.active):hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        /* Tab Content Panels */
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        /* Glass Panel */
+        .glass-panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-neon);
+            box-shadow: 0 8px 32px var(--shadow-red);
+            border-radius: 16px;
+            padding: 18px;
+        }
+
+        .panel-title {
+            font-size: 0.68rem;
+            font-weight: 800;
+            color: var(--red-neon);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-bottom: 1px dashed rgba(255, 0, 60, 0.15);
+            padding-bottom: 10px;
+            margin-bottom: 14px;
+        }
+
+        /* Match Entry Form */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .team-section {
+            border: 1px solid rgba(255, 0, 60, 0.12);
+            border-radius: 12px;
+            padding: 14px;
+            background: rgba(0, 0, 0, 0.2);
+            min-width: 0;
+        }
+
+        .team-section.blue {
+            border-color: rgba(0, 210, 255, 0.12);
+        }
+
+        .team-label {
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .team-label.red {
+            color: var(--red-neon);
+        }
+
+        .team-label.blue {
+            color: var(--blue-neon);
+        }
+
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 32px;
+            cursor: pointer;
+        }
+
+        select.form-control option {
+            background: #18181b;
+        }
+
+        /* Custom Player Autocomplete Dropdown */
+        .player-input-wrap {
+            position: relative;
+        }
+
+        .player-dropdown {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: rgba(18, 18, 22, 0.98);
+            border: 1px solid var(--red-neon);
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+            z-index: 500;
+            display: none;
+            overflow: hidden;
+            max-height: 180px;
+            overflow-y: auto;
+            scrollbar-width: none;
+        }
+
+        .player-dropdown.blue-side {
+            border-color: var(--blue-neon);
+        }
+
+        .player-dropdown::-webkit-scrollbar {
+            display: none;
+        }
+
+        .player-dropdown-item {
+            padding: 9px 12px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            transition: background 0.12s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .player-dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .player-dropdown-item:hover {
+            background: rgba(255, 0, 60, 0.1);
+            color: var(--text-primary);
+        }
+
+        .player-dropdown-item.blue-item:hover {
+            background: rgba(0, 210, 255, 0.1);
+        }
+
+        .player-dropdown-item .dd-elo {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .player-dropdown-item .dd-name {
+            flex: 1;
+        }
+
+        .player-input-wrap .form-control.has-value {
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .score-section {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 14px;
+        }
+
+        .score-section .section-label {
+            font-size: 0.62rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .action-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-row button {
+            flex: 1;
+            height: 42px;
+        }
+
+        /* Match History Table */
+        .match-history-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            gap: 10px;
+        }
+
+        .match-filter-chips {
+            display: flex;
+            gap: 6px;
+        }
+
+        .filter-chip {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-chip.active {
+            background: rgba(255, 0, 60, 0.12);
+            border-color: var(--red-neon);
+            color: var(--red-neon);
+        }
+
+        .match-table-wrapper {
+            overflow-x: auto;
+            border-radius: 10px;
+        }
+
+        .match-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.78rem;
+        }
+
+        .match-table th {
+            font-size: 0.6rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 8px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .match-table td {
+            padding: 9px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .match-table tbody tr:hover {
+            background: rgba(255, 0, 60, 0.04);
+        }
+
+        .match-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 0.6rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-red {
+            background: rgba(255, 0, 60, 0.1);
+            color: var(--red-neon);
+            border: 1px solid rgba(255, 0, 60, 0.2);
+        }
+
+        .badge-blue {
+            background: rgba(0, 210, 255, 0.1);
+            color: var(--blue-neon);
+            border: 1px solid rgba(0, 210, 255, 0.2);
+        }
+
+        .badge-mode {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .badge-win {
+            background: rgba(0, 230, 118, 0.1);
+            color: var(--green-neon);
+            border: 1px solid rgba(0, 230, 118, 0.2);
+        }
+
+        .badge-loss {
+            background: rgba(255, 0, 60, 0.08);
+            color: #ff6b6b;
+            border: 1px solid rgba(255, 0, 60, 0.15);
+        }
+
+        .btn-delete {
+            background: transparent;
+            border: 1px solid rgba(255, 0, 60, 0.3);
+            border-radius: 6px;
+            color: var(--red-neon);
+            font-size: 0.65rem;
+            font-weight: 800;
+            cursor: pointer;
+            padding: 4px 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-delete:hover {
+            background: rgba(255, 0, 60, 0.15);
+            border-color: var(--red-neon);
+            box-shadow: 0 0 8px rgba(255, 0, 60, 0.3);
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+            border-top: 1px dashed rgba(255, 255, 255, 0.05);
+            padding-top: 10px;
+        }
+
+        .btn-page {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 7px;
+            color: var(--text-primary);
+            font-size: 0.8rem;
+            font-weight: 800;
+            padding: 5px 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-page:hover:not(:disabled) {
+            border-color: var(--red-neon);
+            color: var(--red-neon);
+        }
+
+        .btn-page:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .page-info {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--text-muted);
+        }
+
+        /* GitHub Config Panel */
+        .config-section {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .config-status {
+            padding: 14px 16px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+
+        .config-status.locked {
+            background: rgba(251, 191, 36, 0.08);
+            border: 1px solid rgba(251, 191, 36, 0.2);
+            color: var(--gold);
+        }
+
+        .config-status.unlocked {
+            background: rgba(0, 230, 118, 0.08);
+            border: 1px solid rgba(0, 230, 118, 0.2);
+            color: var(--green-neon);
+        }
+
+        .config-status-icon {
+            font-size: 1.2rem;
+        }
+
+        .divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.05);
+            margin: 4px 0;
+        }
+
+        .helper-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .helper-box-title {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .encrypted-output {
+            background: rgba(10, 10, 12, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.7rem;
+            color: var(--green-neon);
+            word-break: break-all;
+            line-height: 1.5;
+            min-height: 60px;
+            margin-top: 8px;
+        }
+
+        .copy-btn {
+            background: rgba(0, 230, 118, 0.08);
+            border: 1px solid rgba(0, 230, 118, 0.2);
+            border-radius: 7px;
+            color: var(--green-neon);
+            font-size: 0.7rem;
+            font-weight: 800;
+            cursor: pointer;
+            padding: 5px 12px;
+            transition: all 0.2s;
+            margin-top: 6px;
+        }
+
+        .copy-btn:hover {
+            background: rgba(0, 230, 118, 0.15);
+        }
+
+        .notice {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            padding: 10px 14px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .notice strong {
+            color: var(--text-primary);
+        }
+
+        .notice code {
+            background: rgba(255, 0, 60, 0.1);
+            border-radius: 3px;
+            padding: 1px 5px;
+            font-size: 0.68rem;
+            color: var(--red-neon);
+        }
+
+        /* Loading Spinner */
+        #pageSpinner {
+            position: fixed;
+            inset: 0;
+            background: rgba(9, 9, 11, 0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 0, 60, 0.1);
+            border-top-color: var(--red-neon);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .spinner-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+        }
+
+        /* Toast Notification */
+        #toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            z-index: 99998;
+            display: none;
+            animation: toastIn 0.3s ease;
+            max-width: 320px;
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        #toast.success {
+            background: rgba(0, 230, 118, 0.15);
+            border: 1px solid rgba(0, 230, 118, 0.3);
+            color: var(--green-neon);
+        }
+
+        #toast.error {
+            background: rgba(255, 0, 60, 0.15);
+            border: 1px solid rgba(255, 0, 60, 0.3);
+            color: var(--red-neon);
+        }
+
+        #toast.info {
+            background: rgba(0, 210, 255, 0.12);
+            border: 1px solid rgba(0, 210, 255, 0.25);
+            color: var(--blue-neon);
+        }
+
+        /* Responsive */
+        @media (min-width: 900px) {
+            .match-entry-layout {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 16px;
+            }
+
+            .match-entry-layout .action-col {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .empty-state .icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ===== LOADING SPINNER ===== -->
+    <div id="pageSpinner">
+        <div class="spinner"></div>
+        <div class="spinner-text">PROCESSING...</div>
+    </div>
+
+    <!-- ===== TOAST ===== -->
+    <div id="toast"></div>
+
+    <!-- ===== LOGIN GATE ===== -->
+    <div id="loginGate">
+        <div class="login-box">
+            <div class="login-logo">
+                <span class="lock-icon">🔐</span>
+                <h1>REDLINER</h1>
+                <span class="sub">Admin Panel</span>
+            </div>
+            <form id="loginForm" onsubmit="event.preventDefault(); handleLogin();"
+                style="display:flex;flex-direction:column;gap:12px;">
+                <div class="form-group">
+                    <label for="loginId">ID</label>
+                    <input type="text" class="form-control" id="loginId" placeholder="관리자 ID" autocomplete="username"
+                        required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPw">Password</label>
+                    <input type="password" class="form-control" id="loginPw" placeholder="비밀번호"
+                        autocomplete="current-password" required>
+                </div>
+                <div id="loginError">⚠️ 아이디 또는 비밀번호가 올바르지 않습니다.</div>
+                <button type="submit" class="btn-primary">LOGIN</button>
+            </form>
+            <div style="text-align:center;">
+                <a href="index.html"
+                    style="font-size:0.7rem;color:var(--text-muted);text-decoration:none;font-weight:700;">← 리더보드로
+                    돌아가기</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ADMIN DASHBOARD ===== -->
+    <div id="adminDashboard">
+
+        <!-- Header -->
+        <header class="admin-header">
+            <div class="admin-header-logo">
+                <h1>REDLINER</h1>
+                <span class="sub">Admin Panel</span>
+            </div>
+            <div class="admin-header-actions">
+                <a href="index.html" target="_blank" class="btn-home">↗ 리더보드</a>
+                <div class="admin-user-chip">🔓 admin</div>
+                <button class="btn-logout" onclick="handleLogout()">Logout</button>
+            </div>
+        </header>
+
+        <!-- Tab Navigation -->
+        <div class="admin-tabs">
+            <button class="admin-tab-btn active" id="tabBtnEntry" onclick="switchTab('entry')">📝 전적 등록</button>
+            <button class="admin-tab-btn" id="tabBtnHistory" onclick="switchTab('history')">📋 매치 관리</button>
+            <button class="admin-tab-btn" id="tabBtnConfig" onclick="switchTab('config')">⚙️ GitHub 설정</button>
+        </div>
+
+        <!-- ===== TAB: 전적 등록 ===== -->
+        <div class="tab-panel active" id="panelEntry">
+            <div class="glass-panel">
+                <div class="panel-title">⚔️ Match Entry — 전적 등록</div>
+                <form id="matchForm" onsubmit="event.preventDefault();">
+                    <div class="form-row" style="margin-bottom:12px;">
+                        <div class="form-group">
+                            <label>게임 모드</label>
+                            <select class="form-control" id="formMode" onchange="onModeChange()">
+                                <option value="1v1">1v1 Duels</option>
+                                <option value="2v2">2v2 Wingman</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>맵</label>
+                            <select class="form-control" id="formMap"></select>
+                        </div>
+                    </div>
+
+                    <!-- Teams: RED left | BLUE right -->
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;align-items:start;"
+                        id="teamsLayout">
+
+                        <!-- RED Team -->
+                        <div class="team-section">
+                            <div class="team-label red">🔴 RED Team</div>
+
+                            <div class="form-group">
+                                <label>Player 1</label>
+                                <div class="player-input-wrap">
+                                    <input type="text" class="form-control player-field" id="redP1"
+                                        placeholder="닉네임 검색..." autocomplete="off"
+                                        oninput="filterDropdown('redP1','dd-redP1','red')"
+                                        onfocus="openDropdown('dd-redP1')">
+                                    <div class="player-dropdown" id="dd-redP1"></div>
+                                </div>
+                            </div>
+
+                            <div class="form-group" id="redP2Group" style="display:none;">
+                                <label>Player 2</label>
+                                <div class="player-input-wrap">
+                                    <input type="text" class="form-control player-field" id="redP2"
+                                        placeholder="닉네임 검색..." autocomplete="off"
+                                        oninput="filterDropdown('redP2','dd-redP2','red')"
+                                        onfocus="openDropdown('dd-redP2')">
+                                    <div class="player-dropdown" id="dd-redP2"></div>
+                                </div>
+                            </div>
+
+                            <div id="redKdGroup" style="display:none;margin-top:8px;">
+                                <div style="display:flex;flex-direction:column;gap:6px;">
+                                    <div class="form-group" style="margin-bottom:0;">
+                                        <label>P1 K / D</label>
+                                        <div style="display:flex;gap:5px;">
+                                            <input type="number" class="form-control" id="redP1K" placeholder="K"
+                                                min="0">
+                                            <input type="number" class="form-control" id="redP1D" placeholder="D"
+                                                min="0">
+                                        </div>
+                                    </div>
+                                    <div class="form-group" style="margin-bottom:0;">
+                                        <label>P2 K / D</label>
+                                        <div style="display:flex;gap:5px;">
+                                            <input type="number" class="form-control" id="redP2K" placeholder="K"
+                                                min="0">
+                                            <input type="number" class="form-control" id="redP2D" placeholder="D"
+                                                min="0">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- BLUE Team -->
+                        <div class="team-section blue">
+                            <div class="team-label blue">🔵 BLUE Team</div>
+
+                            <div class="form-group">
+                                <label>Player 1</label>
+                                <div class="player-input-wrap">
+                                    <input type="text" class="form-control player-field" id="blueP1"
+                                        placeholder="닉네임 검색..." autocomplete="off"
+                                        oninput="filterDropdown('blueP1','dd-blueP1','blue')"
+                                        onfocus="openDropdown('dd-blueP1')">
+                                    <div class="player-dropdown blue-side" id="dd-blueP1"></div>
+                                </div>
+                            </div>
+
+                            <div class="form-group" id="blueP2Group" style="display:none;">
+                                <label>Player 2</label>
+                                <div class="player-input-wrap">
+                                    <input type="text" class="form-control player-field" id="blueP2"
+                                        placeholder="닉네임 검색..." autocomplete="off"
+                                        oninput="filterDropdown('blueP2','dd-blueP2','blue')"
+                                        onfocus="openDropdown('dd-blueP2')">
+                                    <div class="player-dropdown blue-side" id="dd-blueP2"></div>
+                                </div>
+                            </div>
+
+                            <div id="blueKdGroup" style="display:none;margin-top:8px;">
+                                <div style="display:flex;flex-direction:column;gap:6px;">
+                                    <div class="form-group" style="margin-bottom:0;">
+                                        <label>P1 K / D</label>
+                                        <div style="display:flex;gap:5px;">
+                                            <input type="number" class="form-control" id="blueP1K" placeholder="K"
+                                                min="0">
+                                            <input type="number" class="form-control" id="blueP1D" placeholder="D"
+                                                min="0">
+                                        </div>
+                                    </div>
+                                    <div class="form-group" style="margin-bottom:0;">
+                                        <label>P2 K / D</label>
+                                        <div style="display:flex;gap:5px;">
+                                            <input type="number" class="form-control" id="blueP2K" placeholder="K"
+                                                min="0">
+                                            <input type="number" class="form-control" id="blueP2D" placeholder="D"
+                                                min="0">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="score-section">
+                        <div class="section-label">최종 스코어</div>
+                        <div class="form-row">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label style="color:var(--red-neon);">RED Score</label>
+                                <input type="number" class="form-control" id="scoreRed" placeholder="레드 점수" min="0"
+                                    required>
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label style="color:var(--blue-neon);">BLUE Score</label>
+                                <input type="number" class="form-control" id="scoreBlue" placeholder="블루 점수" min="0"
+                                    required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="action-row">
+                        <button type="button" class="btn-secondary" onclick="submitMatch(false)">💾 로컬 저장</button>
+                        <button type="button" class="btn-green" onclick="submitMatch(true)">🚀 저장 및 GitHub 배포</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ===== TAB: 매치 관리 ===== -->
+        <div class="tab-panel" id="panelHistory">
+            <div class="glass-panel">
+                <div class="panel-title">📋 Match History — 매치 관리 및 수정 기록</div>
+                <div class="match-history-controls">
+                    <div class="match-filter-chips">
+                        <div class="filter-chip active" id="filterAll" onclick="setHistoryFilter('all')">ALL</div>
+                        <div class="filter-chip" id="filter1v1" onclick="setHistoryFilter('1v1')">1V1</div>
+                        <div class="filter-chip" id="filter2v2" onclick="setHistoryFilter('2v2')">2V2</div>
+                    </div>
+                    <div style="font-size:0.72rem;color:var(--text-muted);font-weight:700;" id="historyCount">0 rounds
+                    </div>
+                </div>
+                <div class="match-table-wrapper">
+                    <table class="match-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Mode</th>
+                                <th>Map</th>
+                                <th>RED</th>
+                                <th>Score</th>
+                                <th>BLUE</th>
+                                <th>Winner</th>
+                                <th>Registrant</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody"></tbody>
+                    </table>
+                </div>
+                <div id="historyEmpty" class="empty-state" style="display:none;">
+                    <span class="icon">📭</span>
+                    등록된 매치 기록이 없습니다.
+                </div>
+                <div class="pagination">
+                    <button class="btn-page" id="prevHistPage" onclick="changePage(-1)">&#8592;</button>
+                    <span class="page-info" id="histPageInfo">1 / 1</span>
+                    <button class="btn-page" id="nextHistPage" onclick="changePage(1)">&#8594;</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== TAB: GitHub 설정 ===== -->
+        <div class="tab-panel" id="panelConfig">
+            <div class="glass-panel">
+                <div class="panel-title">⚙️ GitHub Configuration — 깃허브 연동 설정</div>
+                <div class="config-section">
+
+                    <!-- Current status -->
+                    <div class="config-status" id="configStatus">
+                        <span class="config-status-icon">🔒</span>
+                        <div>
+                            <div style="font-weight:800;margin-bottom:2px;">설정 상태 확인 중...</div>
+                            <div style="font-size:0.68rem;opacity:0.8;" id="configStatusText">암호화된 GitHub 설정을 불러오는 중입니다.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <!-- Encryption Helper -->
+                    <div class="helper-box">
+                        <div class="helper-box-title">🔐 Step 1 — GitHub 연동 정보 암호화 (최초 1회 설정)</div>
+                        <div class="notice" style="margin-bottom:12px;">
+                            아래 폼에 GitHub 정보를 입력하고 <strong>[암호문 생성]</strong>을 눌러 나온 암호문을 <code>admin.html</code> 소스코드의
+                            <code>ENCRYPTED_GIT_CONFIG</code> 변수에 붙여넣으면 모든 관리자가 추가 설정 없이 배포 가능합니다.
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:10px;">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>GitHub Username</label>
+                                    <input type="text" class="form-control" id="cfgOwner" placeholder="예: Phantom">
+                                </div>
+                                <div class="form-group">
+                                    <label>Repository Name</label>
+                                    <input type="text" class="form-control" id="cfgRepo" placeholder="예: Pages">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Branch</label>
+                                    <input type="text" class="form-control" id="cfgBranch" placeholder="예: main"
+                                        value="main">
+                                </div>
+                                <div class="form-group">
+                                    <label>File Path Prefix</label>
+                                    <input type="text" class="form-control" id="cfgPath"
+                                        placeholder="예: RedlinerLeaderboard" value="RedlinerLeaderboard">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>GitHub Fine-grained Token (contents: write)</label>
+                                <input type="password" class="form-control" id="cfgToken"
+                                    placeholder="github_pat_... 또는 ghp_...">
+                            </div>
+                            <button class="btn-primary" onclick="generateEncryptedConfig()" style="height:42px;">🔐 암호문 생성</button>
+                            <div>
+                                <div class="encrypted-output" id="encryptedOutput">암호문이 여기에 생성됩니다...</div>
+                                <button class="copy-btn" onclick="copyEncryptedOutput()">📋 복사</button>
+                            </div>
+                            <div class="notice">
+                                <strong>📌 적용 방법:</strong> 위 암호문을 복사한 뒤, <code>admin.html</code> 소스코드에서<br>
+                                <code>const ENCRYPTED_GIT_CONFIG = '';</code> 부분의 따옴표 안에 붙여넣고 저장하세요.<br><br>
+                                <strong>🛡️ 보안 팁:</strong> GitHub 토큰은 <strong>Fine-grained Personal Access
+                                    Token</strong>으로 생성하고, <strong>이 저장소에만 Contents: Write 권한만</strong> 부여하세요.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <!-- Direct localStorage override (fallback) -->
+                    <div class="helper-box">
+                        <div class="helper-box-title">🔧 Step 2 (대안) — 이 브라우저에만 임시 토큰 저장</div>
+                        <div class="notice" style="margin-bottom:12px;">
+                            암호문 내장이 완료되기 전까지 <strong>이 브라우저에만</strong> GitHub 토큰을 임시로 저장해 사용할 수 있습니다. 브라우저
+                            <code>localStorage</code>에만 저장되며 다른 사람에게는 공유되지 않습니다.
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:10px;">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>GitHub Username</label>
+                                    <input type="text" class="form-control" id="lsOwner" placeholder="예: Phantom">
+                                </div>
+                                <div class="form-group">
+                                    <label>Repository Name</label>
+                                    <input type="text" class="form-control" id="lsRepo" placeholder="예: Pages">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Branch</label>
+                                    <input type="text" class="form-control" id="lsBranch" placeholder="main"
+                                        value="main">
+                                </div>
+                                <div class="form-group">
+                                    <label>File Path Prefix</label>
+                                    <input type="text" class="form-control" id="lsPath"
+                                        placeholder="RedlinerLeaderboard" value="RedlinerLeaderboard">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>GitHub Token</label>
+                                <input type="password" class="form-control" id="lsToken"
+                                    placeholder="ghp_ 또는 github_pat_">
+                            </div>
+                            <button class="btn-primary" onclick="saveLocalStorageConfig()" style="height:42px;">💾 이
+                                브라우저에 임시 저장</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /adminDashboard -->
+
+    <script>
+        // ================================================================
+        // CONFIGURATION
+        // ================================================================
+
+        // 총관리자: 암호화 생성 후 아래 변수에 붙여넣으세요.
+        // 생성 방법: GitHub 설정 탭 → Step 1 → 암호문 생성 → 복사 후 아래에 붙여넣기
+        const ENCRYPTED_GIT_CONFIG = 'c5GsjjU1G5hG4GDvokKEDOdADwafpys86zgb3nT3QkO4kCVcp7qFwfk6A+5H2vAe3OnhcB5YSlF3oMgiuPJyc0vsbD1kN57u4BI+ioaur69vZMwUS2q3aXTvp24Rl9HybL3WEQN9svD1Rrz30YrfOWBRTNZ2hDhj/R2q7xYGnqWPeecH1cREuyLcNp57ju7ou783B2z6ul8UpOA+6OZ6TiZYp4MXY4JvJ5GdidDyiFGor0RP7UQxQwXKO6TuzYT5ajoGMZgyPaZ9jkzXvCajWfjU6yngs71Ngmx5iN4n+co=';
+
+        // Admin credentials hash
+        const ADMIN_HASH = '633ab1efabb93b98b09dd338b6d800cbe26e1b8d1b8f9ec7876d20024eb184e3';
+
+        const MAPS_1V1 = ['highrise', 'kabuki', 'arc'];
+        const MAPS_2V2 = ['metro'];
+
+        // ================================================================
+        // STATE
+        // ================================================================
+        let csvMatches = [];
+        let playerStats = [];
+        let historyFilter = 'all';
+        let historyPage = 1;
+        const HISTORY_PER_PAGE = 15;
+        let decryptedGitConfig = null; // cached after first successful decrypt
+        let currentAdminPassword = null; // cached during session to avoid hardcoding secrets
+
+        // ================================================================
+        // CRYPTO UTILITIES
+        // ================================================================
+        async function sha256(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        async function deriveKey(password, salt) {
+            const enc = new TextEncoder();
+            const keyMaterial = await crypto.subtle.importKey(
+                'raw', enc.encode(password), { name: 'PBKDF2' }, false, ['deriveKey']
+            );
+            return await crypto.subtle.deriveKey(
+                { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
+                keyMaterial,
+                { name: 'AES-GCM', length: 256 },
+                false,
+                ['encrypt', 'decrypt']
+            );
+        }
+
+        async function encryptData(plaintext, password) {
+            const salt = crypto.getRandomValues(new Uint8Array(16));
+            const iv = crypto.getRandomValues(new Uint8Array(12));
+            const key = await deriveKey(password, salt);
+            const enc = new TextEncoder();
+            const ciphertext = await crypto.subtle.encrypt(
+                { name: 'AES-GCM', iv },
+                key,
+                enc.encode(plaintext)
+            );
+            const combined = new Uint8Array(16 + 12 + ciphertext.byteLength);
+            combined.set(salt, 0);
+            combined.set(iv, 16);
+            combined.set(new Uint8Array(ciphertext), 28);
+            let binary = '';
+            combined.forEach(b => binary += String.fromCharCode(b));
+            return btoa(binary);
+        }
+
+        async function decryptData(encryptedBase64, password) {
+            try {
+                const binary = atob(encryptedBase64);
+                const bytes = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+                const salt = bytes.slice(0, 16);
+                const iv = bytes.slice(16, 28);
+                const ciphertext = bytes.slice(28);
+                const key = await deriveKey(password, salt);
+                const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ciphertext);
+                return JSON.parse(new TextDecoder().decode(decrypted));
+            } catch {
+                return null;
+            }
+        }
+
+        // ================================================================
+        // LOGIN / AUTH
+        // ================================================================
+        async function handleLogin() {
+            const id = document.getElementById('loginId').value.trim();
+            const pw = document.getElementById('loginPw').value;
+            const errEl = document.getElementById('loginError');
+
+            if (id !== 'asdf12312') {
+                errEl.style.display = 'block';
+                return;
+            }
+
+            const hash = await sha256(pw);
+            if (hash !== ADMIN_HASH) {
+                errEl.style.display = 'block';
+                return;
+            }
+
+            // Try to decrypt embedded config right away
+            if (ENCRYPTED_GIT_CONFIG) {
+                decryptedGitConfig = await decryptData(ENCRYPTED_GIT_CONFIG, pw);
+            }
+
+            currentAdminPassword = pw; // Cache password in-memory to use for config encryption
+            showDashboard();
+        }
+
+        function handleLogout() {
+            decryptedGitConfig = null;
+            currentAdminPassword = null; // Clear cached password
+            document.getElementById('adminDashboard').style.display = 'none';
+            document.getElementById('loginGate').style.display = 'flex';
+            document.getElementById('loginForm').reset();
+        }
+
+        function showDashboard() {
+            document.getElementById('loginGate').style.display = 'none';
+            document.getElementById('adminDashboard').style.display = 'flex';
+            loadData();
+            onModeChange();
+            updateConfigStatus();
+            populateLocalStorageFields();
+        }
+
+
+
+        // ================================================================
+        // DATA LOADING & PARSING
+        // ================================================================
+        async function loadData() {
+            try {
+                const [matchRes] = await Promise.all([
+                    fetch(`match.csv?t=${Date.now()}`)
+                ]);
+                if (matchRes.ok) {
+                    parseMatchCSV(await matchRes.text());
+                    const results = recalculateAll(csvMatches);
+                    playerStats = results.leaderboardList;
+                    localStorage.setItem('redliner_matches', JSON.stringify(csvMatches));
+                    localStorage.setItem('redliner_leaderboard', JSON.stringify(playerStats));
+                } else {
+                    loadFromLocalStorage();
+                }
+            } catch {
+                loadFromLocalStorage();
+            }
+            renderHistory();
+        }
+
+        function loadFromLocalStorage() {
+            const mc = localStorage.getItem('redliner_matches');
+            const lb = localStorage.getItem('redliner_leaderboard');
+            if (mc) csvMatches = JSON.parse(mc);
+            if (lb) playerStats = JSON.parse(lb);
+        }
+
+        function parseMatchCSV(csvText) {
+            const rows = csvText.trim().split('\n');
+            if (rows.length <= 1) return;
+            const headers = rows[0].split(',').map(h => h.trim());
+            const temp = [];
+            for (let i = 1; i < rows.length; i++) {
+                if (!rows[i].trim()) continue;
+                const cols = rows[i].split(',').map(v => v.trim());
+                const obj = {};
+                headers.forEach((h, idx) => { obj[h] = cols[idx]; });
+                temp.push(obj);
+            }
+            csvMatches = temp;
+        }
+
+        // ================================================================
+        // CUSTOM PLAYER DROPDOWN AUTOCOMPLETE
+        // ================================================================
+        const PLAYER_DD_IDS = ['dd-redP1', 'dd-redP2', 'dd-blueP1', 'dd-blueP2'];
+
+        function buildDropdownItems(ddId, filter, side) {
+            const dd = document.getElementById(ddId);
+            if (!dd) return;
+            dd.innerHTML = '';
+            const q = (filter || '').toLowerCase();
+            const filtered = playerStats
+                .filter(p => !q || p.Nickname.toLowerCase().includes(q))
+                .sort((a, b) => b.EloCombined - a.EloCombined)
+                .slice(0, 20);
+
+            if (filtered.length === 0) {
+                const div = document.createElement('div');
+                div.className = 'player-dropdown-item';
+                div.style.color = 'var(--text-muted)';
+                div.textContent = '검색 결과 없음';
+                dd.appendChild(div);
+            } else {
+                filtered.forEach(p => {
+                    const div = document.createElement('div');
+                    div.className = `player-dropdown-item${side === 'blue' ? ' blue-item' : ''}`;
+                    const inputId = ddId.replace('dd-', '');
+                    div.innerHTML = `<span class="dd-name">${p.Nickname}</span><span class="dd-elo">${p.EloCombined} ELO</span>`;
+                    div.addEventListener('mousedown', (e) => {
+                        e.preventDefault();
+                        document.getElementById(inputId).value = p.Nickname;
+                        closeAllDropdowns();
+                    });
+                    dd.appendChild(div);
+                });
+            }
+        }
+
+        function openDropdown(ddId) {
+            closeAllDropdowns();
+            const inputId = ddId.replace('dd-', '');
+            const inp = document.getElementById(inputId);
+            const side = ddId.includes('blue') ? 'blue' : 'red';
+            buildDropdownItems(ddId, inp ? inp.value : '', side);
+            const dd = document.getElementById(ddId);
+            if (dd) dd.style.display = 'block';
+        }
+
+        function filterDropdown(inputId, ddId, side) {
+            const inp = document.getElementById(inputId);
+            buildDropdownItems(ddId, inp ? inp.value : '', side);
+            const dd = document.getElementById(ddId);
+            if (dd) dd.style.display = 'block';
+        }
+
+        function closeAllDropdowns() {
+            PLAYER_DD_IDS.forEach(id => {
+                const dd = document.getElementById(id);
+                if (dd) dd.style.display = 'none';
+            });
+        }
+
+        // Close dropdowns on outside click
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.player-input-wrap')) {
+                closeAllDropdowns();
+            }
+        });
+
+        // ================================================================
+        // FORM — MATCH ENTRY
+        // ================================================================
+        function onModeChange() {
+            const mode = document.getElementById('formMode').value;
+            const mapSel = document.getElementById('formMap');
+            mapSel.innerHTML = '';
+            const maps = mode === '1v1' ? MAPS_1V1 : MAPS_2V2;
+            maps.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m;
+                opt.textContent = m.toUpperCase();
+                mapSel.appendChild(opt);
+            });
+
+            const is2v2 = mode === '2v2';
+            document.getElementById('redP2Group').style.display = is2v2 ? 'block' : 'none';
+            document.getElementById('blueP2Group').style.display = is2v2 ? 'block' : 'none';
+            document.getElementById('redKdGroup').style.display = is2v2 ? 'block' : 'none';
+            document.getElementById('blueKdGroup').style.display = is2v2 ? 'block' : 'none';
+        }
+
+        function validateMatchForm() {
+            const mode = document.getElementById('formMode').value;
+            const r1 = document.getElementById('redP1').value.trim();
+            const b1 = document.getElementById('blueP1').value.trim();
+            const sr = parseInt(document.getElementById('scoreRed').value);
+            const sb = parseInt(document.getElementById('scoreBlue').value);
+
+            if (!r1 || !b1) { showToast('플레이어 닉네임을 입력하세요.', 'error'); return false; }
+            if (isNaN(sr) || isNaN(sb)) { showToast('스코어를 입력하세요.', 'error'); return false; }
+
+            if (mode === '2v2') {
+                const r2 = document.getElementById('redP2').value.trim();
+                const b2 = document.getElementById('blueP2').value.trim();
+                if (!r2 || !b2) { showToast('2v2 모드는 각 팀 2명의 닉네임이 필요합니다.', 'error'); return false; }
+            }
+
+            if (mode === '1v1') {
+                if (sr !== 5 && sb !== 5) { showToast('1v1 듀얼은 5선승제입니다. 한 팀의 점수가 5점이어야 합니다.', 'error'); return false; }
+            } else {
+                if (sr !== 4 && sb !== 4) { showToast('2v2 윙맨은 4선승제입니다. 한 팀의 점수가 4점이어야 합니다.', 'error'); return false; }
+            }
+
+            if (sr === sb) { showToast('무승부는 허용되지 않습니다.', 'error'); return false; }
+            return true;
+        }
+
+        async function submitMatch(triggerPush) {
+            if (!validateMatchForm()) return;
+
+            const mode = document.getElementById('formMode').value;
+            const map = document.getElementById('formMap').value;
+            const sr = parseInt(document.getElementById('scoreRed').value);
+            const sb = parseInt(document.getElementById('scoreBlue').value);
+
+            const redTeam = [document.getElementById('redP1').value.trim()];
+            const blueTeam = [document.getElementById('blueP1').value.trim()];
+
+            if (mode === '2v2') {
+                redTeam.push(document.getElementById('redP2').value.trim());
+                blueTeam.push(document.getElementById('blueP2').value.trim());
+            }
+
+            const rounds = getRoundList();
+            const nextRound = rounds.length > 0 ? Math.max(...rounds) + 1 : 1;
+            const winningTeam = sr > sb ? 'RED' : 'BLUE';
+            const scoreStr = `${sr}:${sb}`;
+
+            const playerKd = {};
+            if (mode === '1v1') {
+                playerKd[redTeam[0]] = { k: sr, d: sb };
+                playerKd[blueTeam[0]] = { k: sb, d: sr };
+            } else {
+                const r1k = parseInt(document.getElementById('redP1K').value);
+                const r1d = parseInt(document.getElementById('redP1D').value);
+                const r2k = parseInt(document.getElementById('redP2K').value);
+                const r2d = parseInt(document.getElementById('redP2D').value);
+                const b1k = parseInt(document.getElementById('blueP1K').value);
+                const b1d = parseInt(document.getElementById('blueP1D').value);
+                const b2k = parseInt(document.getElementById('blueP2K').value);
+                const b2d = parseInt(document.getElementById('blueP2D').value);
+
+                if ([r1k, r1d, r2k, r2d, b1k, b1d, b2k, b2d].some(isNaN)) {
+                    const rb = Math.floor(sr / 2), bb = Math.floor(sb / 2);
+                    playerKd[redTeam[0]] = { k: rb + (sr % 2), d: Math.floor(sb / 2) };
+                    playerKd[redTeam[1]] = { k: rb, d: Math.floor(sb / 2) + (sb % 2) };
+                    playerKd[blueTeam[0]] = { k: bb + (sb % 2), d: Math.floor(sr / 2) };
+                    playerKd[blueTeam[1]] = { k: bb, d: Math.floor(sr / 2) + (sr % 2) };
+                } else {
+                    playerKd[redTeam[0]] = { k: r1k, d: r1d };
+                    playerKd[redTeam[1]] = { k: r2k, d: r2d };
+                    playerKd[blueTeam[0]] = { k: b1k, d: b1d };
+                    playerKd[blueTeam[1]] = { k: b2k, d: b2d };
+                }
+            }
+
+            redTeam.forEach(p => {
+                csvMatches.push({
+                    Round: nextRound, Mode: mode, Map: map, Nickname: p,
+                    Kills: playerKd[p].k, Deaths: playerKd[p].d,
+                    Team: 'RED', 'Winning Team': winningTeam, Score: scoreStr, Registrant: 'admin'
+                });
+            });
+            blueTeam.forEach(p => {
+                csvMatches.push({
+                    Round: nextRound, Mode: mode, Map: map, Nickname: p,
+                    Kills: playerKd[p].k, Deaths: playerKd[p].d,
+                    Team: 'BLUE', 'Winning Team': winningTeam, Score: scoreStr, Registrant: 'admin'
+                });
+            });
+
+            const results = recalculateAll(csvMatches);
+            playerStats = results.leaderboardList;
+            localStorage.setItem('redliner_matches', JSON.stringify(csvMatches));
+            localStorage.setItem('redliner_leaderboard', JSON.stringify(playerStats));
+
+            document.getElementById('matchForm').reset();
+            onModeChange();
+            renderHistory();
+
+            if (triggerPush) {
+                await pushToGitHub(results.aftercalcHistory);
+            } else {
+                showToast('전적이 로컬에 저장되었습니다.', 'info');
+            }
+        }
+
+        // ================================================================
+        // MATCH HISTORY RENDERING
+        // ================================================================
+        function setHistoryFilter(f) {
+            historyFilter = f;
+            historyPage = 1;
+            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            document.getElementById(`filter${f === 'all' ? 'All' : f}`).classList.add('active');
+            renderHistory();
+        }
+
+        function getRoundList() {
+            const s = new Set();
+            csvMatches.forEach(m => s.add(parseInt(m.Round)));
+            return Array.from(s).sort((a, b) => b - a);
+        }
+
+        function getRoundData(roundId) {
+            return csvMatches.filter(m => parseInt(m.Round) === roundId);
+        }
+
+        function renderHistory() {
+            const tbody = document.getElementById('historyTableBody');
+            const emptyEl = document.getElementById('historyEmpty');
+            tbody.innerHTML = '';
+
+            let rounds = getRoundList();
+            if (historyFilter !== 'all') {
+                rounds = rounds.filter(r => {
+                    const first = csvMatches.find(m => parseInt(m.Round) === r);
+                    return first && first.Mode === historyFilter;
+                });
+            }
+
+            document.getElementById('historyCount').innerText = `${rounds.length} rounds`;
+
+            if (rounds.length === 0) {
+                emptyEl.style.display = 'block';
+                document.getElementById('histPageInfo').innerText = '1 / 1';
+                return;
+            }
+            emptyEl.style.display = 'none';
+
+            const totalPages = Math.ceil(rounds.length / HISTORY_PER_PAGE) || 1;
+            if (historyPage > totalPages) historyPage = totalPages;
+            document.getElementById('histPageInfo').innerText = `${historyPage} / ${totalPages}`;
+            document.getElementById('prevHistPage').disabled = historyPage === 1;
+            document.getElementById('nextHistPage').disabled = historyPage === totalPages;
+
+            const slice = rounds.slice((historyPage - 1) * HISTORY_PER_PAGE, historyPage * HISTORY_PER_PAGE);
+
+            slice.forEach(r => {
+                const rMatches = getRoundData(r);
+                const first = rMatches[0];
+                const red = rMatches.filter(m => m.Team === 'RED');
+                const blue = rMatches.filter(m => m.Team === 'BLUE');
+                const winner = first['Winning Team'] || first.WinningTeam;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                <td style="font-family:'Orbitron',sans-serif;font-weight:800;color:var(--text-muted);font-size:0.7rem;">#${r}</td>
+                <td><span class="badge badge-mode">${first.Mode}</span></td>
+                <td style="font-weight:700;text-transform:uppercase;">${first.Map}</td>
+                <td class="text-red" style="color:var(--red-neon);font-weight:700;">${red.map(m => m.Nickname).join(', ')}</td>
+                <td style="font-family:'Outfit',sans-serif;font-weight:800;">${first.Score}</td>
+                <td style="color:var(--blue-neon);font-weight:700;">${blue.map(m => m.Nickname).join(', ')}</td>
+                <td><span class="badge ${winner === 'RED' ? 'badge-red' : 'badge-blue'}">${winner} WIN</span></td>
+                <td style="color:var(--text-muted);font-size:0.72rem;">${first.Registrant || '-'}</td>
+                <td><button class="btn-delete" onclick="deleteRound(${r})">삭제</button></td>
+            `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function changePage(delta) {
+            historyPage += delta;
+            renderHistory();
+        }
+
+        async function deleteRound(roundId) {
+            if (!confirm(`라운드 #${roundId}을 정말 삭제하시겠습니까?\n삭제 후 복구할 수 없습니다.`)) return;
+
+            csvMatches = csvMatches.filter(m => parseInt(m.Round) !== roundId);
+            csvMatches.forEach(m => {
+                const r = parseInt(m.Round);
+                if (r > roundId) m.Round = r - 1;
+            });
+
+            const results = recalculateAll(csvMatches);
+            playerStats = results.leaderboardList;
+            localStorage.setItem('redliner_matches', JSON.stringify(csvMatches));
+            localStorage.setItem('redliner_leaderboard', JSON.stringify(playerStats));
+            renderHistory();
+
+            const gitCfg = await resolveGitConfig();
+            if (gitCfg) {
+                await pushToGitHub(results.aftercalcHistory);
+            } else {
+                showToast(`라운드 #${roundId} 삭제 완료. GitHub 설정이 없어 로컬에만 반영되었습니다.`, 'info');
+            }
+        }
+
+        // ================================================================
+        // ELO CALCULATION (ported from index.html)
+        // ================================================================
+        function recalculateAll(matches) {
+            const localStats = {};
+            const sorted = [...matches].sort((a, b) => parseInt(a.Round) - parseInt(b.Round));
+            const groups = {};
+            sorted.forEach(m => {
+                const r = parseInt(m.Round);
+                if (!groups[r]) groups[r] = [];
+                groups[r].push(m);
+            });
+            const rounds = Object.keys(groups).map(Number).sort((a, b) => a - b);
+            const aftercalcHistory = [];
+
+            rounds.forEach(rnd => {
+                const rm = groups[rnd];
+                const mode = rm[0].Mode;
+                const wt = rm[0]['Winning Team'] || rm[0].WinningTeam;
+                const redTeam = [], blueTeam = [];
+
+                rm.forEach(m => {
+                    const nick = m.Nickname;
+                    if (!localStats[nick]) {
+                        localStats[nick] = {
+                            Nickname: nick,
+                            Elo1v1: 1500, Kills1v1: 0, Deaths1v1: 0, Wins1v1: 0, Losses1v1: 0, Matches1v1: 0, Tier1v1: 'Unranked',
+                            Elo2v2: 1500, Kills2v2: 0, Deaths2v2: 0, Wins2v2: 0, Losses2v2: 0, Matches2v2: 0, Tier2v2: 'Unranked',
+                            EloCombined: 1500
+                        };
+                    }
+                    const pd = localStats[nick];
+                    const preElo = mode === '1v1' ? pd.Elo1v1 : pd.Elo2v2;
+                    const info = { nick, kills: parseInt(m.Kills) || 0, deaths: parseInt(m.Deaths) || 0, team: m.Team, preElo };
+                    if (m.Team === 'RED') redTeam.push(info); else blueTeam.push(info);
+                });
+
+                const redAvg = redTeam.length > 0 ? redTeam.reduce((s, p) => s + p.preElo, 0) / redTeam.length : 1500;
+                const blueAvg = blueTeam.length > 0 ? blueTeam.reduce((s, p) => s + p.preElo, 0) / blueTeam.length : 1500;
+
+                const processTeam = (team, oppAvg, teamSide) => {
+                    team.forEach(p => {
+                        const pd = localStats[p.nick];
+                        const result = wt === teamSide ? 1 : 0;
+                        if (mode === '1v1') {
+                            const newElo = calcElo(pd.Elo1v1, oppAvg, result, p.kills, p.deaths, pd.Matches1v1, pd.Wins1v1);
+                            pd.Elo1v1 = newElo; pd.Kills1v1 += p.kills; pd.Deaths1v1 += p.deaths;
+                            pd.Wins1v1 += result; pd.Losses1v1 += (1 - result); pd.Matches1v1 += 1;
+                            pd.Tier1v1 = calcTier(newElo);
+                            aftercalcHistory.push({ Round: rnd, Nickname: p.nick, Mode: '1v1', EloAfterRound: newElo, KdrAfterRound: parseFloat((pd.Kills1v1 / Math.max(1, pd.Deaths1v1)).toFixed(2)) });
+                        } else {
+                            const newElo = calcElo(pd.Elo2v2, oppAvg, result, p.kills, p.deaths, pd.Matches2v2, pd.Wins2v2);
+                            pd.Elo2v2 = newElo; pd.Kills2v2 += p.kills; pd.Deaths2v2 += p.deaths;
+                            pd.Wins2v2 += result; pd.Losses2v2 += (1 - result); pd.Matches2v2 += 1;
+                            pd.Tier2v2 = calcTier(newElo);
+                            aftercalcHistory.push({ Round: rnd, Nickname: p.nick, Mode: '2v2', EloAfterRound: newElo, KdrAfterRound: parseFloat((pd.Kills2v2 / Math.max(1, pd.Deaths2v2)).toFixed(2)) });
+                        }
+                        pd.EloCombined = Math.round((pd.Elo1v1 + pd.Elo2v2) / 2);
+                    });
+                };
+
+                processTeam(redTeam, blueAvg, 'RED');
+                processTeam(blueTeam, redAvg, 'BLUE');
+            });
+
+            return { leaderboardList: Object.values(localStats), aftercalcHistory };
+        }
+
+        function calcElo(playerElo, oppAvg, result, kills, deaths, totalMatches, wins) {
+            const kNormal = 30, killW = 0.2, deathW = 0.07, initialK = 50, threshold = 5;
+            let baseK = totalMatches <= threshold ? initialK : Math.max(kNormal / 2, kNormal / (1 + (totalMatches - threshold) / 20));
+            const expected = 1 / (1 + Math.pow(10, (oppAvg - playerElo) / 200));
+            const factor = result === 1 ? 1 : -1;
+            let perf = (kills * killW) - (deaths * deathW);
+            if (result === 0) perf *= 0.5;
+            return Math.max(0, Math.round(playerElo + baseK * factor * (1.5 - expected) + perf));
+        }
+
+        function calcTier(elo) {
+            const tiers = ['Copper 3', 'Copper 2', 'Copper 1', 'Bronze 3', 'Bronze 2', 'Bronze 1', 'Silver 3', 'Silver 2', 'Silver 1', 'Gold 3', 'Gold 2', 'Gold 1', 'Platinum 3', 'Platinum 2', 'Platinum 1', 'Diamond 3', 'Diamond 2', 'Diamond 1', 'Champion'];
+            let idx = Math.floor((elo - 1500) / 100) + 9;
+            idx = Math.max(0, Math.min(idx, tiers.length - 1));
+            return tiers[idx];
+        }
+
+        // ================================================================
+        // GITHUB CONFIG
+        // ================================================================
+        async function resolveGitConfig() {
+            // 1. Check decrypted embedded config
+            if (decryptedGitConfig) return decryptedGitConfig;
+
+            // 2. Try embedded config with stored password
+            if (ENCRYPTED_GIT_CONFIG) {
+                const pw = sessionStorage.getItem('rl_admin_pw');
+                if (pw) {
+                    const cfg = await decryptData(ENCRYPTED_GIT_CONFIG, pw);
+                    if (cfg) { decryptedGitConfig = cfg; return cfg; }
+                }
+            }
+
+            // 3. Fallback to localStorage (manual override)
+            const owner = localStorage.getItem('redliner_git_owner');
+            const repo = localStorage.getItem('redliner_git_repo');
+            const token = localStorage.getItem('redliner_git_token');
+            const branch = localStorage.getItem('redliner_git_branch') || 'main';
+            const path = localStorage.getItem('redliner_git_path') || 'RedlinerLeaderboard';
+            if (owner && repo && token) return { owner, repo, token, branch, path };
+
+            return null;
+        }
+
+        function updateConfigStatus() {
+            const statusEl = document.getElementById('configStatus');
+            const textEl = document.getElementById('configStatusText');
+            if (ENCRYPTED_GIT_CONFIG) {
+                statusEl.className = 'config-status unlocked';
+                statusEl.querySelector('.config-status-icon').textContent = '✅';
+                statusEl.querySelector('div > div:first-child').textContent = '암호화된 설정 내장됨';
+                textEl.textContent = '총관리자가 암호화된 GitHub 연동 정보를 내장했습니다. 자동 배포 준비 완료.';
+            } else {
+                statusEl.className = 'config-status locked';
+                statusEl.querySelector('.config-status-icon').textContent = '⚠️';
+                statusEl.querySelector('div > div:first-child').textContent = '암호화 설정 미내장';
+                textEl.textContent = 'Step 1에서 암호문을 생성하여 소스코드에 적용하거나, Step 2에서 브라우저에 임시 저장하세요.';
+            }
+        }
+
+        async function generateEncryptedConfig() {
+            const owner = document.getElementById('cfgOwner').value.trim();
+            const repo = document.getElementById('cfgRepo').value.trim();
+            const branch = document.getElementById('cfgBranch').value.trim() || 'main';
+            const path = document.getElementById('cfgPath').value.trim() || 'RedlinerLeaderboard';
+            const token = document.getElementById('cfgToken').value.trim();
+
+            if (!owner || !repo || !token) {
+                showToast('GitHub Username, Repository, Token을 모두 입력하세요.', 'error');
+                return;
+            }
+
+            showSpinner(true);
+            const plaintext = JSON.stringify({ owner, repo, branch, path, token });
+            
+            const password = currentAdminPassword || prompt('암호화를 진행할 관리자 비밀번호를 입력하세요:');
+            if (!password) {
+                showSpinner(false);
+                return;
+            }
+            
+            const encrypted = await encryptData(plaintext, password);
+            showSpinner(false);
+
+            document.getElementById('encryptedOutput').textContent = encrypted;
+            showToast('암호문이 생성되었습니다! 복사 후 소스코드에 붙여넣으세요.', 'success');
+        }
+
+        function copyEncryptedOutput() {
+            const text = document.getElementById('encryptedOutput').textContent;
+            if (text === '암호문이 여기에 생성됩니다...') return;
+            navigator.clipboard.writeText(text).then(() => showToast('클립보드에 복사되었습니다.', 'success'));
+        }
+
+        function saveLocalStorageConfig() {
+            const owner = document.getElementById('lsOwner').value.trim();
+            const repo = document.getElementById('lsRepo').value.trim();
+            const branch = document.getElementById('lsBranch').value.trim() || 'main';
+            const path = document.getElementById('lsPath').value.trim() || 'RedlinerLeaderboard';
+            const token = document.getElementById('lsToken').value.trim();
+
+            if (!owner || !repo || !token) {
+                showToast('모든 필드를 입력하세요.', 'error');
+                return;
+            }
+
+            localStorage.setItem('redliner_git_owner', owner);
+            localStorage.setItem('redliner_git_repo', repo);
+            localStorage.setItem('redliner_git_branch', branch);
+            localStorage.setItem('redliner_git_path', path);
+            localStorage.setItem('redliner_git_token', token);
+            showToast('이 브라우저에 GitHub 설정이 저장되었습니다.', 'success');
+        }
+
+        function populateLocalStorageFields() {
+            document.getElementById('lsOwner').value = localStorage.getItem('redliner_git_owner') || '';
+            document.getElementById('lsRepo').value = localStorage.getItem('redliner_git_repo') || '';
+            document.getElementById('lsBranch').value = localStorage.getItem('redliner_git_branch') || 'main';
+            document.getElementById('lsPath').value = localStorage.getItem('redliner_git_path') || 'RedlinerLeaderboard';
+        }
+
+        // ================================================================
+        // GITHUB API PUSH
+        // ================================================================
+        async function pushToGitHub(aftercalcData) {
+            const cfg = await resolveGitConfig();
+            if (!cfg) {
+                showToast('GitHub 설정이 없습니다. GitHub 설정 탭에서 설정을 완료하세요.', 'error');
+                return;
+            }
+
+            showSpinner(true, 'PUSHING TO GITHUB...');
+
+            const { owner, repo, branch, path, token } = cfg;
+            const lboardHeader = 'Nickname,Elo1v1,Kills1v1,Deaths1v1,Wins1v1,Losses1v1,Matches1v1,Tier1v1,Elo2v2,Kills2v2,Deaths2v2,Wins2v2,Losses2v2,Matches2v2,Tier2v2,EloCombined\n';
+            const lboardContent = lboardHeader + playerStats.map(p =>
+                `${p.Nickname},${p.Elo1v1},${p.Kills1v1},${p.Deaths1v1},${p.Wins1v1},${p.Losses1v1},${p.Matches1v1},${p.Tier1v1},${p.Elo2v2},${p.Kills2v2},${p.Deaths2v2},${p.Wins2v2},${p.Losses2v2},${p.Matches2v2},${p.Tier2v2},${p.EloCombined}`
+            ).join('\n');
+
+            const matchHeader = 'Round,Mode,Map,Nickname,Kills,Deaths,Team,Winning Team,Score,Registrant\n';
+            const matchContent = matchHeader + [...csvMatches].sort((a, b) => parseInt(a.Round) - parseInt(b.Round)).map(m =>
+                `${m.Round},${m.Mode},${m.Map},${m.Nickname},${m.Kills},${m.Deaths},${m.Team},${m['Winning Team'] || m.WinningTeam},${m.Score},${m.Registrant}`
+            ).join('\n');
+
+            const aftercalcHeader = 'Round,Nickname,Mode,EloAfterRound,KdrAfterRound\n';
+            const aftercalcContent = aftercalcHeader + aftercalcData.map(a =>
+                `${a.Round},${a.Nickname},${a.Mode},${a.EloAfterRound},${a.KdrAfterRound}`
+            ).join('\n');
+
+            const files = [
+                { path: `${path}/lboard.csv`, content: lboardContent },
+                { path: `${path}/match.csv`, content: matchContent },
+                { path: `${path}/aftercalc.csv`, content: aftercalcContent }
+            ];
+
+            try {
+                await pushFilesToGitHub(token, owner, repo, branch, files);
+                showToast('✅ GitHub에 성공적으로 배포되었습니다!', 'success');
+            } catch (err) {
+                console.error(err);
+                showToast('❌ GitHub 배포 실패: ' + err.message, 'error');
+            } finally {
+                showSpinner(false);
+            }
+        }
+
+        async function pushFilesToGitHub(token, owner, repo, branch, files) {
+            for (const file of files) {
+                const url = `https://api.github.com/repos/${owner}/${repo}/contents/${file.path}`;
+                let sha = '';
+                try {
+                    const getRes = await fetch(url, { headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' } });
+                    if (getRes.status === 200) { const d = await getRes.json(); sha = d.sha; }
+                } catch { }
+
+                const utf8 = new TextEncoder().encode(file.content);
+                let bin = ''; utf8.forEach(b => bin += String.fromCharCode(b));
+                const b64 = btoa(bin);
+                const body = { message: `REDLINER 전적 업데이트 (${file.path.split('/').pop()})`, content: b64, branch };
+                if (sha) body.sha = sha;
+
+                const putRes = await fetch(url, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                if (!putRes.ok) {
+                    const msg = await putRes.text();
+                    throw new Error(`Failed to push ${file.path}: ${msg}`);
+                }
+            }
+        }
+
+        // ================================================================
+        // TAB SWITCHING
+        // ================================================================
+        function switchTab(tab) {
+            document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById(`tabBtn${tab.charAt(0).toUpperCase() + tab.slice(1)}`).classList.add('active');
+            document.getElementById(`panel${tab.charAt(0).toUpperCase() + tab.slice(1)}`).classList.add('active');
+            if (tab === 'history') renderHistory();
+        }
+
+        // ================================================================
+        // UI HELPERS
+        // ================================================================
+        function showSpinner(show, text = 'PROCESSING...') {
+            const el = document.getElementById('pageSpinner');
+            el.querySelector('.spinner-text').textContent = text;
+            el.style.display = show ? 'flex' : 'none';
+        }
+
+        let toastTimer;
+        function showToast(message, type = 'info') {
+            const el = document.getElementById('toast');
+            el.textContent = message;
+            el.className = `${type}`;
+            el.style.display = 'block';
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => { el.style.display = 'none'; }, 3500);
+        }
+
+        // ================================================================
+        // INIT
+        // ================================================================
+        window.addEventListener('DOMContentLoaded', () => {
+            // 세션 자동 로그인 없음 — 매번 아이디/비밀번호 입력 필요
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,1773 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>REDLINER Scrim Leaderboard</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Orbitron:wght@700;900&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #09090b;
+            --bg-card: rgba(18, 18, 22, 0.7);
+            --border-neon: rgba(255, 0, 60, 0.15);
+            --border-neon-hover: rgba(255, 0, 60, 0.45);
+            --red-neon: #ff003c;
+            --blue-neon: #00d2ff;
+            --text-primary: #f8fafc;
+            --text-muted: #94a3b8;
+            --gold: #fbbf24;
+            --shadow-red: rgba(255, 0, 60, 0.12);
+            --shadow-red-hover: rgba(255, 0, 60, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            background-image: 
+                radial-gradient(at 10% 20%, rgba(255, 0, 60, 0.05) 0px, transparent 50%),
+                radial-gradient(at 90% 80%, rgba(0, 210, 255, 0.04) 0px, transparent 50%);
+            background-size: cover;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+
+        /* App Container */
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            height: calc(100vh - 32px);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 10;
+        }
+
+        /* Glassmorphism Panel with Red Neon Undertone */
+        .glass-panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-neon);
+            box-shadow: 0 8px 32px 0 var(--shadow-red);
+            border-radius: 16px;
+            padding: 14px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-panel:hover {
+            border-color: var(--border-neon-hover);
+            box-shadow: 0 10px 32px 0 var(--shadow-red-hover);
+        }
+
+        /* Header Layout */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, rgba(255, 0, 60, 0.07) 0%, rgba(18, 18, 22, 0.8) 100%);
+            border-left: 4px solid var(--red-neon);
+        }
+
+        .header-logo {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header-logo h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+            color: var(--text-primary);
+            text-shadow: 0 0 8px rgba(255, 0, 60, 0.6);
+        }
+
+        .header-logo span {
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: var(--red-neon);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: -2px;
+        }
+
+        /* Admin & Setup Buttons */
+        .btn-header {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 0, 60, 0.3);
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-header:hover {
+            background: rgba(255, 0, 60, 0.15);
+            border-color: var(--red-neon);
+            box-shadow: 0 0 10px rgba(255, 0, 60, 0.4);
+        }
+
+        .btn-header.active-admin {
+            background: var(--red-neon);
+            border-color: var(--red-neon);
+            box-shadow: 0 0 12px rgba(255, 0, 60, 0.6);
+        }
+
+        /* Tab Switcher */
+        .tabs-bar {
+            display: flex;
+            padding: 4px;
+            gap: 4px;
+            background: rgba(10, 10, 12, 0.8);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.78rem;
+            font-weight: 800;
+            padding: 8px 0;
+            transition: all 0.25s ease;
+            text-align: center;
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+        }
+
+        .tab-btn.active {
+            background: var(--red-neon);
+            color: white;
+            box-shadow: 0 2px 10px rgba(255, 0, 60, 0.4);
+        }
+
+        /* Mode Selector Sub-bar */
+        .mode-selector {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 2px;
+        }
+
+        .mode-chip {
+            flex: 1;
+            border: 1px solid var(--border-neon);
+            background: rgba(18, 18, 22, 0.5);
+            color: var(--text-muted);
+            border-radius: 8px;
+            padding: 7px 0;
+            font-size: 0.75rem;
+            font-weight: 800;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .mode-chip.active {
+            border-color: var(--red-neon);
+            background: rgba(255, 0, 60, 0.08);
+            color: var(--text-primary);
+            box-shadow: inset 0 0 6px rgba(255, 0, 60, 0.2);
+        }
+
+        /* Layout Grid */
+        .main-content-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .left-column, .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            min-height: 0;
+        }
+
+        .left-column {
+            flex: 1;
+        }
+
+        /* Search Bar */
+        .search-bar {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            position: relative;
+            background: rgba(10, 10, 12, 0.6);
+        }
+
+        .search-bar input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-primary);
+            width: 100%;
+            font-size: 0.88rem;
+            font-family: inherit;
+            font-weight: 600;
+        }
+
+        .search-bar input::placeholder {
+            color: var(--text-muted);
+        }
+
+        #autocompleteList {
+            position: absolute;
+            width: 100%;
+            top: calc(100% + 6px);
+            left: 0;
+            background: rgba(18, 18, 22, 0.95);
+            border: 1px solid var(--red-neon);
+            border-radius: 10px;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            display: none;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        #autocompleteList div {
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            transition: background 0.15s;
+        }
+
+        #autocompleteList div:hover {
+            background: rgba(255, 0, 60, 0.12);
+            color: var(--red-neon);
+        }
+
+        /* Card List */
+        .card-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+            overflow-y: auto;
+            scrollbar-width: none;
+        }
+
+        .card-list::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Player Item Card */
+        .item-card {
+            background: rgba(22, 22, 28, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 10px 12px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .item-card:hover {
+            border-color: rgba(255, 0, 60, 0.25);
+            background: rgba(22, 22, 28, 0.85);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(255, 0, 60, 0.06);
+        }
+
+        .item-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .item-card-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .item-card-rank {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 900;
+            color: var(--red-neon);
+            width: 24px;
+        }
+
+        .item-card-name {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .item-card-lobby-toggle {
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-muted);
+            border-radius: 15px;
+            padding: 3px 10px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .item-card-lobby-toggle:hover {
+            border-color: var(--red-neon);
+            color: var(--red-neon);
+        }
+
+        .item-card-lobby-toggle.in-lobby {
+            background: var(--red-neon);
+            color: white;
+            border-color: var(--red-neon);
+            box-shadow: 0 0 8px rgba(255, 0, 60, 0.4);
+        }
+
+        /* Stat Grid */
+        .stat-chip-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+        }
+
+        .stat-chip {
+            background: rgba(10, 10, 12, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            border-radius: 6px;
+            padding: 5px 2px;
+            text-align: center;
+        }
+
+        .stat-chip-label {
+            display: block;
+            font-size: 0.52rem;
+            color: var(--text-muted);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 1px;
+        }
+
+        .stat-chip-value {
+            display: block;
+            font-size: 0.76rem;
+            color: var(--text-primary);
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Tier Badge */
+        .tier-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 8px;
+            font-weight: 800;
+            border: 1px solid currentColor;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tier-copper { color: #d97706; }
+        .tier-bronze { color: #b45309; }
+        .tier-silver { color: #94a3b8; }
+        .tier-gold { color: var(--gold); }
+        .tier-platinum { color: #38bdf8; }
+        .tier-diamond { color: #a78bfa; }
+        .tier-champion { color: var(--red-neon); text-shadow: 0 0 4px var(--red-neon); }
+        .tier-unranked { color: #64748b; }
+
+        /* Lobby Team Balancer */
+        .lobby-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .filter-row {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            scrollbar-width: none;
+        }
+
+        .filter-row::-webkit-scrollbar {
+            display: none;
+        }
+
+        .filter-chip {
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-primary);
+            border-radius: 8px;
+            padding: 5px 10px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .filter-chip button {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+
+        .filter-chip button:hover {
+            color: var(--red-neon);
+        }
+
+        .control-btn {
+            border: none;
+            border-radius: 10px;
+            height: 38px;
+            background: var(--red-neon);
+            color: white;
+            font-weight: 800;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(255, 0, 60, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .control-btn:hover:not(:disabled) {
+            opacity: 0.95;
+            box-shadow: 0 4px 16px rgba(255, 0, 60, 0.45);
+            transform: translateY(-1px);
+        }
+
+        .control-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Match History Panel */
+        .rounds-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        #globalRoundsList {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+            overflow-y: auto;
+            scrollbar-width: none;
+        }
+
+        #globalRoundsList::-webkit-scrollbar {
+            display: none;
+        }
+
+        .round-card {
+            background: rgba(18, 18, 22, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .round-card:hover {
+            border-color: var(--red-neon);
+            background: rgba(255, 0, 60, 0.04);
+        }
+
+        .round-card-id {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: var(--text-muted);
+        }
+
+        .round-card-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .round-card-map {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-transform: uppercase;
+        }
+
+        .round-card-mode-badge {
+            font-size: 0.58rem;
+            font-weight: 800;
+            color: var(--red-neon);
+            letter-spacing: 0.5px;
+        }
+
+        .round-card-winner {
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid currentColor;
+            text-transform: uppercase;
+        }
+
+        .winner-red {
+            color: var(--red-neon);
+            background: rgba(255, 0, 60, 0.06);
+            border-color: rgba(255, 0, 60, 0.2);
+        }
+
+        .winner-blue {
+            color: var(--blue-neon);
+            background: rgba(0, 210, 255, 0.06);
+            border-color: rgba(0, 210, 255, 0.2);
+        }
+
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.2s ease-out;
+            padding: 16px;
+        }
+
+        .modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            width: 100%;
+            max-width: 440px;
+            background: rgba(18, 18, 22, 0.95);
+            border: 1px solid var(--red-neon);
+            box-shadow: 0 12px 40px rgba(255, 0, 60, 0.25);
+            border-radius: 20px;
+            transform: scale(0.92);
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            padding: 14px 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: 0.5px;
+        }
+
+        .close-btn {
+            background: transparent;
+            border: none;
+            font-size: 1.3rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .close-btn:hover {
+            color: var(--red-neon);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .modal-body {
+            padding: 16px;
+            overflow-y: auto;
+            max-height: calc(100vh - 120px);
+        }
+
+        /* Forms styling */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-control {
+            background: rgba(10, 10, 12, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            color: white;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 10px 12px;
+            outline: none;
+            width: 100%;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: var(--red-neon);
+        }
+
+        .form-control::placeholder {
+            color: #52525b;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        /* ELO Team balancing result UI */
+        .team-box-red {
+            background: rgba(255, 0, 60, 0.03);
+            border: 1px solid rgba(255, 0, 60, 0.2);
+            border-radius: 12px;
+            padding: 10px;
+        }
+
+        .team-box-blue {
+            background: rgba(0, 210, 255, 0.03);
+            border: 1px solid rgba(0, 210, 255, 0.2);
+            border-radius: 12px;
+            padding: 10px;
+        }
+
+        .team-box-header {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 800;
+            margin-bottom: 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 4px;
+        }
+
+        .team-member-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.76rem;
+            font-weight: 700;
+            padding: 3px 0;
+        }
+
+        .team-avg-info {
+            margin-top: 6px;
+            padding-top: 4px;
+            border-top: 1px dashed rgba(255, 255, 255, 0.08);
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: var(--text-muted);
+        }
+
+        /* Match Details Table */
+        #matchDetailsTable {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.76rem;
+        }
+
+        #matchDetailsTable th {
+            text-transform: uppercase;
+            font-size: 0.62rem;
+            color: var(--text-muted);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 6px;
+            text-align: center;
+        }
+
+        #matchDetailsTable td {
+            padding: 8px 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .text-red { color: var(--red-neon); }
+        .text-blue { color: var(--blue-neon); }
+
+        /* Loading Screen */
+        #loading {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            z-index: 9999;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 0, 60, 0.1);
+            border-top-color: var(--red-neon);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive Desktop */
+        @media (min-width: 800px) {
+            .app-container {
+                max-width: 920px !important;
+            }
+
+            .tabs-bar {
+                display: none !important;
+            }
+
+            .main-content-layout {
+                display: grid;
+                grid-template-columns: 1fr 340px;
+                gap: 12px;
+            }
+
+            .left-column {
+                min-height: 0;
+            }
+
+            .right-column {
+                min-height: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Loading screen -->
+    <div id="loading">
+        <div class="spinner"></div>
+        <div style="font-family: 'Orbitron', sans-serif; font-size: 0.85rem; font-weight: 800; letter-spacing: 2px;">LOADING SCRIM DATABASE...</div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="app-container" style="display: none;">
+
+        <!-- Header Panel -->
+        <header class="glass-panel header">
+            <div class="header-logo">
+                <h1>REDLINER</h1>
+                <span>Scrim standings</span>
+            </div>
+            <a href="admin.html" target="_blank" class="btn-header" id="adminLockBtn" style="text-decoration:none;">
+                <span>🔑</span> <span>Login</span>
+            </a>
+        </header>
+
+        <!-- Stats Overview Panel -->
+        <div class="glass-panel" style="display: flex; justify-content: space-between; padding: 10px 16px;">
+            <div style="flex: 1; text-align: center;">
+                <span style="display: block; font-size: 0.55rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Total Players</span>
+                <span id="totalPlayerCount" style="font-family: 'Outfit', sans-serif; font-size: 1.1rem; font-weight: 800;">0</span>
+            </div>
+            <div style="width: 1px; background: rgba(255, 0, 60, 0.15);"></div>
+            <div style="flex: 1; text-align: center;">
+                <span style="display: block; font-size: 0.55rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">1v1 Duels</span>
+                <span id="scrims1v1Count" style="font-family: 'Outfit', sans-serif; font-size: 1.1rem; font-weight: 800; color: var(--red-neon);">0</span>
+            </div>
+            <div style="width: 1px; background: rgba(255, 0, 60, 0.15);"></div>
+            <div style="flex: 1; text-align: center;">
+                <span style="display: block; font-size: 0.55rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">2v2 Wingman</span>
+                <span id="scrims2v2Count" style="font-family: 'Outfit', sans-serif; font-size: 1.1rem; font-weight: 800; color: var(--blue-neon);">0</span>
+            </div>
+        </div>
+
+        <!-- Mobile Tab Navigation Bar -->
+        <div class="tabs-bar">
+            <button id="tabLeaderboard" class="tab-btn active">Standings</button>
+            <button id="tabLobby" class="tab-btn">Lobby</button>
+            <button id="tabRounds" class="tab-btn">History</button>
+        </div>
+
+        <!-- Split Grid Layout -->
+        <div class="main-content-layout">
+            
+            <!-- Left Side: Search, Mode, and Leaderboard -->
+            <div class="left-column" id="leftCol">
+                <!-- Search panel -->
+                <div class="glass-panel search-bar">
+                    <span style="font-size: 0.9rem;">🔍</span>
+                    <input type="text" id="searchBox" placeholder="플레이어 닉네임 검색..." autocomplete="off">
+                    <div id="autocompleteList"></div>
+                </div>
+
+                <!-- Mode Select / Sorting controls -->
+                <div class="mode-selector">
+                    <div class="mode-chip active" id="modeCombined" onclick="switchLeaderboardMode('combined')">COMBINED</div>
+                    <div class="mode-chip" id="mode1v1" onclick="switchLeaderboardMode('1v1')">1V1 DUELS</div>
+                    <div class="mode-chip" id="mode2v2" onclick="switchLeaderboardMode('2v2')">2V2 WINGMAN</div>
+                </div>
+
+                <!-- Leaderboard Cards list -->
+                <main class="card-list" id="leaderboardListContainer"></main>
+            </div>
+
+            <!-- Right Side: Lobby Balancer & Match History -->
+            <div class="right-column" id="rightCol">
+                
+                <!-- Lobby & Team Balancer Panel -->
+                <div class="glass-panel lobby-panel" id="lobbyPanel">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(255, 255, 255, 0.08); padding-bottom: 6px;">
+                        <span style="font-size: 0.68rem; font-weight: 800; color: var(--red-neon); letter-spacing: 0.5px;">TEAM BALANCING LOBBY</span>
+                        <span id="lobbyCount" style="font-size: 0.68rem; font-weight: 800; color: var(--text-muted);">0 selected</span>
+                    </div>
+                    
+                    <!-- Selected members tags -->
+                    <div class="filter-row" id="filterTags" style="height: 32px; flex-shrink: 0;"></div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <button id="balance1v1Btn" class="control-btn" style="background: var(--red-neon);" disabled>Balance 1v1</button>
+                        <button id="balance2v2Btn" class="control-btn" style="background: var(--blue-neon);" disabled>Balance 2v2</button>
+                    </div>
+                </div>
+
+
+
+                <!-- Match History Panel -->
+                <div class="glass-panel rounds-panel" id="roundsPanel">
+                    <div style="font-size: 0.68rem; font-weight: 800; color: var(--red-neon); letter-spacing: 0.5px; border-bottom: 1px dashed rgba(255, 255, 255, 0.08); padding-bottom: 6px; text-transform: uppercase;">
+                        Scrim Match History
+                    </div>
+                    <div id="globalRoundsList"></div>
+                    
+                    <div style="display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 4px; border-top: 1px dashed rgba(255, 255, 255, 0.05); padding-top: 6px;">
+                        <button id="prevRoundPageBtn" class="btn-header" style="padding: 4px 10px;">&lt;</button>
+                        <span id="roundPageInfo" style="font-size: 0.72rem; font-weight: 800; color: var(--text-primary);">1 / 1</span>
+                        <button id="nextRoundPageBtn" class="btn-header" style="padding: 4px 10px;">&gt;</button>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- Squad Balancing Results Modal -->
+    <div class="modal" id="lobbyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>BALANCED SQUADS (매치 밸런서 결과)</h2>
+                <button class="close-btn" id="closeLobbyModal">&times;</button>
+            </div>
+            <div style="padding: 14px; display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <!-- Team RED -->
+                    <div class="team-box-red">
+                        <div class="team-box-header" style="color: var(--red-neon);">RED Team</div>
+                        <div id="team1List" style="display: flex; flex-direction: column; gap: 4px; min-height: 40px;"></div>
+                        <div class="team-avg-info">
+                            <span>AVG ELO</span>
+                            <span id="team1Avg" style="color: var(--text-primary);">0</span>
+                        </div>
+                    </div>
+                    <!-- Team BLUE -->
+                    <div class="team-box-blue">
+                        <div class="team-box-header" style="color: var(--blue-neon);">BLUE Team</div>
+                        <div id="team2List" style="display: flex; flex-direction: column; gap: 4px; min-height: 40px;"></div>
+                        <div class="team-avg-info">
+                            <span>AVG ELO</span>
+                            <span id="team2Avg" style="color: var(--text-primary);">0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; border-top: 1px dashed rgba(255, 255, 255, 0.08); padding-top: 10px; display: flex; flex-direction: column; gap: 4px;">
+                    <div style="font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Expected Win Probability</div>
+                    <div style="font-size: 0.76rem; font-weight: 700;">
+                        RED <span id="winProbRed" class="text-red">50%</span> : <span id="winProbBlue" class="text-blue">50%</span> BLUE
+                    </div>
+                    <div style="font-size: 0.62rem; color: var(--text-muted); margin-top: 4px;">
+                        ELO 차이: <span id="eloDiff" style="color: var(--text-primary); font-weight: bold;">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Match Details Modal -->
+    <div class="modal" id="matchModal">
+        <div class="modal-content" style="max-width: 520px;">
+            <div class="modal-header">
+                <h2 id="modalRoundTitle">Match Details</h2>
+                <button class="close-btn" id="closeMatchModal">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 12px 14px 18px 14px;">
+                <table id="matchDetailsTable">
+                    <thead>
+                        <tr>
+                            <th class="text-red" style="width: 25%; text-align: left;">RED Team</th>
+                            <th style="width: 10%;">K</th>
+                            <th style="width: 10%;">D</th>
+                            <th style="width: 10%;">ELO</th>
+                            <th class="text-blue" style="width: 25%; text-align: left;">BLUE Team</th>
+                            <th style="width: 10%;">K</th>
+                            <th style="width: 10%;">D</th>
+                            <th style="width: 10%;">ELO</th>
+                        </tr>
+                    </thead>
+                    <tbody id="matchDetailsBody"></tbody>
+                </table>
+                <div style="margin-top: 12px; font-size: 0.65rem; color: var(--text-muted); display: flex; justify-content: space-between; border-top: 1px dashed rgba(255, 255, 255, 0.08); padding-top: 8px;">
+                    <span id="modalRegistrantText">등록 관리자: -</span>
+                    <span id="modalDeleteBtnContainer"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Logic Script -->
+    <script>
+        // Set Theme
+        document.documentElement.setAttribute('data-theme', 'dark');
+
+        // State variables
+        let csvMatches = [];
+        let playerStats = [];
+        let selectedLobbyPlayers = new Set();
+        let currentLeaderboardMode = 'combined'; // 'combined', '1v1', '2v2'
+        let activeTab = 'leaderboard'; // Mobile tab: 'leaderboard', 'lobby', 'rounds'
+        let currentRoundPage = 1;
+        const roundsPerPage = 10;
+
+
+        const maps_1v1 = ['highrise', 'kabuki', 'arc'];
+        const maps_2v2 = ['metro'];
+
+        // Helper: Hash function
+        async function sha256(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return hashHex;
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            loadLocalStorageData();
+            fetchCSVFiles();
+        });
+
+        function setupEventListeners() {
+            // Tab selectors for mobile
+            ['Leaderboard', 'Lobby', 'Rounds'].forEach(t => {
+                const btn = document.getElementById(`tab${t}`);
+                if (btn) {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        activeTab = t.toLowerCase();
+                        updateResponsiveLayout();
+                    });
+                }
+            });
+
+            // Balance Teams Buttons
+            document.getElementById('balance1v1Btn').addEventListener('click', () => balanceTeams('1v1'));
+            document.getElementById('balance2v2Btn').addEventListener('click', () => balanceTeams('2v2'));
+
+            // Modal Close handlers
+            document.getElementById('closeLobbyModal').addEventListener('click', () => closeModal('lobbyModal'));
+            document.getElementById('closeMatchModal').addEventListener('click', () => closeModal('matchModal'));
+
+            // Pagination Controls
+            document.getElementById('prevRoundPageBtn').addEventListener('click', () => {
+                if (currentRoundPage > 1) {
+                    currentRoundPage--;
+                    renderMatchHistory();
+                }
+            });
+            document.getElementById('nextRoundPageBtn').addEventListener('click', () => {
+                const rounds = getRoundList();
+                const totalPages = Math.ceil(rounds.length / roundsPerPage) || 1;
+                if (currentRoundPage < totalPages) {
+                    currentRoundPage++;
+                    renderMatchHistory();
+                }
+            });
+
+            // Search inputs
+            const searchBox = document.getElementById('searchBox');
+            searchBox.addEventListener('input', function() {
+                const query = this.value.trim().toLowerCase();
+                renderLeaderboard(query);
+                renderSearchAutocomplete(query);
+            });
+
+            document.addEventListener('click', (e) => {
+                const autolist = document.getElementById('autocompleteList');
+                if (autolist && !document.querySelector('.search-bar').contains(e.target)) {
+                    autolist.style.display = "none";
+                }
+            });
+
+            window.addEventListener('resize', updateResponsiveLayout);
+        }
+
+        function openModal(id) {
+            const m = document.getElementById(id);
+            m.style.display = 'flex';
+            setTimeout(() => m.classList.add('active'), 10);
+        }
+
+        function closeModal(id) {
+            const m = document.getElementById(id);
+            m.classList.remove('active');
+            setTimeout(() => m.style.display = 'none', 200);
+        }
+
+        // Responsive visibility management
+        function updateResponsiveLayout() {
+            const isDesktop = window.innerWidth >= 800;
+            const leftCol = document.getElementById('leftCol');
+            const rightCol = document.getElementById('rightCol');
+            const lobbyPanel = document.getElementById('lobbyPanel');
+            const roundsPanel = document.getElementById('roundsPanel');
+
+            if (isDesktop) {
+                leftCol.style.display = "flex";
+                rightCol.style.display = "flex";
+                lobbyPanel.style.display = "flex";
+                roundsPanel.style.display = "flex";
+            } else {
+                // Mobile
+                if (activeTab === 'leaderboard') {
+                    leftCol.style.display = "flex";
+                    rightCol.style.display = "none";
+                } else if (activeTab === 'lobby') {
+                    leftCol.style.display = "none";
+                    rightCol.style.display = "flex";
+                    lobbyPanel.style.display = "flex";
+                    roundsPanel.style.display = "none";
+                } else {
+                    // History
+                    leftCol.style.display = "none";
+                    rightCol.style.display = "flex";
+                    lobbyPanel.style.display = "none";
+                    roundsPanel.style.display = "flex";
+                }
+            }
+        }
+
+        // Fetch CSV Files
+        async function fetchCSVFiles() {
+            const timestamp = `?t=${Date.now()}`;
+            try {
+                const [matchRes, lboardRes] = await Promise.all([
+                    fetch(`match.csv${timestamp}`),
+                    fetch(`lboard.csv${timestamp}`)
+                ]);
+
+                if (matchRes.ok && lboardRes.ok) {
+                    const matchText = await matchRes.text();
+                    const lboardText = await lboardRes.text();
+
+                    parseMatchCSV(matchText);
+                    // Force initial calculation
+                    const results = recalculateAll(csvMatches);
+                    playerStats = results.leaderboardList;
+                    
+                    // Save to local storage cache
+                    localStorage.setItem('redliner_matches', JSON.stringify(csvMatches));
+                    localStorage.setItem('redliner_leaderboard', JSON.stringify(playerStats));
+                }
+            } catch (err) {
+                console.log("Could not load CSV files, fallback to localStorage:", err);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+                document.querySelector('.app-container').style.display = 'flex';
+                updateResponsiveLayout();
+                refreshUI();
+            }
+        }
+
+        function loadLocalStorageData() {
+            const matchesCache = localStorage.getItem('redliner_matches');
+            const lboardCache = localStorage.getItem('redliner_leaderboard');
+            if (matchesCache) {
+                csvMatches = JSON.parse(matchesCache);
+            }
+            if (lboardCache) {
+                playerStats = JSON.parse(lboardCache);
+            }
+        }
+
+        // Parse matches CSV content
+        function parseMatchCSV(csvText) {
+            const rows = csvText.trim().split('\n');
+            if (rows.length <= 1) return;
+            const headers = rows[0].split(',').map(h => h.trim());
+            
+            const tempMatches = [];
+            for (let i = 1; i < rows.length; i++) {
+                if (!rows[i].trim()) continue;
+                const cols = rows[i].split(',').map(v => v.trim());
+                const matchObj = {};
+                headers.forEach((h, idx) => {
+                    matchObj[h] = cols[idx];
+                });
+                tempMatches.push(matchObj);
+            }
+            csvMatches = tempMatches;
+        }
+
+
+
+
+        // Recalculate stats helper
+        function recalculateAll(matches) {
+            const playerStatsLocal = {};
+            const sortedMatches = [...matches].sort((a, b) => parseInt(a.Round) - parseInt(b.Round));
+            
+            const roundGroups = {};
+            sortedMatches.forEach(m => {
+                const rnd = parseInt(m.Round);
+                if (!roundGroups[rnd]) {
+                    roundGroups[rnd] = [];
+                }
+                roundGroups[rnd].push(m);
+            });
+            
+            const rounds = Object.keys(roundGroups).map(Number).sort((a, b) => a - b);
+            const aftercalcHistory = [];
+
+            rounds.forEach(rnd => {
+                const roundMatches = roundGroups[rnd];
+                const mode = roundMatches[0].Mode;
+                const winningTeam = roundMatches[0]['Winning Team'] || roundMatches[0].WinningTeam;
+
+                const redTeam = [];
+                const blueTeam = [];
+
+                roundMatches.forEach(m => {
+                    const nick = m.Nickname;
+                    const team = m.Team;
+                    const kills = parseInt(m.Kills) || 0;
+                    const deaths = parseInt(m.Deaths) || 0;
+
+                    if (!playerStatsLocal[nick]) {
+                        playerStatsLocal[nick] = {
+                            Nickname: nick,
+                            Elo1v1: 1500, Kills1v1: 0, Deaths1v1: 0, Wins1v1: 0, Losses1v1: 0, Matches1v1: 0, Tier1v1: 'Unranked',
+                            Elo2v2: 1500, Kills2v2: 0, Deaths2v2: 0, Wins2v2: 0, Losses2v2: 0, Matches2v2: 0, Tier2v2: 'Unranked',
+                            EloCombined: 1500
+                        };
+                    }
+
+                    const pData = playerStatsLocal[nick];
+                    const preElo = mode === '1v1' ? pData.Elo1v1 : pData.Elo2v2;
+
+                    const playerInfo = {
+                        nick: nick,
+                        kills: kills,
+                        deaths: deaths,
+                        team: team,
+                        preElo: preElo
+                    };
+
+                    if (team === 'RED') {
+                        redTeam.push(playerInfo);
+                    } else {
+                        blueTeam.push(playerInfo);
+                    }
+                });
+
+                const redAvg = redTeam.length > 0 ? redTeam.reduce((sum, p) => sum + p.preElo, 0) / redTeam.length : 1500;
+                const blueAvg = blueTeam.length > 0 ? blueTeam.reduce((sum, p) => sum + p.preElo, 0) / blueTeam.length : 1500;
+
+                // Process RED team
+                redTeam.forEach(p => {
+                    const nick = p.nick;
+                    const pData = playerStatsLocal[nick];
+                    const result = winningTeam === 'RED' ? 1 : 0;
+
+                    if (mode === '1v1') {
+                        const newElo = calculateEloLocal(pData.Elo1v1, blueAvg, result, p.kills, p.deaths, pData.Matches1v1, pData.Wins1v1);
+                        pData.Elo1v1 = newElo;
+                        pData.Kills1v1 += p.kills;
+                        pData.Deaths1v1 += p.deaths;
+                        pData.Wins1v1 += result;
+                        pData.Losses1v1 += (1 - result);
+                        pData.Matches1v1 += 1;
+                        pData.Tier1v1 = calculateTierLocal(newElo);
+                        
+                        const cumKdr = pData.Kills1v1 / Math.max(1, pData.Deaths1v1);
+                        aftercalcHistory.push({
+                            Round: rnd, Nickname: nick, Mode: '1v1', EloAfterRound: newElo, KdrAfterRound: parseFloat(cumKdr.toFixed(2))
+                        });
+                    } else {
+                        const newElo = calculateEloLocal(pData.Elo2v2, blueAvg, result, p.kills, p.deaths, pData.Matches2v2, pData.Wins2v2);
+                        pData.Elo2v2 = newElo;
+                        pData.Kills2v2 += p.kills;
+                        pData.Deaths2v2 += p.deaths;
+                        pData.Wins2v2 += result;
+                        pData.Losses2v2 += (1 - result);
+                        pData.Matches2v2 += 1;
+                        pData.Tier2v2 = calculateTierLocal(newElo);
+                        
+                        const cumKdr = pData.Kills2v2 / Math.max(1, pData.Deaths2v2);
+                        aftercalcHistory.push({
+                            Round: rnd, Nickname: nick, Mode: '2v2', EloAfterRound: newElo, KdrAfterRound: parseFloat(cumKdr.toFixed(2))
+                        });
+                    }
+                    pData.EloCombined = Math.round((pData.Elo1v1 + pData.Elo2v2) / 2);
+                });
+
+                // Process BLUE team
+                blueTeam.forEach(p => {
+                    const nick = p.nick;
+                    const pData = playerStatsLocal[nick];
+                    const result = winningTeam === 'BLUE' ? 1 : 0;
+
+                    if (mode === '1v1') {
+                        const newElo = calculateEloLocal(pData.Elo1v1, redAvg, result, p.kills, p.deaths, pData.Matches1v1, pData.Wins1v1);
+                        pData.Elo1v1 = newElo;
+                        pData.Kills1v1 += p.kills;
+                        pData.Deaths1v1 += p.deaths;
+                        pData.Wins1v1 += result;
+                        pData.Losses1v1 += (1 - result);
+                        pData.Matches1v1 += 1;
+                        pData.Tier1v1 = calculateTierLocal(newElo);
+                        
+                        const cumKdr = pData.Kills1v1 / Math.max(1, pData.Deaths1v1);
+                        aftercalcHistory.push({
+                            Round: rnd, Nickname: nick, Mode: '1v1', EloAfterRound: newElo, KdrAfterRound: parseFloat(cumKdr.toFixed(2))
+                        });
+                    } else {
+                        const newElo = calculateEloLocal(pData.Elo2v2, redAvg, result, p.kills, p.deaths, pData.Matches2v2, pData.Wins2v2);
+                        pData.Elo2v2 = newElo;
+                        pData.Kills2v2 += p.kills;
+                        pData.Deaths2v2 += p.deaths;
+                        pData.Wins2v2 += result;
+                        pData.Losses2v2 += (1 - result);
+                        pData.Matches2v2 += 1;
+                        pData.Tier2v2 = calculateTierLocal(newElo);
+                        
+                        const cumKdr = pData.Kills2v2 / Math.max(1, pData.Deaths2v2);
+                        aftercalcHistory.push({
+                            Round: rnd, Nickname: nick, Mode: '2v2', EloAfterRound: newElo, KdrAfterRound: parseFloat(cumKdr.toFixed(2))
+                        });
+                    }
+                    pData.EloCombined = Math.round((pData.Elo1v1 + pData.Elo2v2) / 2);
+                });
+            });
+
+            return {
+                leaderboardList: Object.values(playerStatsLocal),
+                aftercalcHistory: aftercalcHistory
+            };
+        }
+
+        function calculateEloLocal(playerElo, opponentAvgElo, result, kills, deaths, playerTotalMatches, playerWins) {
+            const kNormal = 30;
+            const killWeight = 0.2;
+            const deathWeight = 0.07;
+            const initialKFactor = 50;
+            const initialMatchesThreshold = 5;
+
+            let baseK;
+            if (playerTotalMatches <= initialMatchesThreshold) {
+                baseK = initialKFactor;
+            } else {
+                baseK = kNormal / (1 + (playerTotalMatches - initialMatchesThreshold) / 20);
+                baseK = Math.max(baseK, kNormal / 2);
+            }
+
+            const expectedResult = 1 / (1 + Math.pow(10, (opponentAvgElo - playerElo) / 200));
+            const winLossNumericFactor = result === 1 ? 1 : -1;
+            const eloChangeMatchOutcome = baseK * winLossNumericFactor * (1.5 - expectedResult);
+
+            let performanceScore = (kills * killWeight) - (deaths * deathWeight);
+            if (result === 0) {
+                performanceScore *= 0.5;
+            }
+
+            const newElo = playerElo + eloChangeMatchOutcome + performanceScore;
+            return Math.max(0, Math.round(newElo));
+        }
+
+        function calculateTierLocal(elo) {
+            const baseElo = 1500;
+            const tierNames = [
+                "Copper 3", "Copper 2", "Copper 1",
+                "Bronze 3", "Bronze 2", "Bronze 1",
+                "Silver 3", "Silver 2", "Silver 1",
+                "Gold 3", "Gold 2", "Gold 1",
+                "Platinum 3", "Platinum 2", "Platinum 1",
+                "Diamond 3", "Diamond 2", "Diamond 1",
+                "Champion"
+            ];
+            let idx = Math.floor((elo - baseElo) / 100) + 9;
+            idx = Math.max(0, Math.min(idx, tierNames.length - 1));
+            return tierNames[idx];
+        }
+
+
+
+        // Team Balancer drafting logic
+        function balanceTeams(mode) {
+            if (selectedLobbyPlayers.size < 2) {
+                alert("팀 밸런싱을 위해선 최소 2명 이상의 플레이어가 로비에 등록되어야 합니다.");
+                return;
+            }
+            if (mode === '2v2' && selectedLobbyPlayers.size < 4) {
+                alert("2대2 매칭을 짜려면 최소 4명 이상의 플레이어를 등록하세요.");
+                return;
+            }
+
+            const players = Array.from(selectedLobbyPlayers).map(nick => {
+                const found = playerStats.find(p => p.Nickname === nick);
+                return found || { Nickname: nick, Elo1v1: 1500, Elo2v2: 1500, EloCombined: 1500 };
+            });
+
+            // Sort by mode ELO descending
+            const eloKey = mode === '1v1' ? 'Elo1v1' : 'Elo2v2';
+            players.sort((a, b) => b[eloKey] - a[eloKey]);
+
+            const team1 = [];
+            const team2 = [];
+            let sum1 = 0;
+            let sum2 = 0;
+
+            // Snake draft distribution
+            players.forEach((p, idx) => {
+                const elo = p[eloKey];
+                if (idx % 2 === 0) {
+                    if (team1.length <= team2.length) {
+                        team1.push(p);
+                        sum1 += elo;
+                    } else {
+                        team2.push(p);
+                        sum2 += elo;
+                    }
+                } else {
+                    if (team2.length <= team1.length) {
+                        team2.push(p);
+                        sum2 += elo;
+                    } else {
+                        team1.push(p);
+                        sum1 += elo;
+                    }
+                }
+            });
+
+            // Render modal lists
+            const t1Container = document.getElementById('team1List');
+            const t2Container = document.getElementById('team2List');
+            t1Container.innerHTML = '';
+            t2Container.innerHTML = '';
+
+            team1.forEach(p => {
+                const div = document.createElement('div');
+                div.className = 'team-member-row';
+                div.innerHTML = `<span>${p.Nickname}</span><span style="color:var(--text-muted); font-family:Outfit;">${p[eloKey]}</span>`;
+                t1Container.appendChild(div);
+            });
+            const avg1 = team1.length > 0 ? Math.round(sum1 / team1.length) : 1500;
+            document.getElementById('team1Avg').innerText = avg1;
+
+            team2.forEach(p => {
+                const div = document.createElement('div');
+                div.className = 'team-member-row';
+                div.innerHTML = `<span>${p.Nickname}</span><span style="color:var(--text-muted); font-family:Outfit;">${p[eloKey]}</span>`;
+                t2Container.appendChild(div);
+            });
+            const avg2 = team2.length > 0 ? Math.round(sum2 / team2.length) : 1500;
+            document.getElementById('team2Avg').innerText = avg2;
+
+            // Difference & probabilities
+            document.getElementById('eloDiff').innerText = Math.abs(avg1 - avg2);
+
+            // Win probabilities
+            const probRed = 1 / (1 + Math.pow(10, (avg2 - avg1) / 400));
+            document.getElementById('winProbRed').innerText = `${Math.round(probRed * 100)}%`;
+            document.getElementById('winProbBlue').innerText = `${Math.round((1 - probRed) * 100)}%`;
+
+            openModal('lobbyModal');
+        }
+
+        // Leaderboard rendering and mode switches
+        function switchLeaderboardMode(mode) {
+            currentLeaderboardMode = mode;
+            
+            document.getElementById('modeCombined').classList.toggle('active', mode === 'combined');
+            document.getElementById('mode1v1').classList.toggle('active', mode === '1v1');
+            document.getElementById('mode2v2').classList.toggle('active', mode === '2v2');
+
+            renderLeaderboard();
+        }
+
+        function renderLeaderboard(filterQuery = '') {
+            const container = document.getElementById('leaderboardListContainer');
+            container.innerHTML = '';
+
+            // Filter
+            let filtered = [...playerStats];
+            if (filterQuery) {
+                filtered = filtered.filter(p => p.Nickname.toLowerCase().includes(filterQuery));
+            }
+
+            // Sort logic based on mode ELO
+            const sortKey = currentLeaderboardMode === '1v1' ? 'Elo1v1' : (currentLeaderboardMode === '2v2' ? 'Elo2v2' : 'EloCombined');
+            
+            filtered.sort((a, b) => {
+                // Pin lobby players to top
+                const aSel = selectedLobbyPlayers.has(a.Nickname) ? 1 : 0;
+                const bSel = selectedLobbyPlayers.has(b.Nickname) ? 1 : 0;
+                if (aSel !== bSel) return bSel - aSel;
+                
+                return b[sortKey] - a[sortKey];
+            });
+
+            // Set ranks
+            let rankCounter = 1;
+            filtered.forEach(p => {
+                const matchesCount = currentLeaderboardMode === '1v1' ? p.Matches1v1 : (currentLeaderboardMode === '2v2' ? p.Matches2v2 : (p.Matches1v1 + p.Matches2v2));
+                p.currentRank = matchesCount > 5 ? rankCounter++ : 'N/A';
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-muted); font-size:0.85rem;">검색 결과 플레이어가 존재하지 않습니다.</div>';
+                return;
+            }
+
+            filtered.forEach(p => {
+                const elo = p[sortKey];
+                const tier = currentLeaderboardMode === '1v1' ? p.Tier1v1 : (currentLeaderboardMode === '2v2' ? p.Tier2v2 : calculateTierLocal(p.EloCombined));
+                const tierClass = `tier-${tier.toLowerCase().split(' ')[0]}`;
+                const inLobby = selectedLobbyPlayers.has(p.Nickname);
+
+                // Stats calculations
+                let k, d, w, l, m;
+                if (currentLeaderboardMode === '1v1') {
+                    k = p.Kills1v1; d = p.Deaths1v1; w = p.Wins1v1; l = p.Losses1v1; m = p.Matches1v1;
+                } else if (currentLeaderboardMode === '2v2') {
+                    k = p.Kills2v2; d = p.Deaths2v2; w = p.Wins2v2; l = p.Losses2v2; m = p.Matches2v2;
+                } else {
+                    k = p.Kills1v1 + p.Kills2v2; d = p.Deaths1v1 + p.Deaths2v2;
+                    w = p.Wins1v1 + p.Wins2v2; l = p.Losses1v1 + p.Losses2v2;
+                    m = p.Matches1v1 + p.Matches2v2;
+                }
+
+                const kdr = (k / Math.max(1, d)).toFixed(2);
+                const winrate = m > 0 ? ((w / m) * 100).toFixed(1) + '%' : '0%';
+
+                const card = document.createElement('div');
+                card.className = 'item-card';
+                card.addEventListener('click', () => {
+                    window.location.href = `user.html?nickname=${encodeURIComponent(p.Nickname)}&t=${Date.now()}`;
+                });
+
+                card.innerHTML = `
+                    <div class="item-card-header">
+                        <div class="item-card-title">
+                            <span class="item-card-rank">${p.currentRank === 'N/A' ? 'N/A' : '#' + p.currentRank}</span>
+                            <span class="item-card-name">${p.Nickname}</span>
+                            <span class="tier-badge ${tierClass}">${m > 5 ? tier : 'Unranked'}</span>
+                        </div>
+                        <button class="item-card-lobby-toggle ${inLobby ? 'in-lobby' : ''}" onclick="event.stopPropagation(); toggleLobbyPlayer('${p.Nickname}')">
+                            ${inLobby ? 'Remove' : '+ Lobby'}
+                        </button>
+                    </div>
+                    <div class="stat-chip-grid">
+                        <div class="stat-chip">
+                            <span class="stat-chip-label">ELO</span>
+                            <span class="stat-chip-value">${elo}</span>
+                        </div>
+                        <div class="stat-chip">
+                            <span class="stat-chip-label">KDR</span>
+                            <span class="stat-chip-value">${kdr}</span>
+                        </div>
+                        <div class="stat-chip">
+                            <span class="stat-chip-label">WIN RATE</span>
+                            <span class="stat-chip-value">${winrate}</span>
+                        </div>
+                        <div class="stat-chip">
+                            <span class="stat-chip-label">MATCHES</span>
+                            <span class="stat-chip-value">${m}</span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Selected Lobby Tags
+        function toggleLobbyPlayer(nick) {
+            if (selectedLobbyPlayers.has(nick)) {
+                selectedLobbyPlayers.delete(nick);
+            } else {
+                selectedLobbyPlayers.add(nick);
+            }
+            updateLobbyTags();
+            renderLeaderboard(document.getElementById('searchBox').value.trim());
+        }
+
+        function updateLobbyTags() {
+            const container = document.getElementById('filterTags');
+            container.innerHTML = '';
+
+            selectedLobbyPlayers.forEach(nick => {
+                const chip = document.createElement('div');
+                chip.className = 'filter-chip';
+                chip.innerHTML = `
+                    <span>${nick}</span>
+                    <button onclick="toggleLobbyPlayer('${nick}')">&times;</button>
+                `;
+                container.appendChild(chip);
+            });
+
+            document.getElementById('lobbyCount').innerText = `${selectedLobbyPlayers.size} selected`;
+            document.getElementById('balance1v1Btn').disabled = selectedLobbyPlayers.size < 2;
+            document.getElementById('balance2v2Btn').disabled = selectedLobbyPlayers.size < 4;
+        }
+
+        // Search Autocomplete Rendering
+        function renderSearchAutocomplete(q) {
+            const list = document.getElementById('autocompleteList');
+            list.innerHTML = '';
+            if (q.length > 0) {
+                const matches = playerStats.filter(p => p.Nickname.toLowerCase().includes(q));
+                if (matches.length > 0) {
+                    matches.forEach(p => {
+                        const div = document.createElement('div');
+                        div.textContent = p.Nickname;
+                        div.addEventListener('click', () => {
+                            if (!selectedLobbyPlayers.has(p.Nickname)) {
+                                toggleLobbyPlayer(p.Nickname);
+                            }
+                            document.getElementById('searchBox').value = '';
+                            list.style.display = 'none';
+                            renderLeaderboard();
+                        });
+                        list.appendChild(div);
+                    });
+                    list.style.display = 'block';
+                } else {
+                    list.style.display = 'none';
+                }
+            } else {
+                list.style.display = 'none';
+            }
+        }
+
+        // Rounds List & Pagination
+        function getRoundList() {
+            const rounds = new Set();
+            csvMatches.forEach(m => rounds.add(parseInt(m.Round)));
+            return Array.from(rounds).sort((a,b) => b - a); // Round numbers descending
+        }
+
+        function renderMatchHistory() {
+            const list = document.getElementById('globalRoundsList');
+            list.innerHTML = '';
+
+            const rounds = getRoundList();
+            const totalPages = Math.ceil(rounds.length / roundsPerPage) || 1;
+
+            if (currentRoundPage > totalPages) currentRoundPage = totalPages;
+            if (currentRoundPage < 1) currentRoundPage = 1;
+
+            document.getElementById('roundPageInfo').innerText = `${currentRoundPage} / ${totalPages}`;
+            document.getElementById('prevRoundPageBtn').disabled = (currentRoundPage === 1);
+            document.getElementById('nextRoundPageBtn').disabled = (currentRoundPage === totalPages);
+
+            if (rounds.length === 0) {
+                list.innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-muted); font-size:0.82rem;">아직 진행된 매치 기록이 없습니다.</div>';
+                return;
+            }
+
+            const startIndex = (currentRoundPage - 1) * roundsPerPage;
+            const endIndex = Math.min(startIndex + roundsPerPage, rounds.length);
+            const pageRounds = rounds.slice(startIndex, endIndex);
+
+            pageRounds.forEach(r => {
+                const roundMatches = csvMatches.filter(m => parseInt(m.Round) === r);
+                const first = roundMatches[0];
+                const mode = first.Mode;
+                const map = first.Map;
+                const score = first.Score;
+                const winTeam = first['Winning Team'] || first.WinningTeam;
+
+                const card = document.createElement('div');
+                card.className = 'round-card';
+                card.addEventListener('click', () => openMatchDetails(r));
+
+                card.innerHTML = `
+                    <div class="round-card-info">
+                        <span class="round-card-map">${map}</span>
+                        <span class="round-card-mode-badge">${mode.toUpperCase()} DUELS [${score}]</span>
+                    </div>
+                    <div style="display:flex; gap:12px; align-items:center;">
+                        <span class="round-card-id">#${r}</span>
+                        <span class="round-card-winner ${winTeam === 'RED' ? 'winner-red' : 'winner-blue'}">${winTeam} WIN</span>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        // Open details modal for a single scrim match
+        function openMatchDetails(roundId) {
+            document.getElementById('modalRoundTitle').innerText = `Round Details (매치 라운드 #${roundId})`;
+            const body = document.getElementById('matchDetailsBody');
+            body.innerHTML = '';
+
+            const roundMatches = csvMatches.filter(m => parseInt(m.Round) === roundId);
+            const redTeam = roundMatches.filter(m => m.Team === 'RED');
+            const blueTeam = roundMatches.filter(m => m.Team === 'BLUE');
+            
+            const registrant = roundMatches[0].Registrant || '-';
+            document.getElementById('modalRegistrantText').innerText = `등록 관리자: ${registrant}`;
+
+            const len = Math.max(redTeam.length, blueTeam.length);
+            for (let i = 0; i < len; i++) {
+                const redPlayer = redTeam[i] || { Nickname: '-', Kills: '-', Deaths: '-' };
+                const bluePlayer = blueTeam[i] || { Nickname: '-', Kills: '-', Deaths: '-' };
+
+                // Get post-round ELO if present
+                const redEloInfo = playerStats.find(p => p.Nickname === redPlayer.Nickname) || { Elo1v1: 1500, Elo2v2: 1500 };
+                const blueEloInfo = playerStats.find(p => p.Nickname === bluePlayer.Nickname) || { Elo1v1: 1500, Elo2v2: 1500 };
+
+                const redElo = redPlayer.Mode === '1v1' ? redEloInfo.Elo1v1 : redEloInfo.Elo2v2;
+                const blueElo = bluePlayer.Mode === '1v1' ? blueEloInfo.Elo1v1 : blueEloInfo.Elo2v2;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="text-red player-name-cell" style="text-align:left;" onclick="viewPlayerProfile('${redPlayer.Nickname}')">${redPlayer.Nickname}</td>
+                    <td>${redPlayer.Kills}</td>
+                    <td>${redPlayer.Deaths}</td>
+                    <td style="color:var(--text-muted); font-family:Outfit;">${redPlayer.Nickname !== '-' ? redElo : '-'}</td>
+                    <td class="text-blue player-name-cell" style="text-align:left;" onclick="viewPlayerProfile('${bluePlayer.Nickname}')">${bluePlayer.Nickname}</td>
+                    <td>${bluePlayer.Kills}</td>
+                    <td>${bluePlayer.Deaths}</td>
+                    <td style="color:var(--text-muted); font-family:Outfit;">${bluePlayer.Nickname !== '-' ? blueElo : '-'}</td>
+                `;
+                body.appendChild(tr);
+            }
+
+            // Admin delete is available in admin.html
+            const delContainer = document.getElementById('modalDeleteBtnContainer');
+            delContainer.innerHTML = '';
+
+            openModal('matchModal');
+        }
+
+        function viewPlayerProfile(nickname) {
+            if (nickname === '-') return;
+            window.location.href = `user.html?nickname=${encodeURIComponent(nickname)}&t=${Date.now()}`;
+        }
+
+        // Global UI refreshes
+        function refreshUI() {
+            renderLeaderboard();
+            renderMatchHistory();
+            updateLobbyTags();
+            
+            // Overview counts
+            document.getElementById('totalPlayerCount').innerText = playerStats.length;
+            
+            const rounds = csvMatches.filter(m => m.Nickname !== '');
+            const count1v1 = new Set(csvMatches.filter(m => m.Mode === '1v1').map(m => m.Round)).size;
+            const count2v2 = new Set(csvMatches.filter(m => m.Mode === '2v2').map(m => m.Round)).size;
+            document.getElementById('scrims1v1Count').innerText = count1v1;
+            document.getElementById('scrims2v2Count').innerText = count2v2;
+        }
+
+    </script>
+</body>
+</html>
