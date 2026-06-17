@@ -1551,7 +1551,7 @@
                 addDiv.className = `player-dropdown-item${side === 'blue' ? ' blue-item' : ''}`;
                 addDiv.style.fontWeight = '800';
                 addDiv.style.color = 'var(--green-neon)';
-                addDiv.innerHTML = `<span class="dd-name">➕ "${filter.trim()}" 신규 추가</span>`;
+                addDiv.innerHTML = `<span class="dd-name">+ "${filter.trim()}" 신규 추가</span>`;
                 const inputId = ddId.replace('dd-', '');
                 addDiv.addEventListener('mousedown', (e) => {
                     e.preventDefault();
