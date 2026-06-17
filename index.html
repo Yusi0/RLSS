@@ -1517,7 +1517,7 @@
             let rankCounter = 1;
             filtered.forEach(p => {
                 const matchesCount = currentLeaderboardMode === '1v1' ? p.Matches1v1 : (currentLeaderboardMode === '2v2' ? p.Matches2v2 : (p.Matches1v1 + p.Matches2v2));
-                p.currentRank = matchesCount > 5 ? rankCounter++ : 'N/A';
+                p.currentRank = matchesCount > 0 ? rankCounter++ : 'N/A';
             });
 
             if (filtered.length === 0) {
@@ -1557,7 +1557,7 @@
                         <div class="item-card-title">
                             <span class="item-card-rank">${p.currentRank === 'N/A' ? 'N/A' : '#' + p.currentRank}</span>
                             <span class="item-card-name">${p.Nickname}</span>
-                            <span class="tier-badge ${tierClass}">${m > 5 ? tier : 'Unranked'}</span>
+                            <span class="tier-badge ${tierClass}">${m > 0 ? tier : 'Unranked'}</span>
                         </div>
                         <button class="item-card-lobby-toggle ${inLobby ? 'in-lobby' : ''}" onclick="event.stopPropagation(); toggleLobbyPlayer('${p.Nickname}')">
                             ${inLobby ? 'Remove' : '+ Lobby'}

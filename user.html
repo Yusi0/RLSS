@@ -972,8 +972,8 @@
             const matchesCount = primaryMode === '1v1' ? player.Matches1v1 : player.Matches2v2;
             
             const badge = document.getElementById('statTier');
-            badge.innerText = matchesCount > 5 ? tierVal : 'Unranked';
-            badge.className = 'tier-label ' + `tier-${(matchesCount > 5 ? tierVal : 'unranked').toLowerCase().split(' ')[0]}`;
+            badge.innerText = matchesCount > 0 ? tierVal : 'Unranked';
+            badge.className = 'tier-label ' + `tier-${(matchesCount > 0 ? tierVal : 'unranked').toLowerCase().split(' ')[0]}`;
         }
 
         // Map Statistics Rendering
