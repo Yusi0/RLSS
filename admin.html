@@ -48,6 +48,10 @@
             min-height: 100vh;
             font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: var(--bg-color);
+            color: var(--text-primary);
+            background-image:
+                radial-gradient(at 10% 20%, rgba(255, 0, 60, 0.06) 0px, transparent 50%),
+                radial-gradient(at 90% 80%, rgba(0, 210, 255, 0.05) 0px, transparent 50%);
             scrollbar-width: none; /* Firefox */
             -ms-overflow-style: none; /* IE/Edge */
         }
@@ -57,11 +61,6 @@
             display: none;
             width: 0;
             height: 0;
-        }
-            color: var(--text-primary);
-            background-image:
-                radial-gradient(at 10% 20%, rgba(255, 0, 60, 0.06) 0px, transparent 50%),
-                radial-gradient(at 90% 80%, rgba(0, 210, 255, 0.05) 0px, transparent 50%);
         }
 
         /* ===== LOGIN GATE ===== */
@@ -278,6 +277,7 @@
             font-weight: 900;
             letter-spacing: 1px;
             text-shadow: 0 0 8px rgba(255, 0, 60, 0.6);
+            color: #ffffff;
         }
 
         .admin-header-logo .sub {
@@ -1950,9 +1950,9 @@
                     tr.innerHTML = `
                         <td style="font-family:'Orbitron',sans-serif;font-weight:800;color:var(--text-muted);font-size:0.7rem;">#${r} <span class="badge" style="background:#52525b;color:#fff;text-decoration:none;display:inline-block;font-size:0.55rem;padding:2px 4px;margin-left:4px;">삭제 대기</span></td>
                         <td><span class="badge badge-mode">${first.Mode}</span></td>
-                        <td style="font-weight:700;text-transform:uppercase;">${first.Map}</td>
+                        <td style="font-weight:700;text-transform:uppercase;color:#ffffff;">${first.Map}</td>
                         <td class="text-red" style="color:var(--red-neon);font-weight:700;">${red.map(m => m.Nickname).join(', ')}</td>
-                        <td style="font-family:'Outfit',sans-serif;font-weight:800;">${first.Score}</td>
+                        <td style="font-family:'Outfit',sans-serif;font-weight:800;color:#ffffff;">${first.Score}</td>
                         <td style="color:var(--blue-neon);font-weight:700;">${blue.map(m => m.Nickname).join(', ')}</td>
                         <td><span class="badge ${winner === 'RED' ? 'badge-red' : 'badge-blue'}">${winner} WIN</span></td>
                         <td style="color:var(--text-muted);font-size:0.72rem;">${first.Registrant || '-'}</td>
@@ -2014,9 +2014,9 @@
                             ${isEdited ? '<span class="badge" style="background:var(--green-neon);color:#000;display:inline-block;font-size:0.55rem;padding:2px 4px;margin-left:4px;font-weight:800;">수정됨</span>' : ''}
                         </td>
                         <td><span class="badge badge-mode">${first.Mode}</span></td>
-                        <td style="font-weight:700;text-transform:uppercase;">${first.Map}</td>
+                        <td style="font-weight:700;text-transform:uppercase;color:#ffffff;">${first.Map}</td>
                         <td class="text-red" style="color:var(--red-neon);font-weight:700;">${red.map(m => m.Nickname).join(', ')}</td>
-                        <td style="font-family:'Outfit',sans-serif;font-weight:800;">${first.Score}</td>
+                        <td style="font-family:'Outfit',sans-serif;font-weight:800;color:#ffffff;">${first.Score}</td>
                         <td style="color:var(--blue-neon);font-weight:700;">${blue.map(m => m.Nickname).join(', ')}</td>
                         <td><span class="badge ${winner === 'RED' ? 'badge-red' : 'badge-blue'}">${winner} WIN</span></td>
                         <td style="color:var(--text-muted);font-size:0.72rem;">${first.Registrant || '-'}</td>
