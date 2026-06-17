@@ -48,6 +48,16 @@
             min-height: 100vh;
             font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: var(--bg-color);
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE/Edge */
+        }
+
+        html::-webkit-scrollbar,
+        body::-webkit-scrollbar {
+            display: none;
+            width: 0;
+            height: 0;
+        }
             color: var(--text-primary);
             background-image:
                 radial-gradient(at 10% 20%, rgba(255, 0, 60, 0.06) 0px, transparent 50%),
@@ -1213,6 +1223,19 @@
                     <span class="page-info" id="histPageInfo">1 / 1</span>
                     <button class="btn-page" id="nextHistPage" onclick="changePage(1)">&#8594;</button>
                 </div>
+
+                <!-- Staged modifications status bar -->
+                <div id="historyDirtyBar" class="glass-panel" style="display:none; margin-top:20px; border-color:var(--green-neon); padding:15px; text-align:center; box-shadow:0 0 15px rgba(0, 230, 118, 0.15);">
+                    <div style="font-weight:800; color:var(--green-neon); margin-bottom:10px; font-size:0.9rem;">매치 기록 변경사항이 있습니다 (저장되지 않음)</div>
+                    <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:15px;">
+                        대기 중인 변경사항: 삭제 예정 <span id="dirtyDeleteCount">0</span>건, 수정 예정 <span id="dirtyEditCount">0</span>건
+                    </div>
+                    <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
+                        <button type="button" class="btn-secondary" onclick="saveHistoryChanges(false)">로컬에 일괄 저장</button>
+                        <button type="button" class="btn-green" onclick="saveHistoryChanges(true)">일괄 저장 및 GitHub 배포</button>
+                        <button type="button" class="btn-delete" style="background:#27272a; border-color:#3f3f46;" onclick="cancelAllHistoryChanges()">변경사항 초기화</button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1377,6 +1400,10 @@
         // ================================================================
         let csvMatches = [];
         let pendingMatchesQueue = [];
+        let deletedRoundIds = new Set();
+        let editedRounds = {};
+        let editingRoundId = null;
+        let isHistoryDirty = false;
         let playerStats = [];
         let historyFilter = 'all';
         let historyPage = 1;
@@ -1870,6 +1897,9 @@
         }
 
         function getRoundData(roundId) {
+            if (editedRounds[roundId]) {
+                return editedRounds[roundId];
+            }
             return csvMatches.filter(m => parseInt(m.Round) === roundId);
         }
 
@@ -1881,7 +1911,7 @@
             let rounds = getRoundList();
             if (historyFilter !== 'all') {
                 rounds = rounds.filter(r => {
-                    const first = csvMatches.find(m => parseInt(m.Round) === r);
+                    const first = getRoundData(r)[0];
                     return first && first.Mode === historyFilter;
                 });
             }
@@ -1891,6 +1921,7 @@
             if (rounds.length === 0) {
                 emptyEl.style.display = 'block';
                 document.getElementById('histPageInfo').innerText = '1 / 1';
+                updateHistoryDirtyBar();
                 return;
             }
             emptyEl.style.display = 'none';
@@ -1911,19 +1942,103 @@
                 const winner = first['Winning Team'] || first.WinningTeam;
 
                 const tr = document.createElement('tr');
-                tr.innerHTML = `
-                <td style="font-family:'Orbitron',sans-serif;font-weight:800;color:var(--text-muted);font-size:0.7rem;">#${r}</td>
-                <td><span class="badge badge-mode">${first.Mode}</span></td>
-                <td style="font-weight:700;text-transform:uppercase;">${first.Map}</td>
-                <td class="text-red" style="color:var(--red-neon);font-weight:700;">${red.map(m => m.Nickname).join(', ')}</td>
-                <td style="font-family:'Outfit',sans-serif;font-weight:800;">${first.Score}</td>
-                <td style="color:var(--blue-neon);font-weight:700;">${blue.map(m => m.Nickname).join(', ')}</td>
-                <td><span class="badge ${winner === 'RED' ? 'badge-red' : 'badge-blue'}">${winner} WIN</span></td>
-                <td style="color:var(--text-muted);font-size:0.72rem;">${first.Registrant || '-'}</td>
-                <td><button class="btn-delete" onclick="deleteRound(${r})">삭제</button></td>
-            `;
+
+                // If round is marked for deletion
+                if (deletedRoundIds.has(r)) {
+                    tr.style.opacity = '0.5';
+                    tr.style.textDecoration = 'line-through';
+                    tr.innerHTML = `
+                        <td style="font-family:'Orbitron',sans-serif;font-weight:800;color:var(--text-muted);font-size:0.7rem;">#${r} <span class="badge" style="background:#52525b;color:#fff;text-decoration:none;display:inline-block;font-size:0.55rem;padding:2px 4px;margin-left:4px;">삭제 대기</span></td>
+                        <td><span class="badge badge-mode">${first.Mode}</span></td>
+                        <td style="font-weight:700;text-transform:uppercase;">${first.Map}</td>
+                        <td class="text-red" style="color:var(--red-neon);font-weight:700;">${red.map(m => m.Nickname).join(', ')}</td>
+                        <td style="font-family:'Outfit',sans-serif;font-weight:800;">${first.Score}</td>
+                        <td style="color:var(--blue-neon);font-weight:700;">${blue.map(m => m.Nickname).join(', ')}</td>
+                        <td><span class="badge ${winner === 'RED' ? 'badge-red' : 'badge-blue'}">${winner} WIN</span></td>
+                        <td style="color:var(--text-muted);font-size:0.72rem;">${first.Registrant || '-'}</td>
+                        <td>
+                            <button class="btn-green" style="padding:4px 8px;font-size:0.75rem;" onclick="restoreRound(${r})">복구</button>
+                        </td>
+                    `;
+                }
+                // If round is currently being edited inline
+                else if (editingRoundId === r) {
+                    const scoreRed = first.Score.split(':')[0] || '0';
+                    const scoreBlue = first.Score.split(':')[1] || '0';
+                    tr.innerHTML = `
+                        <td style="font-family:'Orbitron',sans-serif;font-weight:800;color:var(--text-muted);font-size:0.7rem;">#${r}</td>
+                        <td>
+                            <select id="editMode-${r}" class="form-control" style="width:75px;padding:3px;font-size:0.75rem;height:auto;" onchange="onEditModeChange(${r})">
+                                <option value="1v1" ${first.Mode === '1v1' ? 'selected' : ''}>1V1</option>
+                                <option value="2v2" ${first.Mode === '2v2' ? 'selected' : ''}>2V2</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select id="editMap-${r}" class="form-control" style="width:90px;padding:3px;font-size:0.75rem;height:auto;"></select>
+                        </td>
+                        <td class="text-red">
+                            <div style="display:flex;flex-direction:column;gap:3px;">
+                                <input type="text" id="editRedP1-${r}" class="form-control" style="width:95px;padding:3px;font-size:0.75rem;height:auto;" value="${red[0] ? red[0].Nickname : ''}" placeholder="P1">
+                                <input type="text" id="editRedP2-${r}" class="form-control" style="width:95px;padding:3px;font-size:0.75rem;height:auto;display:${first.Mode === '2v2' ? 'block' : 'none'};" value="${red[1] ? red[1].Nickname : ''}" placeholder="P2">
+                            </div>
+                        </td>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:3px;">
+                                <input type="number" id="editScoreRed-${r}" class="form-control" style="width:38px;padding:3px;font-size:0.75rem;height:auto;text-align:center;" value="${scoreRed}" min="0">
+                                <span style="font-weight:800;">:</span>
+                                <input type="number" id="editScoreBlue-${r}" class="form-control" style="width:38px;padding:3px;font-size:0.75rem;height:auto;text-align:center;" value="${scoreBlue}" min="0">
+                            </div>
+                        </td>
+                        <td style="color:var(--blue-neon);">
+                            <div style="display:flex;flex-direction:column;gap:3px;">
+                                <input type="text" id="editBlueP1-${r}" class="form-control" style="width:95px;padding:3px;font-size:0.75rem;height:auto;" value="${blue[0] ? blue[0].Nickname : ''}" placeholder="P1">
+                                <input type="text" id="editBlueP2-${r}" class="form-control" style="width:95px;padding:3px;font-size:0.75rem;height:auto;display:${first.Mode === '2v2' ? 'block' : 'none'};" value="${blue[1] ? blue[1].Nickname : ''}" placeholder="P2">
+                            </div>
+                        </td>
+                        <td style="font-size:0.7rem;color:var(--text-muted);font-style:italic;">(자동)</td>
+                        <td style="color:var(--text-muted);font-size:0.72rem;">${first.Registrant || '-'}</td>
+                        <td>
+                            <div style="display:flex;gap:4px;">
+                                <button class="btn-green" style="padding:4px 8px;font-size:0.75rem;" onclick="saveEditRound(${r})">확인</button>
+                                <button class="btn-secondary" style="padding:4px 8px;font-size:0.75rem;" onclick="cancelEditRound()">취소</button>
+                            </div>
+                        </td>
+                    `;
+                }
+                // Normal or edited round display
+                else {
+                    const isEdited = !!editedRounds[r];
+                    tr.innerHTML = `
+                        <td style="font-family:'Orbitron',sans-serif;font-weight:800;color:var(--text-muted);font-size:0.7rem;">
+                            #${r}
+                            ${isEdited ? '<span class="badge" style="background:var(--green-neon);color:#000;display:inline-block;font-size:0.55rem;padding:2px 4px;margin-left:4px;font-weight:800;">수정됨</span>' : ''}
+                        </td>
+                        <td><span class="badge badge-mode">${first.Mode}</span></td>
+                        <td style="font-weight:700;text-transform:uppercase;">${first.Map}</td>
+                        <td class="text-red" style="color:var(--red-neon);font-weight:700;">${red.map(m => m.Nickname).join(', ')}</td>
+                        <td style="font-family:'Outfit',sans-serif;font-weight:800;">${first.Score}</td>
+                        <td style="color:var(--blue-neon);font-weight:700;">${blue.map(m => m.Nickname).join(', ')}</td>
+                        <td><span class="badge ${winner === 'RED' ? 'badge-red' : 'badge-blue'}">${winner} WIN</span></td>
+                        <td style="color:var(--text-muted);font-size:0.72rem;">${first.Registrant || '-'}</td>
+                        <td>
+                            <div style="display:flex;gap:4px;">
+                                <button class="btn-secondary" style="padding:4px 8px;font-size:0.75rem;" onclick="startEditRound(${r})">수정</button>
+                                <button class="btn-delete" style="padding:4px 8px;font-size:0.75rem;" onclick="deleteRound(${r})">삭제</button>
+                                ${isEdited ? `<button class="btn-secondary" style="padding:4px 8px;font-size:0.75rem;background:#27272a;border-color:#3f3f46;" onclick="undoEditRound(${r})">되돌리기</button>` : ''}
+                            </div>
+                        </td>
+                    `;
+                }
+
                 tbody.appendChild(tr);
+
+                // If this round was in edit mode, populate maps dropdown
+                if (editingRoundId === r) {
+                    populateEditMaps(r, first.Mode, first.Map);
+                }
             });
+
+            updateHistoryDirtyBar();
         }
 
         function changePage(delta) {
@@ -1931,26 +2046,227 @@
             renderHistory();
         }
 
-        async function deleteRound(roundId) {
-            if (!confirm(`라운드 #${roundId}을 정말 삭제하시겠습니까?\n삭제 후 복구할 수 없습니다.`)) return;
+        function deleteRound(roundId) {
+            if (editingRoundId !== null) {
+                showToast('현재 편집 중인 라운드가 있습니다. 먼저 확인 또는 취소를 누르세요.', 'error');
+                return;
+            }
+            deletedRoundIds.add(roundId);
+            renderHistory();
+            showToast(`라운드 #${roundId}이 삭제 대기열에 추가되었습니다.`, 'info');
+        }
 
-            csvMatches = csvMatches.filter(m => parseInt(m.Round) !== roundId);
-            csvMatches.forEach(m => {
-                const r = parseInt(m.Round);
-                if (r > roundId) m.Round = r - 1;
+        function restoreRound(roundId) {
+            deletedRoundIds.delete(roundId);
+            renderHistory();
+            showToast(`라운드 #${roundId} 삭제 대기가 취소되었습니다.`, 'info');
+        }
+
+        function startEditRound(roundId) {
+            if (editingRoundId !== null) {
+                showToast('현재 편집 중인 라운드가 있습니다. 먼저 확인 또는 취소를 누르세요.', 'error');
+                return;
+            }
+            editingRoundId = roundId;
+            renderHistory();
+        }
+
+        function cancelEditRound() {
+            editingRoundId = null;
+            renderHistory();
+        }
+
+        function undoEditRound(roundId) {
+            delete editedRounds[roundId];
+            renderHistory();
+            showToast(`라운드 #${roundId}의 수정을 되돌렸습니다.`, 'info');
+        }
+
+        function populateEditMaps(roundId, mode, selectedMap) {
+            const mapSel = document.getElementById(`editMap-${roundId}`);
+            if (!mapSel) return;
+            mapSel.innerHTML = '';
+            const maps = mode === '1v1' ? MAPS_1V1 : MAPS_2V2;
+            maps.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m;
+                opt.textContent = m.toUpperCase();
+                if (m === selectedMap) opt.selected = true;
+                mapSel.appendChild(opt);
+            });
+        }
+
+        function onEditModeChange(roundId) {
+            const mode = document.getElementById(`editMode-${roundId}`).value;
+            const mapSel = document.getElementById(`editMap-${roundId}`);
+            populateEditMaps(roundId, mode, mapSel.value);
+
+            const is2v2 = mode === '2v2';
+            document.getElementById(`editRedP2-${roundId}`).style.display = is2v2 ? 'block' : 'none';
+            document.getElementById(`editBlueP2-${roundId}`).style.display = is2v2 ? 'block' : 'none';
+        }
+
+        function validateEditForm(mode, redTeam, blueTeam, sr, sb) {
+            if (redTeam.some(p => !p) || blueTeam.some(p => !p)) {
+                showToast('플레이어 닉네임을 입력하세요.', 'error');
+                return false;
+            }
+            if (isNaN(sr) || isNaN(sb)) {
+                showToast('스코어를 입력하세요.', 'error');
+                return false;
+            }
+            if (mode === '2v2' && (redTeam.length < 2 || blueTeam.length < 2)) {
+                showToast('2v2 모드는 각 팀 2명의 닉네임이 필요합니다.', 'error');
+                return false;
+            }
+            if (mode === '1v1') {
+                if (sr !== 5 && sb !== 5) {
+                    showToast('1v1 듀얼은 5선승제입니다. 한 팀의 점수가 5점이어야 합니다.', 'error');
+                    return false;
+                }
+            } else {
+                if (sr !== 4 && sb !== 4) {
+                    showToast('2v2 윙맨은 4선승제입니다. 한 팀의 점수가 4점이어야 합니다.', 'error');
+                    return false;
+                }
+            }
+            if (sr === sb) {
+                showToast('무승부는 허용되지 않습니다.', 'error');
+                return false;
+            }
+            return true;
+        }
+
+        function saveEditRound(roundId) {
+            const mode = document.getElementById(`editMode-${roundId}`).value;
+            const map = document.getElementById(`editMap-${roundId}`).value;
+            const sr = parseInt(document.getElementById(`editScoreRed-${roundId}`).value);
+            const sb = parseInt(document.getElementById(`editScoreBlue-${roundId}`).value);
+
+            const redTeam = [document.getElementById(`editRedP1-${roundId}`).value.trim()];
+            const blueTeam = [document.getElementById(`editBlueP1-${roundId}`).value.trim()];
+
+            if (mode === '2v2') {
+                const r2 = document.getElementById(`editRedP2-${roundId}`).value.trim();
+                const b2 = document.getElementById(`editBlueP2-${roundId}`).value.trim();
+                if (r2) redTeam.push(r2);
+                if (b2) blueTeam.push(b2);
+            }
+
+            if (!validateEditForm(mode, redTeam, blueTeam, sr, sb)) return;
+
+            const winningTeam = sr > sb ? 'RED' : 'BLUE';
+            const scoreStr = `${sr}:${sb}`;
+
+            const playerKd = {};
+            if (mode === '1v1') {
+                playerKd[redTeam[0]] = { k: sr, d: sb };
+                playerKd[blueTeam[0]] = { k: sb, d: sr };
+            } else {
+                const rb = Math.floor(sr / 2), bb = Math.floor(sb / 2);
+                playerKd[redTeam[0]] = { k: rb + (sr % 2), d: Math.floor(sb / 2) };
+                playerKd[redTeam[1]] = { k: rb, d: Math.floor(sb / 2) + (sb % 2) };
+                playerKd[blueTeam[0]] = { k: bb + (sb % 2), d: Math.floor(sr / 2) };
+                playerKd[blueTeam[1]] = { k: bb, d: Math.floor(sr / 2) + (sr % 2) };
+            }
+
+            const originalRows = csvMatches.filter(m => parseInt(m.Round) === roundId);
+            const registrant = (originalRows[0] && originalRows[0].Registrant) || 'admin';
+
+            const rows = [];
+            redTeam.forEach(p => {
+                rows.push({
+                    Round: roundId, Mode: mode, Map: map, Nickname: p,
+                    Kills: playerKd[p].k, Deaths: playerKd[p].d,
+                    Team: 'RED', 'Winning Team': winningTeam, Score: scoreStr, Registrant: registrant
+                });
+            });
+            blueTeam.forEach(p => {
+                rows.push({
+                    Round: roundId, Mode: mode, Map: map, Nickname: p,
+                    Kills: playerKd[p].k, Deaths: playerKd[p].d,
+                    Team: 'BLUE', 'Winning Team': winningTeam, Score: scoreStr, Registrant: registrant
+                });
             });
 
-            const results = recalculateAll(csvMatches);
+            editedRounds[roundId] = rows;
+            editingRoundId = null;
+            renderHistory();
+            showToast(`라운드 #${roundId}의 수정사항이 스테이징되었습니다.`, 'success');
+        }
+
+        function cancelAllHistoryChanges() {
+            if (!confirm('스테이징된 모든 수정 및 삭제 사항을 초기화하시겠습니까?')) return;
+            deletedRoundIds.clear();
+            editedRounds = {};
+            editingRoundId = null;
+            isHistoryDirty = false;
+            renderHistory();
+            showToast('모든 변경사항이 초기화되었습니다.', 'info');
+        }
+
+        async function saveHistoryChanges(triggerPush) {
+            if (editingRoundId !== null) {
+                showToast('현재 편집 중인 라운드가 있습니다. 먼저 확인 또는 취소를 누르세요.', 'error');
+                return;
+            }
+
+            const originalRounds = getRoundList().sort((a, b) => a - b);
+            const activeRounds = originalRounds.filter(r => !deletedRoundIds.has(r));
+
+            if (activeRounds.length === 0 && originalRounds.length > 0) {
+                if (!confirm('모든 라운드를 삭제하시겠습니까? 리더보드가 비게 됩니다.')) return;
+            }
+
+            // Map old round numbers to contiguous new round numbers (1, 2, 3, ...)
+            const roundMapping = {};
+            activeRounds.forEach((oldR, idx) => {
+                roundMapping[oldR] = idx + 1;
+            });
+
+            const newMatches = [];
+            activeRounds.forEach(oldR => {
+                const matches = getRoundData(oldR);
+                const newRoundNum = roundMapping[oldR];
+                matches.forEach(m => {
+                    newMatches.push({
+                        ...m,
+                        Round: newRoundNum
+                    });
+                });
+            });
+
+            // Recalculate
+            const results = recalculateAll(newMatches);
+            csvMatches = newMatches;
             playerStats = results.leaderboardList;
             localStorage.setItem('redliner_matches', JSON.stringify(csvMatches));
             localStorage.setItem('redliner_leaderboard', JSON.stringify(playerStats));
+
+            // Clear staging state
+            deletedRoundIds.clear();
+            editedRounds = {};
+            isHistoryDirty = false;
+
             renderHistory();
 
-            const gitCfg = await resolveGitConfig();
-            if (gitCfg) {
+            if (triggerPush) {
                 await pushToGitHub(results.aftercalcHistory);
             } else {
-                showToast(`라운드 #${roundId} 삭제 완료. GitHub 설정이 없어 로컬에만 반영되었습니다.`, 'info');
+                showToast('변경사항이 로컬에 저장되었습니다.', 'success');
+            }
+        }
+
+        function updateHistoryDirtyBar() {
+            const bar = document.getElementById('historyDirtyBar');
+            if (deletedRoundIds.size > 0 || Object.keys(editedRounds).length > 0) {
+                isHistoryDirty = true;
+                bar.style.display = 'block';
+                document.getElementById('dirtyDeleteCount').textContent = deletedRoundIds.size;
+                document.getElementById('dirtyEditCount').textContent = Object.keys(editedRounds).length;
+            } else {
+                isHistoryDirty = false;
+                bar.style.display = 'none';
             }
         }
 
