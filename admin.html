@@ -1538,18 +1538,38 @@
             const dd = document.getElementById(ddId);
             if (!dd) return;
             dd.innerHTML = '';
-            const q = (filter || '').toLowerCase();
+            const q = (filter || '').trim().toLowerCase();
+
+            // If the query is not empty and doesn't exactly match an existing player, add a "+ 신규 추가" option at the top
+            const exactMatch = playerStats.some(p => p.Nickname.toLowerCase() === q);
+            if (q && !exactMatch) {
+                const addDiv = document.createElement('div');
+                addDiv.className = `player-dropdown-item${side === 'blue' ? ' blue-item' : ''}`;
+                addDiv.style.fontWeight = '800';
+                addDiv.style.color = 'var(--green-neon)';
+                addDiv.innerHTML = `<span class="dd-name">➕ "${filter.trim()}" 신규 추가</span>`;
+                const inputId = ddId.replace('dd-', '');
+                addDiv.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    document.getElementById(inputId).value = filter.trim();
+                    closeAllDropdowns();
+                });
+                dd.appendChild(addDiv);
+            }
+
             const filtered = playerStats
                 .filter(p => !q || p.Nickname.toLowerCase().includes(q))
                 .sort((a, b) => b.EloCombined - a.EloCombined)
                 .slice(0, 20);
 
             if (filtered.length === 0) {
-                const div = document.createElement('div');
-                div.className = 'player-dropdown-item';
-                div.style.color = 'var(--text-muted)';
-                div.textContent = '검색 결과 없음';
-                dd.appendChild(div);
+                if (!q) {
+                    const div = document.createElement('div');
+                    div.className = 'player-dropdown-item';
+                    div.style.color = 'var(--text-muted)';
+                    div.textContent = '검색 결과 없음';
+                    dd.appendChild(div);
+                }
             } else {
                 filtered.forEach(p => {
                     const div = document.createElement('div');
