@@ -886,7 +886,7 @@
                 <div class="mode-selector">
                     <div class="mode-chip active" id="modeCombined" onclick="switchLeaderboardMode('combined')">COMBINED</div>
                     <div class="mode-chip" id="mode1v1" onclick="switchLeaderboardMode('1v1')">1V1 DUELS</div>
-                    <div class="mode-chip" id="mode2v2" onclick="switchLeaderboardMode('2v2')">2V2 WINGMAN</div>
+                    <div class="mode-chip" id="mode2v2" style="opacity: 0.4; pointer-events: none; background: #27272a; color: #71717a; border-color: #3f3f46; cursor: not-allowed;" onclick="switchLeaderboardMode('2v2')">2V2 WINGMAN (DISABLED)</div>
                 </div>
 
                 <!-- Leaderboard Cards list -->
@@ -899,7 +899,7 @@
                 <!-- Lobby & Team Balancer Panel -->
                 <div class="glass-panel lobby-panel" id="lobbyPanel">
                     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(255, 255, 255, 0.08); padding-bottom: 6px;">
-                        <span style="font-size: 0.68rem; font-weight: 800; color: var(--red-neon); letter-spacing: 0.5px;">TEAM BALANCING LOBBY</span>
+                        <span style="font-size: 0.68rem; font-weight: 800; color: var(--red-neon); letter-spacing: 0.5px;">1v1 대기열</span>
                         <span id="lobbyCount" style="font-size: 0.68rem; font-weight: 800; color: var(--text-muted);">0 selected</span>
                     </div>
                     
@@ -907,8 +907,8 @@
                     <div class="filter-row" id="filterTags" style="height: 32px; flex-shrink: 0;"></div>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                        <button id="balance1v1Btn" class="control-btn" style="background: var(--red-neon);" disabled>Balance 1v1</button>
-                        <button id="balance2v2Btn" class="control-btn" style="background: var(--blue-neon);" disabled>Balance 2v2</button>
+                        <button id="balance1v1Btn" class="control-btn" style="background: var(--red-neon);" disabled>추천 매칭 생성</button>
+                        <button id="balance2v2Btn" class="control-btn" style="background: #27272a; color: #71717a; opacity: 0.4; cursor: not-allowed;" disabled>Balance 2v2</button>
                     </div>
                 </div>
 
@@ -936,44 +936,15 @@
 
 
 
-    <!-- Squad Balancing Results Modal -->
+    <!-- Recommended Matchups Results Modal -->
     <div class="modal" id="lobbyModal">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width: 420px;">
             <div class="modal-header">
-                <h2>BALANCED SQUADS (매치 밸런서 결과)</h2>
+                <h2 id="lobbyModalTitle">추천 매칭 결과</h2>
                 <button class="close-btn" id="closeLobbyModal">&times;</button>
             </div>
-            <div style="padding: 14px; display: flex; flex-direction: column; gap: 12px;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                    <!-- Team RED -->
-                    <div class="team-box-red">
-                        <div class="team-box-header" style="color: var(--red-neon);">RED Team</div>
-                        <div id="team1List" style="display: flex; flex-direction: column; gap: 4px; min-height: 40px;"></div>
-                        <div class="team-avg-info">
-                            <span>AVG ELO</span>
-                            <span id="team1Avg" style="color: var(--text-primary);">0</span>
-                        </div>
-                    </div>
-                    <!-- Team BLUE -->
-                    <div class="team-box-blue">
-                        <div class="team-box-header" style="color: var(--blue-neon);">BLUE Team</div>
-                        <div id="team2List" style="display: flex; flex-direction: column; gap: 4px; min-height: 40px;"></div>
-                        <div class="team-avg-info">
-                            <span>AVG ELO</span>
-                            <span id="team2Avg" style="color: var(--text-primary);">0</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div style="text-align: center; border-top: 1px dashed rgba(255, 255, 255, 0.08); padding-top: 10px; display: flex; flex-direction: column; gap: 4px;">
-                    <div style="font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Expected Win Probability</div>
-                    <div style="font-size: 0.76rem; font-weight: 700;">
-                        RED <span id="winProbRed" class="text-red">50%</span> : <span id="winProbBlue" class="text-blue">50%</span> BLUE
-                    </div>
-                    <div style="font-size: 0.62rem; color: var(--text-muted); margin-top: 4px;">
-                        ELO 차이: <span id="eloDiff" style="color: var(--text-primary); font-weight: bold;">0</span>
-                    </div>
-                </div>
+            <div id="lobbyModalBody" style="padding: 16px; display: flex; flex-direction: column; gap: 12px; max-height: 400px; overflow-y: auto;">
+                <!-- Generated matchmaking pairs will go here -->
             </div>
         </div>
     </div>
@@ -1401,7 +1372,7 @@
         // Team Balancer drafting logic
         function balanceTeams(mode) {
             if (selectedLobbyPlayers.size < 2) {
-                alert("팀 밸런싱을 위해선 최소 2명 이상의 플레이어가 로비에 등록되어야 합니다.");
+                alert("대진 생성을 위해선 최소 2명 이상의 플레이어가 대기열에 등록되어야 합니다.");
                 return;
             }
             if (mode === '2v2' && selectedLobbyPlayers.size < 4) {
@@ -1414,68 +1385,112 @@
                 return found || { Nickname: nick, Elo1v1: 1500, Elo2v2: 1500, EloCombined: 1500 };
             });
 
-            // Sort by mode ELO descending
             const eloKey = mode === '1v1' ? 'Elo1v1' : 'Elo2v2';
+            // Sort by ELO descending
             players.sort((a, b) => b[eloKey] - a[eloKey]);
 
-            const team1 = [];
-            const team2 = [];
-            let sum1 = 0;
-            let sum2 = 0;
+            const container = document.getElementById('lobbyModalBody');
+            container.innerHTML = '';
 
-            // Snake draft distribution
-            players.forEach((p, idx) => {
-                const elo = p[eloKey];
-                if (idx % 2 === 0) {
-                    if (team1.length <= team2.length) {
-                        team1.push(p);
-                        sum1 += elo;
+            if (mode === '1v1') {
+                document.getElementById('lobbyModalTitle').innerText = "추천 매칭 결과";
+
+                // Pair adjacent players
+                for (let i = 0; i < players.length; i += 2) {
+                    if (i + 1 < players.length) {
+                        const p1 = players[i];
+                        const p2 = players[i + 1];
+                        const elo1 = p1[eloKey];
+                        const elo2 = p2[eloKey];
+
+                        // Win probabilities
+                        const prob1 = 1 / (1 + Math.pow(10, (elo2 - elo1) / 400));
+                        const prob2 = 1 - prob1;
+
+                        const matchDiv = document.createElement('div');
+                        matchDiv.style.cssText = "background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);";
+                        matchDiv.innerHTML = `
+                            <div style="font-size: 0.65rem; font-weight: 800; color: var(--red-neon); letter-spacing: 0.5px;">MATCH #${(i/2)+1}</div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 0;">
+                                <span style="font-weight: 800; font-size: 0.85rem; color: var(--text-primary);">${p1.Nickname} <span style="font-size: 0.7rem; color: var(--text-muted); font-family: 'Outfit'; font-weight: 500;">(${elo1})</span></span>
+                                <span style="font-weight: 900; color: var(--gold); font-size: 0.75rem; letter-spacing: 1px; font-family: 'Orbitron';">VS</span>
+                                <span style="font-weight: 800; font-size: 0.85rem; color: var(--text-primary); text-align: right;">${p2.Nickname} <span style="font-size: 0.7rem; color: var(--text-muted); font-family: 'Outfit'; font-weight: 500;">(${elo2})</span></span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.68rem; color: var(--text-muted); border-top: 1px dashed rgba(255,255,255,0.05); padding-top: 6px; margin-top: 2px;">
+                                <span>예상 승률: <span class="text-red" style="font-weight: 800;">${Math.round(prob1 * 100)}%</span></span>
+                                <span>예상 승률: <span class="text-blue" style="font-weight: 800;">${Math.round(prob2 * 100)}%</span></span>
+                            </div>
+                        `;
+                        container.appendChild(matchDiv);
                     } else {
-                        team2.push(p);
-                        sum2 += elo;
-                    }
-                } else {
-                    if (team2.length <= team1.length) {
-                        team2.push(p);
-                        sum2 += elo;
-                    } else {
-                        team1.push(p);
-                        sum1 += elo;
+                        // Odd player out
+                        const p = players[i];
+                        const waitingDiv = document.createElement('div');
+                        waitingDiv.style.cssText = "background: rgba(255,255,255,0.01); border: 1px dashed rgba(255,255,255,0.1); padding: 12px; border-radius: 12px; text-align: center; color: var(--text-muted); font-size: 0.8rem; font-weight: 700; margin-top: 4px;";
+                        waitingDiv.innerHTML = `💤 <span style="color: var(--text-muted);">대기자 (Waiting):</span> <span style="color: var(--text-primary); font-weight: 800;">${p.Nickname}</span> <span style="font-size: 0.7rem; font-family: 'Outfit';">(${p[eloKey]})</span>`;
+                        container.appendChild(waitingDiv);
                     }
                 }
-            });
+            } else {
+                // 2v2 Fallback balancing (displays teams)
+                document.getElementById('lobbyModalTitle').innerText = "추천 매칭 결과 (2v2)";
 
-            // Render modal lists
-            const t1Container = document.getElementById('team1List');
-            const t2Container = document.getElementById('team2List');
-            t1Container.innerHTML = '';
-            t2Container.innerHTML = '';
+                const team1 = [];
+                const team2 = [];
+                let sum1 = 0;
+                let sum2 = 0;
 
-            team1.forEach(p => {
-                const div = document.createElement('div');
-                div.className = 'team-member-row';
-                div.innerHTML = `<span>${p.Nickname}</span><span style="color:var(--text-muted); font-family:Outfit;">${p[eloKey]}</span>`;
-                t1Container.appendChild(div);
-            });
-            const avg1 = team1.length > 0 ? Math.round(sum1 / team1.length) : 1500;
-            document.getElementById('team1Avg').innerText = avg1;
+                players.forEach((p, idx) => {
+                    const elo = p[eloKey];
+                    if (idx % 2 === 0) {
+                        if (team1.length <= team2.length) { team1.push(p); sum1 += elo; }
+                        else { team2.push(p); sum2 += elo; }
+                    } else {
+                        if (team2.length <= team1.length) { team2.push(p); sum2 += elo; }
+                        else { team1.push(p); sum1 += elo; }
+                    }
+                });
 
-            team2.forEach(p => {
-                const div = document.createElement('div');
-                div.className = 'team-member-row';
-                div.innerHTML = `<span>${p.Nickname}</span><span style="color:var(--text-muted); font-family:Outfit;">${p[eloKey]}</span>`;
-                t2Container.appendChild(div);
-            });
-            const avg2 = team2.length > 0 ? Math.round(sum2 / team2.length) : 1500;
-            document.getElementById('team2Avg').innerText = avg2;
+                const avg1 = team1.length > 0 ? Math.round(sum1 / team1.length) : 1500;
+                const avg2 = team2.length > 0 ? Math.round(sum2 / team2.length) : 1500;
+                const eloDiff = Math.abs(avg1 - avg2);
+                const probRed = 1 / (1 + Math.pow(10, (avg2 - avg1) / 400));
 
-            // Difference & probabilities
-            document.getElementById('eloDiff').innerText = Math.abs(avg1 - avg2);
+                const redListHtml = team1.map(p => `<div style="display:flex; justify-content:space-between; font-size:0.8rem; font-weight:700;"><span>${p.Nickname}</span><span style="font-family:Outfit;color:var(--text-muted);">${p[eloKey]}</span></div>`).join('');
+                const blueListHtml = team2.map(p => `<div style="display:flex; justify-content:space-between; font-size:0.8rem; font-weight:700;"><span>${p.Nickname}</span><span style="font-family:Outfit;color:var(--text-muted);">${p[eloKey]}</span></div>`).join('');
 
-            // Win probabilities
-            const probRed = 1 / (1 + Math.pow(10, (avg2 - avg1) / 400));
-            document.getElementById('winProbRed').innerText = `${Math.round(probRed * 100)}%`;
-            document.getElementById('winProbBlue').innerText = `${Math.round((1 - probRed) * 100)}%`;
+                const div2v2 = document.createElement('div');
+                div2v2.innerHTML = `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <div style="border:1px solid rgba(255,0,60,0.15); padding:10px; border-radius:8px; background:rgba(255,0,60,0.02);">
+                            <div style="color:var(--red-neon); font-weight:800; font-size:0.75rem; margin-bottom:6px; border-bottom:1px dashed rgba(255,0,60,0.1); padding-bottom:4px;">🔴 RED Team</div>
+                            <div style="display:flex; flex-direction:column; gap:4px; min-height:40px;">${redListHtml}</div>
+                            <div style="margin-top:8px; font-size:0.68rem; display:flex; justify-content:space-between; border-top:1px solid rgba(255,255,255,0.05); padding-top:4px;">
+                                <span>AVG ELO</span>
+                                <span style="font-weight:800; color:var(--text-primary); font-family:Outfit;">${avg1}</span>
+                            </div>
+                        </div>
+                        <div style="border:1px solid rgba(0,210,255,0.15); padding:10px; border-radius:8px; background:rgba(0,210,255,0.02);">
+                            <div style="color:var(--blue-neon); font-weight:800; font-size:0.75rem; margin-bottom:6px; border-bottom:1px dashed rgba(0,210,255,0.1); padding-bottom:4px;">🔵 BLUE Team</div>
+                            <div style="display:flex; flex-direction:column; gap:4px; min-height:40px;">${blueListHtml}</div>
+                            <div style="margin-top:8px; font-size:0.68rem; display:flex; justify-content:space-between; border-top:1px solid rgba(255,255,255,0.05); padding-top:4px;">
+                                <span>AVG ELO</span>
+                                <span style="font-weight:800; color:var(--text-primary); font-family:Outfit;">${avg2}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="text-align: center; border-top: 1px dashed rgba(255, 255, 255, 0.08); padding-top: 10px; display: flex; flex-direction: column; gap: 4px; margin-top:10px;">
+                        <div style="font-size: 0.6rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Expected Win Probability</div>
+                        <div style="font-size: 0.76rem; font-weight: 700;">
+                            RED <span class="text-red">${Math.round(probRed * 100)}%</span> : <span class="text-blue">${Math.round((1 - probRed) * 100)}%</span> BLUE
+                        </div>
+                        <div style="font-size: 0.6rem; color: var(--text-muted); margin-top: 2px;">
+                            ELO 차이: <span style="color: var(--text-primary); font-weight: bold; font-family:Outfit;">${eloDiff}</span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div2v2);
+            }
 
             openModal('lobbyModal');
         }
@@ -1613,7 +1628,7 @@
 
             document.getElementById('lobbyCount').innerText = `${selectedLobbyPlayers.size} selected`;
             document.getElementById('balance1v1Btn').disabled = selectedLobbyPlayers.size < 2;
-            document.getElementById('balance2v2Btn').disabled = selectedLobbyPlayers.size < 4;
+            document.getElementById('balance2v2Btn').disabled = true; // Permanently disabled for Wingman
         }
 
         // Search Autocomplete Rendering
