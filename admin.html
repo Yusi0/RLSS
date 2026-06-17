@@ -1295,6 +1295,27 @@
                         </div>
                     </div>
 
+                    <div class="divider"></div>
+
+                    <!-- Admin password hash helper -->
+                    <div class="helper-box">
+                        <div class="helper-box-title">🔐 Step 3 (옵션) — 관리자 비밀번호 해시 생성기</div>
+                        <div class="notice" style="margin-bottom:12px;">
+                            새로운 관리자를 추가하거나 비밀번호를 변경하려면 SHA-256 해시가 필요합니다. 아래에 원하는 비밀번호를 입력하고 <strong>[해시 생성]</strong>을 눌러 나온 해시값을 <code>admin.html</code> 소스코드의 <code>ADMIN_ACCOUNTS</code> 객체에 추가하세요.
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:10px;">
+                            <div class="form-group">
+                                <label>비밀번호 입력</label>
+                                <input type="password" class="form-control" id="newAdminPw" placeholder="새 관리자 비밀번호 입력">
+                            </div>
+                            <button class="btn-primary" onclick="generateAdminHash()" style="height:42px;">🔐 해시 생성</button>
+                            <div>
+                                <div class="encrypted-output" id="adminHashOutput">해시값이 여기에 생성됩니다...</div>
+                                <button class="copy-btn" onclick="copyAdminHashOutput()">📋 복사</button>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -1310,8 +1331,12 @@
         // 생성 방법: GitHub 설정 탭 → Step 1 → 암호문 생성 → 복사 후 아래에 붙여넣기
         const ENCRYPTED_GIT_CONFIG = 'c5GsjjU1G5hG4GDvokKEDOdADwafpys86zgb3nT3QkO4kCVcp7qFwfk6A+5H2vAe3OnhcB5YSlF3oMgiuPJyc0vsbD1kN57u4BI+ioaur69vZMwUS2q3aXTvp24Rl9HybL3WEQN9svD1Rrz30YrfOWBRTNZ2hDhj/R2q7xYGnqWPeecH1cREuyLcNp57ju7ou783B2z6ul8UpOA+6OZ6TiZYp4MXY4JvJ5GdidDyiFGor0RP7UQxQwXKO6TuzYT5ajoGMZgyPaZ9jkzXvCajWfjU6yngs71Ngmx5iN4n+co=';
 
-        // Admin credentials hash
-        const ADMIN_HASH = '633ab1efabb93b98b09dd338b6d800cbe26e1b8d1b8f9ec7876d20024eb184e3';
+        // 관리자 계정 목록 (ID: 비밀번호 SHA-256 해시)
+        const ADMIN_ACCOUNTS = {
+            'asdf12312': '633ab1efabb93b98b09dd338b6d800cbe26e1b8d1b8f9ec7876d20024eb184e3',
+            'yusi0': '633ab1efabb93b98b09dd338b6d800cbe26e1b8d1b8f9ec7876d20024eb184e3',
+            'phantom': '633ab1efabb93b98b09dd338b6d800cbe26e1b8d1b8f9ec7876d20024eb184e3'
+        };
 
         const MAPS_1V1 = ['highrise', 'kabuki', 'arc'];
         const MAPS_2V2 = ['metro'];
@@ -1326,6 +1351,18 @@
         const HISTORY_PER_PAGE = 15;
         let decryptedGitConfig = null; // cached after first successful decrypt
         let currentAdminPassword = null; // cached during session to avoid hardcoding secrets
+        let currentAdminId = null; // logged in admin ID
+
+        function getEncryptedConfigForUser(id) {
+            if (!ENCRYPTED_GIT_CONFIG) return null;
+            if (typeof ENCRYPTED_GIT_CONFIG === 'string') {
+                return ENCRYPTED_GIT_CONFIG;
+            }
+            if (typeof ENCRYPTED_GIT_CONFIG === 'object') {
+                return ENCRYPTED_GIT_CONFIG[id] || null;
+            }
+            return null;
+        }
 
         // ================================================================
         // CRYPTO UTILITIES
@@ -1394,29 +1431,34 @@
             const pw = document.getElementById('loginPw').value;
             const errEl = document.getElementById('loginError');
 
-            if (id !== 'asdf12312') {
+            if (!ADMIN_ACCOUNTS.hasOwnProperty(id)) {
                 errEl.style.display = 'block';
                 return;
             }
 
             const hash = await sha256(pw);
-            if (hash !== ADMIN_HASH) {
+            if (hash !== ADMIN_ACCOUNTS[id]) {
                 errEl.style.display = 'block';
                 return;
             }
 
             // Try to decrypt embedded config right away
-            if (ENCRYPTED_GIT_CONFIG) {
-                decryptedGitConfig = await decryptData(ENCRYPTED_GIT_CONFIG, pw);
+            const encConfig = getEncryptedConfigForUser(id);
+            if (encConfig) {
+                decryptedGitConfig = await decryptData(encConfig, pw);
             }
 
+            currentAdminId = id;
             currentAdminPassword = pw; // Cache password in-memory to use for config encryption
+            document.querySelector('.admin-user-chip').textContent = `🔓 ${id}`;
             showDashboard();
         }
 
         function handleLogout() {
             decryptedGitConfig = null;
             currentAdminPassword = null; // Clear cached password
+            currentAdminId = null;
+            document.querySelector('.admin-user-chip').textContent = '🔓 admin';
             document.getElementById('adminDashboard').style.display = 'none';
             document.getElementById('loginGate').style.display = 'flex';
             document.getElementById('loginForm').reset();
@@ -1647,14 +1689,14 @@
                 csvMatches.push({
                     Round: nextRound, Mode: mode, Map: map, Nickname: p,
                     Kills: playerKd[p].k, Deaths: playerKd[p].d,
-                    Team: 'RED', 'Winning Team': winningTeam, Score: scoreStr, Registrant: 'admin'
+                    Team: 'RED', 'Winning Team': winningTeam, Score: scoreStr, Registrant: currentAdminId || 'admin'
                 });
             });
             blueTeam.forEach(p => {
                 csvMatches.push({
                     Round: nextRound, Mode: mode, Map: map, Nickname: p,
                     Kills: playerKd[p].k, Deaths: playerKd[p].d,
-                    Team: 'BLUE', 'Winning Team': winningTeam, Score: scoreStr, Registrant: 'admin'
+                    Team: 'BLUE', 'Winning Team': winningTeam, Score: scoreStr, Registrant: currentAdminId || 'admin'
                 });
             });
 
@@ -1869,10 +1911,11 @@
             if (decryptedGitConfig) return decryptedGitConfig;
 
             // 2. Try embedded config with stored password
-            if (ENCRYPTED_GIT_CONFIG) {
-                const pw = sessionStorage.getItem('rl_admin_pw');
+            const encConfig = getEncryptedConfigForUser(currentAdminId);
+            if (encConfig) {
+                const pw = currentAdminPassword;
                 if (pw) {
-                    const cfg = await decryptData(ENCRYPTED_GIT_CONFIG, pw);
+                    const cfg = await decryptData(encConfig, pw);
                     if (cfg) { decryptedGitConfig = cfg; return cfg; }
                 }
             }
@@ -1891,7 +1934,13 @@
         function updateConfigStatus() {
             const statusEl = document.getElementById('configStatus');
             const textEl = document.getElementById('configStatusText');
-            if (ENCRYPTED_GIT_CONFIG) {
+            
+            const hasConfig = ENCRYPTED_GIT_CONFIG && (
+                typeof ENCRYPTED_GIT_CONFIG === 'string' || 
+                (typeof ENCRYPTED_GIT_CONFIG === 'object' && Object.keys(ENCRYPTED_GIT_CONFIG).length > 0)
+            );
+            
+            if (hasConfig) {
                 statusEl.className = 'config-status unlocked';
                 statusEl.querySelector('.config-status-icon').textContent = '✅';
                 statusEl.querySelector('div > div:first-child').textContent = '암호화된 설정 내장됨';
@@ -1963,6 +2012,25 @@
             document.getElementById('lsRepo').value = localStorage.getItem('redliner_git_repo') || '';
             document.getElementById('lsBranch').value = localStorage.getItem('redliner_git_branch') || 'main';
             document.getElementById('lsPath').value = localStorage.getItem('redliner_git_path') || 'RedlinerLeaderboard';
+        }
+
+        async function generateAdminHash() {
+            const pw = document.getElementById('newAdminPw').value;
+            if (!pw) {
+                showToast('비밀번호를 입력하세요.', 'error');
+                return;
+            }
+            showSpinner(true);
+            const hash = await sha256(pw);
+            showSpinner(false);
+            document.getElementById('adminHashOutput').textContent = hash;
+            showToast('비밀번호 해시값이 생성되었습니다!', 'success');
+        }
+
+        function copyAdminHashOutput() {
+            const text = document.getElementById('adminHashOutput').textContent;
+            if (text === '해시값이 여기에 생성됩니다...') return;
+            navigator.clipboard.writeText(text).then(() => showToast('클립보드에 복사되었습니다.', 'success'));
         }
 
         // ================================================================
