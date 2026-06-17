@@ -1142,10 +1142,32 @@
                     </div>
 
                     <div class="action-row">
-                        <button type="button" class="btn-secondary" onclick="submitMatch(false)">로컬 저장</button>
-                        <button type="button" class="btn-green" onclick="submitMatch(true)">저장 및 GitHub 배포</button>
+                        <button type="button" class="btn-green" style="width: 100%;" onclick="addMatchToQueue()">+ 경기 대기열에 추가</button>
                     </div>
                 </form>
+            </div>
+
+            <div class="glass-panel" id="queuePanel" style="margin-top: 16px; display: none;">
+                <div class="panel-title">Pending Scrims Queue — 등록 대기 중인 경기 (<span id="queueCount">0</span>)</div>
+                <div class="match-table-wrapper">
+                    <table class="match-table">
+                        <thead>
+                            <tr>
+                                <th>모드</th>
+                                <th>맵</th>
+                                <th>RED 팀</th>
+                                <th>스코어</th>
+                                <th>BLUE 팀</th>
+                                <th>작업</th>
+                            </tr>
+                        </thead>
+                        <tbody id="queueTableBody"></tbody>
+                    </table>
+                </div>
+                <div class="action-row" style="margin-top: 14px;">
+                    <button type="button" class="btn-secondary" onclick="submitPendingQueue(false)">로컬에 일괄 저장</button>
+                    <button type="button" class="btn-green" onclick="submitPendingQueue(true)">일괄 저장 및 GitHub 배포</button>
+                </div>
             </div>
         </div>
 
@@ -1354,6 +1376,7 @@
         // STATE
         // ================================================================
         let csvMatches = [];
+        let pendingMatchesQueue = [];
         let playerStats = [];
         let historyFilter = 'all';
         let historyPage = 1;
@@ -1665,7 +1688,7 @@
             return true;
         }
 
-        async function submitMatch(triggerPush) {
+        function addMatchToQueue() {
             if (!validateMatchForm()) return;
 
             const mode = document.getElementById('formMode').value;
@@ -1681,8 +1704,6 @@
                 blueTeam.push(document.getElementById('blueP2').value.trim());
             }
 
-            const rounds = getRoundList();
-            const nextRound = rounds.length > 0 ? Math.max(...rounds) + 1 : 1;
             const winningTeam = sr > sb ? 'RED' : 'BLUE';
             const scoreStr = `${sr}:${sb}`;
 
@@ -1714,34 +1735,120 @@
                 }
             }
 
-            redTeam.forEach(p => {
-                csvMatches.push({
-                    Round: nextRound, Mode: mode, Map: map, Nickname: p,
-                    Kills: playerKd[p].k, Deaths: playerKd[p].d,
-                    Team: 'RED', 'Winning Team': winningTeam, Score: scoreStr, Registrant: currentAdminId || 'admin'
-                });
+            // Push to temporary pending queue
+            pendingMatchesQueue.push({
+                mode,
+                map,
+                redTeam,
+                blueTeam,
+                scoreRed: sr,
+                scoreBlue: sb,
+                winningTeam,
+                scoreStr,
+                playerKd
             });
-            blueTeam.forEach(p => {
-                csvMatches.push({
-                    Round: nextRound, Mode: mode, Map: map, Nickname: p,
-                    Kills: playerKd[p].k, Deaths: playerKd[p].d,
-                    Team: 'BLUE', 'Winning Team': winningTeam, Score: scoreStr, Registrant: currentAdminId || 'admin'
+
+            // Reset form fields
+            document.getElementById('redP1').value = '';
+            document.getElementById('blueP1').value = '';
+            document.getElementById('scoreRed').value = '';
+            document.getElementById('scoreBlue').value = '';
+            if (mode === '2v2') {
+                document.getElementById('redP2').value = '';
+                document.getElementById('blueP2').value = '';
+                document.getElementById('redP1K').value = '';
+                document.getElementById('redP1D').value = '';
+                document.getElementById('redP2K').value = '';
+                document.getElementById('redP2D').value = '';
+                document.getElementById('blueP1K').value = '';
+                document.getElementById('blueP1D').value = '';
+                document.getElementById('blueP2K').value = '';
+                document.getElementById('blueP2D').value = '';
+            }
+
+            renderPendingQueue();
+            showToast('경기가 대기열에 추가되었습니다.', 'success');
+        }
+
+        function renderPendingQueue() {
+            const panel = document.getElementById('queuePanel');
+            const tbody = document.getElementById('queueTableBody');
+            const countEl = document.getElementById('queueCount');
+
+            if (pendingMatchesQueue.length === 0) {
+                panel.style.display = 'none';
+                return;
+            }
+
+            panel.style.display = 'block';
+            countEl.textContent = pendingMatchesQueue.length;
+            tbody.innerHTML = '';
+
+            pendingMatchesQueue.forEach((m, idx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><span class="badge badge-mode">${m.mode}</span></td>
+                    <td style="font-weight:700;text-transform:uppercase;">${m.map}</td>
+                    <td class="text-red" style="color:var(--red-neon);font-weight:700;">${m.redTeam.join(', ')}</td>
+                    <td style="font-family:'Outfit',sans-serif;font-weight:800;">${m.scoreStr}</td>
+                    <td style="color:var(--blue-neon);font-weight:700;">${m.blueTeam.join(', ')}</td>
+                    <td><button class="btn-delete" onclick="removeMatchFromQueue(${idx})">삭제</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function removeMatchFromQueue(index) {
+            pendingMatchesQueue.splice(index, 1);
+            renderPendingQueue();
+            showToast('대기열에서 경기가 삭제되었습니다.', 'info');
+        }
+
+        async function submitPendingQueue(triggerPush) {
+            if (pendingMatchesQueue.length === 0) {
+                showToast('대기열에 경기가 없습니다.', 'error');
+                return;
+            }
+
+            const rounds = getRoundList();
+            let nextRound = rounds.length > 0 ? Math.max(...rounds) + 1 : 1;
+
+            // Process queue items sequentially
+            pendingMatchesQueue.forEach(m => {
+                const currentRound = nextRound++;
+                
+                m.redTeam.forEach(p => {
+                    csvMatches.push({
+                        Round: currentRound, Mode: m.mode, Map: m.map, Nickname: p,
+                        Kills: m.playerKd[p].k, Deaths: m.playerKd[p].d,
+                        Team: 'RED', 'Winning Team': m.winningTeam, Score: m.scoreStr, Registrant: currentAdminId || 'admin'
+                    });
+                });
+
+                m.blueTeam.forEach(p => {
+                    csvMatches.push({
+                        Round: currentRound, Mode: m.mode, Map: m.map, Nickname: p,
+                        Kills: m.playerKd[p].k, Deaths: m.playerKd[p].d,
+                        Team: 'BLUE', 'Winning Team': m.winningTeam, Score: m.scoreStr, Registrant: currentAdminId || 'admin'
+                    });
                 });
             });
 
+            // Recalculate and update
             const results = recalculateAll(csvMatches);
             playerStats = results.leaderboardList;
             localStorage.setItem('redliner_matches', JSON.stringify(csvMatches));
             localStorage.setItem('redliner_leaderboard', JSON.stringify(playerStats));
 
-            document.getElementById('matchForm').reset();
-            onModeChange();
+            // Clear queue
+            pendingMatchesQueue = [];
+            renderPendingQueue();
             renderHistory();
 
             if (triggerPush) {
                 await pushToGitHub(results.aftercalcHistory);
             } else {
-                showToast('전적이 로컬에 저장되었습니다.', 'info');
+                showToast('대기열의 모든 경기가 로컬에 저장되었습니다.', 'success');
             }
         }
 
