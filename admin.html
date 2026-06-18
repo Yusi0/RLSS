@@ -52,8 +52,10 @@
             background-image:
                 radial-gradient(at 10% 20%, rgba(255, 0, 60, 0.06) 0px, transparent 50%),
                 radial-gradient(at 90% 80%, rgba(0, 210, 255, 0.05) 0px, transparent 50%);
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE/Edge */
+            scrollbar-width: none;
+            /* Firefox */
+            -ms-overflow-style: none;
+            /* IE/Edge */
         }
 
         html::-webkit-scrollbar,
@@ -1152,7 +1154,8 @@
                     </div>
 
                     <div class="action-row">
-                        <button type="button" class="btn-green" style="width: 100%;" onclick="addMatchToQueue()">+ 경기 대기열에 추가</button>
+                        <button type="button" class="btn-green" style="width: 100%;" onclick="addMatchToQueue()">+ 경기
+                            대기열에 추가</button>
                     </div>
                 </form>
             </div>
@@ -1176,7 +1179,8 @@
                 </div>
                 <div class="action-row" style="margin-top: 14px;">
                     <button type="button" class="btn-secondary" onclick="submitPendingQueue(false)">로컬에 일괄 저장</button>
-                    <button type="button" class="btn-green" onclick="submitPendingQueue(true)">일괄 저장 및 GitHub 배포</button>
+                    <button type="button" class="btn-green" onclick="submitPendingQueue(true)">일괄 저장 및 GitHub
+                        배포</button>
                 </div>
             </div>
         </div>
@@ -1225,15 +1229,21 @@
                 </div>
 
                 <!-- Staged modifications status bar -->
-                <div id="historyDirtyBar" class="glass-panel" style="display:none; margin-top:20px; border-color:var(--green-neon); padding:15px; text-align:center; box-shadow:0 0 15px rgba(0, 230, 118, 0.15);">
-                    <div style="font-weight:800; color:var(--green-neon); margin-bottom:10px; font-size:0.9rem;">매치 기록 변경사항이 있습니다 (저장되지 않음)</div>
+                <div id="historyDirtyBar" class="glass-panel"
+                    style="display:none; margin-top:20px; border-color:var(--green-neon); padding:15px; text-align:center; box-shadow:0 0 15px rgba(0, 230, 118, 0.15);">
+                    <div style="font-weight:800; color:var(--green-neon); margin-bottom:10px; font-size:0.9rem;">매치 기록
+                        변경사항이 있습니다 (저장되지 않음)</div>
                     <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:15px;">
-                        대기 중인 변경사항: 삭제 예정 <span id="dirtyDeleteCount">0</span>건, 수정 예정 <span id="dirtyEditCount">0</span>건
+                        대기 중인 변경사항: 삭제 예정 <span id="dirtyDeleteCount">0</span>건, 수정 예정 <span
+                            id="dirtyEditCount">0</span>건
                     </div>
                     <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
-                        <button type="button" class="btn-secondary" onclick="saveHistoryChanges(false)">로컬에 일괄 저장</button>
-                        <button type="button" class="btn-green" onclick="saveHistoryChanges(true)">일괄 저장 및 GitHub 배포</button>
-                        <button type="button" class="btn-delete" style="background:#27272a; border-color:#3f3f46;" onclick="cancelAllHistoryChanges()">변경사항 초기화</button>
+                        <button type="button" class="btn-secondary" onclick="saveHistoryChanges(false)">로컬에 일괄
+                            저장</button>
+                        <button type="button" class="btn-green" onclick="saveHistoryChanges(true)">일괄 저장 및 GitHub
+                            배포</button>
+                        <button type="button" class="btn-delete" style="background:#27272a; border-color:#3f3f46;"
+                            onclick="cancelAllHistoryChanges()">변경사항 초기화</button>
                     </div>
                 </div>
             </div>
@@ -1383,13 +1393,15 @@
 
         // 총관리자: 암호화 생성 후 아래 변수에 붙여넣으세요.
         // 생성 방법: GitHub 설정 탭 → Step 1 → 암호문 생성 → 복사 후 아래에 붙여넣기
-        const ENCRYPTED_GIT_CONFIG = 'c5GsjjU1G5hG4GDvokKEDOdADwafpys86zgb3nT3QkO4kCVcp7qFwfk6A+5H2vAe3OnhcB5YSlF3oMgiuPJyc0vsbD1kN57u4BI+ioaur69vZMwUS2q3aXTvp24Rl9HybL3WEQN9svD1Rrz30YrfOWBRTNZ2hDhj/R2q7xYGnqWPeecH1cREuyLcNp57ju7ou783B2z6ul8UpOA+6OZ6TiZYp4MXY4JvJ5GdidDyiFGor0RP7UQxQwXKO6TuzYT5ajoGMZgyPaZ9jkzXvCajWfjU6yngs71Ngmx5iN4n+co=';
+        const ENCRYPTED_GIT_CONFIG = {
+            'asdf12312': 'c5GsjjU1G5hG4GDvokKEDOdADwafpys86zgb3nT3QkO4kCVcp7qFwfk6A+5H2vAe3OnhcB5YSlF3oMgiuPJyc0vsbD1kN57u4BI+ioaur69vZMwUS2q3aXTvp24Rl9HybL3WEQN9svD1Rrz30YrfOWBRTNZ2hDhj/R2q7xYGnqWPeecH1cREuyLcNp57ju7ou783B2z6ul8UpOA+6OZ6TiZYp4MXY4JvJ5GdidDyiFGor0RP7UQxQwXKO6TuzYT5ajoGMZgyPaZ9jkzXvCajWfjU6yngs71Ngmx5iN4n+co=',
+            'Montelli': 'lQvURrMq+XgpDaUdQywWkZ4xSsEbWKdZnXj3jM+ben0S7xlTFkrAcvoJ2ZDWee+i4Gm6wLbigcIj3knzkGKarM/KODdqsfJ0CHplychf8tW3UAaDjzkZlvs1U66HPrHDaCir4qIYsc0IGJFxG+CRYEpP1TdpqdfsbHKsAMcniCXdFWLZOfZ1dhwof7oQjGNRfRm3yXaix7OKPyyITlKqeFceOXgEN7hj7prSYYvZwn2hqjK5YmcuCLOLdu5Xza/04aS77Cqze/22f5d1BQVrAhJXLtEdah5VzIev/tPtDw4='
+        };
 
         // 관리자 계정 목록 (ID: 비밀번호 SHA-256 해시)
         const ADMIN_ACCOUNTS = {
             'asdf12312': '633ab1efabb93b98b09dd338b6d800cbe26e1b8d1b8f9ec7876d20024eb184e3',
-            'yusi0': '633ab1efabb93b98b09dd338b6d800cbe26e1b8d1b8f9ec7876d20024eb184e3',
-            'phantom': '633ab1efabb93b98b09dd338b6d800cbe26e1b8d1b8f9ec7876d20024eb184e3'
+            'Montelli': '56400b01856e6ec745355829a8b45bb93ba2c7e08c8267f4478f8aa4b9077422'
         };
 
         const MAPS_1V1 = ['highrise', 'kabuki', 'arc'];
@@ -1407,7 +1419,7 @@
         let playerStats = [];
         let historyFilter = 'all';
         let historyPage = 1;
-        const HISTORY_PER_PAGE = 15;
+        const HISTORY_PER_PAGE = 10;
         let decryptedGitConfig = null; // cached after first successful decrypt
         let currentAdminPassword = null; // cached during session to avoid hardcoding secrets
         let currentAdminId = null; // logged in admin ID
@@ -1878,7 +1890,7 @@
             // Process queue items sequentially
             pendingMatchesQueue.forEach(m => {
                 const currentRound = nextRound++;
-                
+
                 m.redTeam.forEach(p => {
                     csvMatches.push({
                         Round: currentRound, Mode: m.mode, Map: m.map, Nickname: p,
