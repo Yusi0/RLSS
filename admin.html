@@ -2521,12 +2521,55 @@
 
             try {
                 await pushFilesToGitHub(token, owner, repo, branch, files);
-                showToast('✅ GitHub에 성공적으로 배포되었습니다!', 'success');
+                showToast('✅ GitHub 커밋 완료! Pages 배포를 확인 중입니다.', 'success');
+                await pollGitHubPagesDeployment(matchContent);
+                showToast('🚀 GitHub Pages 배포 완료! 화면이 동기화되었습니다.', 'success');
             } catch (err) {
                 console.error(err);
                 showToast('❌ GitHub 배포 실패: ' + err.message, 'error');
             } finally {
                 showSpinner(false);
+            }
+        }
+
+        function normalizeCSV(text) {
+            return text.replace(/\r/g, '').trim().split('\n').map(line => line.trim()).filter(Boolean).join('\n');
+        }
+
+        async function pollGitHubPagesDeployment(targetCSV) {
+            // Skip polling in local dev environments since local hard drive files are not auto-updated by API commits
+            if (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.protocol === 'file:') {
+                showToast('로컬 개발 환경이므로 Pages 배포 대기를 생략합니다.', 'info');
+                await loadData();
+                return;
+            }
+
+            const normalizedTarget = normalizeCSV(targetCSV);
+            const startTime = Date.now();
+            const timeout = 180000; // 3 minutes
+
+            while (true) {
+                const elapsedSec = Math.floor((Date.now() - startTime) / 1000);
+                showSpinner(true, `GITHUB PAGES 배포 대기 중 (${elapsedSec}초)...`);
+
+                if (Date.now() - startTime > timeout) {
+                    throw new Error('배포 확인 제한 시간(3분)을 초과했습니다. 페이지를 직접 새로고침하여 확인해보세요.');
+                }
+
+                try {
+                    const res = await fetch(`match.csv?t=${Date.now()}`);
+                    if (res.ok) {
+                        const csvText = await res.text();
+                        if (normalizeCSV(csvText) === normalizedTarget) {
+                            await loadData(); // Reload local data with new CSV
+                            return;
+                        }
+                    }
+                } catch (e) {
+                    console.warn('배포 상태 확인 오류: ', e);
+                }
+
+                await new Promise(resolve => setTimeout(resolve, 5000));
             }
         }
 
