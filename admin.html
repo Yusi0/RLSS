@@ -1284,7 +1284,7 @@
                                 <div class="form-group">
                                     <label>File Path Prefix</label>
                                     <input type="text" class="form-control" id="cfgPath"
-                                        placeholder="예: RedlinerLeaderboard" value="RedlinerLeaderboard">
+                                        placeholder="빈 칸 시 루트 폴더 (예: RedlinerLeaderboard)" value="">
                                 </div>
                             </div>
                             <div class="form-group">
@@ -1334,7 +1334,7 @@
                                 <div class="form-group">
                                     <label>File Path Prefix</label>
                                     <input type="text" class="form-control" id="lsPath"
-                                        placeholder="RedlinerLeaderboard" value="RedlinerLeaderboard">
+                                        placeholder="빈 칸 시 루트 폴더 (예: RedlinerLeaderboard)" value="">
                                 </div>
                             </div>
                             <div class="form-group">
@@ -1537,11 +1537,45 @@
         // ================================================================
         // DATA LOADING & PARSING
         // ================================================================
+        function decodeBase64UTF8(base64) {
+            const cleaned = base64.replace(/\s/g, '');
+            const binary = atob(cleaned);
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) {
+                bytes[i] = binary.charCodeAt(i);
+            }
+            return new TextDecoder('utf-8').decode(bytes);
+        }
+
         async function loadData() {
             try {
-                const [matchRes] = await Promise.all([
-                    fetch(`match.csv?t=${Date.now()}`)
-                ]);
+                // If logged in and Git config is resolved, fetch directly from GitHub API to avoid CDN/Pages deployment delays
+                const gitCfg = await resolveGitConfig();
+                if (gitCfg) {
+                    const { owner, repo, path, token } = gitCfg;
+                    const pathPrefix = (path && path.trim() !== '') ? `${path.trim()}/` : '';
+                    const url = `https://api.github.com/repos/${owner}/${repo}/contents/${pathPrefix}match.csv?t=${Date.now()}`;
+                    const res = await fetch(url, {
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        const csvText = decodeBase64UTF8(data.content);
+                        parseMatchCSV(csvText);
+                        const results = recalculateAll(csvMatches);
+                        playerStats = results.leaderboardList;
+                        localStorage.setItem('redliner_matches', JSON.stringify(csvMatches));
+                        localStorage.setItem('redliner_leaderboard', JSON.stringify(playerStats));
+                        renderHistory();
+                        return;
+                    }
+                }
+
+                // Fallback for local files or when not configured/logged in
+                const matchRes = await fetch(`match.csv?t=${Date.now()}`);
                 if (matchRes.ok) {
                     parseMatchCSV(await matchRes.text());
                     const results = recalculateAll(csvMatches);
@@ -1551,7 +1585,8 @@
                 } else {
                     loadFromLocalStorage();
                 }
-            } catch {
+            } catch (err) {
+                console.error('Data load error:', err);
                 loadFromLocalStorage();
             }
             renderHistory();
@@ -2360,7 +2395,13 @@
         // ================================================================
         async function resolveGitConfig() {
             // 1. Check decrypted embedded config
-            if (decryptedGitConfig) return decryptedGitConfig;
+            if (decryptedGitConfig) {
+                // For yusi0/RLSS, automatically override 'RedlinerLeaderboard' path to empty string (root)
+                if (decryptedGitConfig.owner === 'yusi0' && decryptedGitConfig.repo === 'RLSS' && decryptedGitConfig.path === 'RedlinerLeaderboard') {
+                    decryptedGitConfig.path = '';
+                }
+                return decryptedGitConfig;
+            }
 
             // 2. Try embedded config with stored password
             const encConfig = getEncryptedConfigForUser(currentAdminId);
@@ -2368,7 +2409,13 @@
                 const pw = currentAdminPassword;
                 if (pw) {
                     const cfg = await decryptData(encConfig, pw);
-                    if (cfg) { decryptedGitConfig = cfg; return cfg; }
+                    if (cfg) {
+                        if (cfg.owner === 'yusi0' && cfg.repo === 'RLSS' && cfg.path === 'RedlinerLeaderboard') {
+                            cfg.path = '';
+                        }
+                        decryptedGitConfig = cfg;
+                        return cfg;
+                    }
                 }
             }
 
@@ -2377,7 +2424,7 @@
             const repo = localStorage.getItem('redliner_git_repo');
             const token = localStorage.getItem('redliner_git_token');
             const branch = localStorage.getItem('redliner_git_branch') || 'main';
-            const path = localStorage.getItem('redliner_git_path') || 'RedlinerLeaderboard';
+            const path = localStorage.getItem('redliner_git_path') || '';
             if (owner && repo && token) return { owner, repo, token, branch, path };
 
             return null;
@@ -2409,7 +2456,7 @@
             const owner = document.getElementById('cfgOwner').value.trim();
             const repo = document.getElementById('cfgRepo').value.trim();
             const branch = document.getElementById('cfgBranch').value.trim() || 'main';
-            const path = document.getElementById('cfgPath').value.trim() || 'RedlinerLeaderboard';
+            const path = document.getElementById('cfgPath').value.trim();
             const token = document.getElementById('cfgToken').value.trim();
 
             if (!owner || !repo || !token) {
@@ -2443,7 +2490,7 @@
             const owner = document.getElementById('lsOwner').value.trim();
             const repo = document.getElementById('lsRepo').value.trim();
             const branch = document.getElementById('lsBranch').value.trim() || 'main';
-            const path = document.getElementById('lsPath').value.trim() || 'RedlinerLeaderboard';
+            const path = document.getElementById('lsPath').value.trim();
             const token = document.getElementById('lsToken').value.trim();
 
             if (!owner || !repo || !token) {
@@ -2463,7 +2510,7 @@
             document.getElementById('lsOwner').value = localStorage.getItem('redliner_git_owner') || '';
             document.getElementById('lsRepo').value = localStorage.getItem('redliner_git_repo') || '';
             document.getElementById('lsBranch').value = localStorage.getItem('redliner_git_branch') || 'main';
-            document.getElementById('lsPath').value = localStorage.getItem('redliner_git_path') || 'RedlinerLeaderboard';
+            document.getElementById('lsPath').value = localStorage.getItem('redliner_git_path') || '';
         }
 
         async function generateAdminHash() {
@@ -2513,63 +2560,23 @@
                 `${a.Round},${a.Nickname},${a.Mode},${a.EloAfterRound},${a.KdrAfterRound}`
             ).join('\n');
 
+            const pathPrefix = (path && path.trim() !== '') ? `${path.trim()}/` : '';
             const files = [
-                { path: `${path}/lboard.csv`, content: lboardContent },
-                { path: `${path}/match.csv`, content: matchContent },
-                { path: `${path}/aftercalc.csv`, content: aftercalcContent }
+                { path: `${pathPrefix}lboard.csv`, content: lboardContent },
+                { path: `${pathPrefix}match.csv`, content: matchContent },
+                { path: `${pathPrefix}aftercalc.csv`, content: aftercalcContent }
             ];
 
             try {
                 await pushFilesToGitHub(token, owner, repo, branch, files);
-                showToast('✅ GitHub 커밋 완료! Pages 배포를 확인 중입니다.', 'success');
-                await pollGitHubPagesDeployment(matchContent);
-                showToast('🚀 GitHub Pages 배포 완료! 화면이 동기화되었습니다.', 'success');
+                showToast('✅ GitHub에 성공적으로 저장되었습니다!', 'success');
+                showSpinner(true, 'DATABASES SYNCING...');
+                await loadData(); // Reload instantly from GitHub API
             } catch (err) {
                 console.error(err);
                 showToast('❌ GitHub 배포 실패: ' + err.message, 'error');
             } finally {
                 showSpinner(false);
-            }
-        }
-
-        function normalizeCSV(text) {
-            return text.replace(/\r/g, '').trim().split('\n').map(line => line.trim()).filter(Boolean).join('\n');
-        }
-
-        async function pollGitHubPagesDeployment(targetCSV) {
-            // Skip polling in local dev environments since local hard drive files are not auto-updated by API commits
-            if (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.protocol === 'file:') {
-                showToast('로컬 개발 환경이므로 Pages 배포 대기를 생략합니다.', 'info');
-                await loadData();
-                return;
-            }
-
-            const normalizedTarget = normalizeCSV(targetCSV);
-            const startTime = Date.now();
-            const timeout = 180000; // 3 minutes
-
-            while (true) {
-                const elapsedSec = Math.floor((Date.now() - startTime) / 1000);
-                showSpinner(true, `GITHUB PAGES 배포 대기 중 (${elapsedSec}초)...`);
-
-                if (Date.now() - startTime > timeout) {
-                    throw new Error('배포 확인 제한 시간(3분)을 초과했습니다. 페이지를 직접 새로고침하여 확인해보세요.');
-                }
-
-                try {
-                    const res = await fetch(`match.csv?t=${Date.now()}`);
-                    if (res.ok) {
-                        const csvText = await res.text();
-                        if (normalizeCSV(csvText) === normalizedTarget) {
-                            await loadData(); // Reload local data with new CSV
-                            return;
-                        }
-                    }
-                } catch (e) {
-                    console.warn('배포 상태 확인 오류: ', e);
-                }
-
-                await new Promise(resolve => setTimeout(resolve, 5000));
             }
         }
 
