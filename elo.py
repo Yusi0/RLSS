@@ -106,6 +106,10 @@ def calculate_tier(elo):
     tier_index = max(0, min(tier_index, len(tier_names) - 1))
     return tier_names[tier_index]
 
+def round_half_up(n):
+    """지정값을 소수점 첫째자리에서 반올림 (JS Math.round와 동일하게 작동)"""
+    return int(n + 0.5) if n >= 0 else int(n - 0.5)
+
 def calculate_elo(player_elo, opponent_avg_elo, result, kills, deaths, player_total_matches, player_wins, 
                   k_normal=30, kill_weight=0.2, death_weight=0.07, initial_k_factor=50, initial_matches_threshold=5):
     """KPFM 공식 기반 ELO 점수 계산"""
@@ -124,7 +128,7 @@ def calculate_elo(player_elo, opponent_avg_elo, result, kills, deaths, player_to
         performance_score *= 0.5  # 패배 시 KDA 보너스 패널티 감쇄
 
     new_elo = player_elo + elo_change_match_outcome + performance_score
-    return max(0, int(round(new_elo)))
+    return max(0, round_half_up(new_elo))
 
 def recalculate_all():
     """모든 경기 기록을 처음부터 다시 굴려 ELO 및 리더보드 통계 재연산"""
@@ -260,7 +264,7 @@ def recalculate_all():
     for nick, s in player_stats.items():
         t_1v1 = calculate_tier(s['elo_1v1'])
         t_2v2 = calculate_tier(s['elo_2v2'])
-        comb_elo = int(round((s['elo_1v1'] + s['elo_2v2']) / 2))
+        comb_elo = round_half_up((s['elo_1v1'] + s['elo_2v2']) / 2)
         
         cur.execute('''
             INSERT INTO leaderboard (
