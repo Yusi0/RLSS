@@ -424,7 +424,7 @@
         .tier-gold { color: var(--gold); }
         .tier-platinum { color: #38bdf8; }
         .tier-diamond { color: #a78bfa; }
-        .tier-champion { color: var(--red-neon); text-shadow: 0 0 4px var(--red-neon); }
+        .tier-redliner { color: var(--red-neon); text-shadow: 0 0 4px var(--red-neon); }
         .tier-unranked { color: #64748b; }
 
         /* Lobby Team Balancer */
@@ -1375,7 +1375,7 @@
                 "Gold 3", "Gold 2", "Gold 1",
                 "Platinum 3", "Platinum 2", "Platinum 1",
                 "Diamond 3", "Diamond 2", "Diamond 1",
-                "Champion"
+                "REDLINER"
             ];
             let idx = Math.floor((elo - baseElo) / 100) + 9;
             idx = Math.max(0, Math.min(idx, tierNames.length - 1));
