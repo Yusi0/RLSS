@@ -380,11 +380,16 @@
         }
 
         .tier-platinum {
-            color: #38bdf8;
+            color: #2dd4bf;
         }
 
         .tier-diamond {
-            color: #a78bfa;
+            color: #c084fc;
+        }
+
+        .tier-master {
+            color: #ff4791;
+            text-shadow: 0 0 4px #ff4791;
         }
 
         .tier-redliner {
@@ -986,6 +991,7 @@
                 "Gold 3", "Gold 2", "Gold 1",
                 "Platinum 3", "Platinum 2", "Platinum 1",
                 "Diamond 3", "Diamond 2", "Diamond 1",
+                "Master 3", "Master 2", "Master 1",
                 "REDLINER"
             ];
             let idx = Math.floor((elo - baseElo) / 100) + 9;

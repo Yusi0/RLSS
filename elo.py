@@ -100,6 +100,7 @@ def calculate_tier(elo):
         "Gold 3", "Gold 2", "Gold 1",
         "Platinum 3", "Platinum 2", "Platinum 1",
         "Diamond 3", "Diamond 2", "Diamond 1",
+        "Master 3", "Master 2", "Master 1",
         "REDLINER"
     ]
     tier_index = (elo - base_elo) // 100 + 9
