@@ -1,4 +1,4 @@
-﻿Round,Mode,Map,Nickname,Kills,Deaths,Team,Winning Team,Score,Registrant
+Round,Mode,Map,Nickname,Kills,Deaths,Team,Winning Team,Score,Registrant
 1,1v1,kabuki,Iluv_Aemeath,2,5,RED,BLUE,2:5,Montelli
 1,1v1,kabuki,dhxowns0306,5,2,BLUE,BLUE,2:5,Montelli
 2,1v1,arc,Iluv_Aemeath,5,2,RED,RED,5:2,Montelli
@@ -23,3 +23,5 @@
 11,1v1,highrise,What123567808,4,5,BLUE,RED,5:4,Montelli
 12,1v1,arc,TOM245111,2,5,RED,BLUE,2:5,Montelli
 12,1v1,arc,What123567808,5,2,BLUE,BLUE,2:5,Montelli
+13,1v1,highrise,What123567808,5,1,RED,RED,5:1,asdf12312
+13,1v1,highrise,agw117,1,5,BLUE,RED,5:1,asdf12312
