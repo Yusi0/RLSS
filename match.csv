@@ -25,3 +25,5 @@ Round,Mode,Map,Nickname,Kills,Deaths,Team,Winning Team,Score,Registrant
 12,1v1,arc,What123567808,5,2,BLUE,BLUE,2:5,Montelli
 13,1v1,highrise,What123567808,5,1,RED,RED,5:1,asdf12312
 13,1v1,highrise,agw117,1,5,BLUE,RED,5:1,asdf12312
+14,1v1,arc,What123567808,5,0,RED,RED,5:0,Montelli
+14,1v1,arc,agw117,0,5,BLUE,RED,5:0,Montelli
