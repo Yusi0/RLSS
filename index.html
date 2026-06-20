@@ -4,6 +4,38 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>REDLINER Scrim Leaderboard</title>
+    <script>
+        window.onerror = function(message, source, lineno, colno, error) {
+            var div = document.createElement('div');
+            div.style.position = 'fixed';
+            div.style.top = '0';
+            div.style.left = '0';
+            div.style.width = '100%';
+            div.style.height = '100%';
+            div.style.backgroundColor = 'rgba(0, 0, 0, 0.95)';
+            div.style.color = '#ff003c';
+            div.style.padding = '20px';
+            div.style.zIndex = '999999';
+            div.style.overflow = 'auto';
+            div.style.fontFamily = 'monospace';
+            div.style.fontSize = '14px';
+            div.innerHTML = '<h2 style="color:#ff003c;margin-bottom:15px;">🚨 [Browser JS Error Detected]</h2>' +
+                '<p style="margin:5px 0;"><b>Message:</b> ' + message + '</p>' +
+                '<p style="margin:5px 0;"><b>Source:</b> ' + source + '</p>' +
+                '<p style="margin:5px 0;"><b>Line:</b> ' + lineno + ' | <b>Column:</b> ' + colno + '</p>' +
+                '<p style="margin:15px 0 5px 0;"><b>Stack Trace:</b></p>' +
+                '<pre style="background:#1a1a1a;padding:10px;border-radius:4px;color:#ccc;white-space:pre-wrap;word-break:break-all;">' + (error && error.stack ? error.stack : 'N/A') + '</pre>';
+            
+            if (document.body) {
+                document.body.appendChild(div);
+            } else {
+                window.addEventListener('DOMContentLoaded', function() {
+                    document.body.appendChild(div);
+                });
+            }
+            return false;
+        };
+    </script>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
