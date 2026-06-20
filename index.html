@@ -9,7 +9,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Orbitron:wght@700;900&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
-
+    <!-- Firebase SDK (v8) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         :root {
             --bg-color: #09090b;
@@ -820,7 +822,8 @@
             }
 
             .tabs-bar {
-                display: none !important;
+                max-width: 480px;
+                margin: 0 auto 12px auto;
             }
 
             .main-content-layout {
@@ -879,11 +882,12 @@
             </div>
         </div>
 
-        <!-- Mobile Tab Navigation Bar -->
+        <!-- Tab Navigation Bar -->
         <div class="tabs-bar">
             <button id="tabLeaderboard" class="tab-btn active">Standings</button>
             <button id="tabLobby" class="tab-btn">Lobby</button>
             <button id="tabRounds" class="tab-btn">History</button>
+            <button id="tabSubmit" class="tab-btn">Match Submit</button>
         </div>
 
         <!-- Split Grid Layout -->
@@ -946,6 +950,66 @@
 
             </div>
 
+        </div>
+
+        <!-- Scrim Match Submission Panel -->
+        <div class="glass-panel" id="submitPanel" style="display: none; flex-direction: column; gap: 16px; width: 100%; max-width: 600px; margin: 0 auto; padding: 24px;">
+            <div style="font-size: 0.85rem; font-weight: 800; color: var(--red-neon); border-bottom: 1px dashed rgba(255, 255, 255, 0.08); padding-bottom: 8px; text-transform: uppercase;">
+                Scrim Match Submission (경기 결과 제출)
+            </div>
+            
+            <div id="submitTokenError" class="empty-state" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; font-weight: bold; color: var(--red-neon); text-align: center;">
+                <span class="icon" style="font-size: 2rem; margin-bottom: 10px;">🔒</span>
+                <span id="submitTokenErrorText">토큰이 없는 접근은 불가능합니다. 디스코드에서 발급받은 링크로 다시 접속해주세요.</span>
+            </div>
+
+            <form id="submitForm" style="display: none; flex-direction: column; gap: 14px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div class="form-group" style="display: flex; flex-direction: column; gap: 6px;">
+                        <label style="font-size: 0.68rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">모드 (MODE)</label>
+                        <input type="text" id="submitMode" class="form-control" readonly style="background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.08);">
+                    </div>
+                    <div class="form-group" style="display: flex; flex-direction: column; gap: 6px;">
+                        <label style="font-size: 0.68rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">맵 (MAP)</label>
+                        <input type="text" id="submitMap" class="form-control" readonly style="background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.08);">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 10px;">
+                    <!-- RED TEAM -->
+                    <div class="team-section" style="border: 1px solid rgba(255, 0, 60, 0.12); padding: 14px; border-radius: 12px; background: rgba(0, 0, 0, 0.2);">
+                        <div class="team-label red" style="color: var(--red-neon); font-size: 0.65rem; font-weight: 800; text-align: center; margin-bottom: 10px; text-transform: uppercase;">RED TEAM</div>
+                        <div id="redPlayersSubmitContainer" style="display: flex; flex-direction: column; gap: 10px;"></div>
+                    </div>
+
+                    <!-- BLUE TEAM -->
+                    <div class="team-section blue" style="border: 1px solid rgba(0, 210, 255, 0.12); padding: 14px; border-radius: 12px; background: rgba(0, 0, 0, 0.2);">
+                        <div class="team-label blue" style="color: var(--blue-neon); font-size: 0.65rem; font-weight: 800; text-align: center; margin-bottom: 10px; text-transform: uppercase;">BLUE TEAM</div>
+                        <div id="bluePlayersSubmitContainer" style="display: flex; flex-direction: column; gap: 10px;"></div>
+                    </div>
+                </div>
+
+                <div class="score-section" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 12px; margin-top: 8px;">
+                    <div style="font-size: 0.62rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">최종 스코어 (SCORE)</div>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+                            <span style="font-size: 0.6rem; font-weight: 800; color: var(--red-neon);">RED</span>
+                            <input type="number" id="submitScoreRed" class="form-control" style="width: 70px; text-align: center; font-size: 1.1rem; font-weight: 800;" min="0" placeholder="0">
+                        </div>
+                        <span style="font-size: 1.5rem; font-weight: 800; margin-top: 12px; color: var(--text-muted);">:</span>
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+                            <span style="font-size: 0.6rem; font-weight: 800; color: var(--blue-neon);">BLUE</span>
+                            <input type="number" id="submitScoreBlue" class="form-control" style="width: 70px; text-align: center; font-size: 1.1rem; font-weight: 800;" min="0" placeholder="0">
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 10px; font-size: 0.7rem; color: var(--text-muted); text-align: center;" id="submitInfoText">
+                    제출자: -
+                </div>
+
+                <button type="button" class="btn-green" id="submitMatchBtn" style="width: 100%; height: 44px; margin-top: 8px; font-weight: 800;">경기 결과 제출</button>
+            </form>
         </div>
 
     </div>
@@ -1030,8 +1094,8 @@
         });
 
         function setupEventListeners() {
-            // Tab selectors for mobile
-            ['Leaderboard', 'Lobby', 'Rounds'].forEach(t => {
+            // Tab selectors for desktop/mobile
+            ['Leaderboard', 'Lobby', 'Rounds', 'Submit'].forEach(t => {
                 const btn = document.getElementById(`tab${t}`);
                 if (btn) {
                     btn.addEventListener('click', () => {
@@ -1104,28 +1168,40 @@
             const rightCol = document.getElementById('rightCol');
             const lobbyPanel = document.getElementById('lobbyPanel');
             const roundsPanel = document.getElementById('roundsPanel');
+            const submitPanel = document.getElementById('submitPanel');
+            const layoutContainer = document.querySelector('.main-content-layout');
 
-            if (isDesktop) {
-                leftCol.style.display = "flex";
-                rightCol.style.display = "flex";
-                lobbyPanel.style.display = "flex";
-                roundsPanel.style.display = "flex";
+            if (activeTab === 'submit') {
+                leftCol.style.display = "none";
+                rightCol.style.display = "none";
+                submitPanel.style.display = "flex";
+                if (layoutContainer) layoutContainer.style.display = "none";
             } else {
-                // Mobile
-                if (activeTab === 'leaderboard') {
+                submitPanel.style.display = "none";
+                if (layoutContainer) layoutContainer.style.display = isDesktop ? "grid" : "block";
+
+                if (isDesktop) {
                     leftCol.style.display = "flex";
-                    rightCol.style.display = "none";
-                } else if (activeTab === 'lobby') {
-                    leftCol.style.display = "none";
                     rightCol.style.display = "flex";
                     lobbyPanel.style.display = "flex";
-                    roundsPanel.style.display = "none";
-                } else {
-                    // History
-                    leftCol.style.display = "none";
-                    rightCol.style.display = "flex";
-                    lobbyPanel.style.display = "none";
                     roundsPanel.style.display = "flex";
+                } else {
+                    // Mobile
+                    if (activeTab === 'leaderboard') {
+                        leftCol.style.display = "flex";
+                        rightCol.style.display = "none";
+                    } else if (activeTab === 'lobby') {
+                        leftCol.style.display = "none";
+                        rightCol.style.display = "flex";
+                        lobbyPanel.style.display = "flex";
+                        roundsPanel.style.display = "none";
+                    } else {
+                        // History
+                        leftCol.style.display = "none";
+                        rightCol.style.display = "flex";
+                        lobbyPanel.style.display = "none";
+                        roundsPanel.style.display = "flex";
+                    }
                 }
             }
         }
@@ -1803,6 +1879,244 @@
             document.getElementById('scrims1v1Count').innerText = count1v1;
             document.getElementById('scrims2v2Count').innerText = count2v2;
         }
+
+        // ================================================================
+        // FIREBASE & MATCH SUBMISSION LOGIC
+        // ================================================================
+        // Firebase Configuration (플레이스홀더 - 유저 설정 필요)
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        
+        // Initialize Firebase
+        if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        
+        let db = null;
+        try {
+            if (typeof firebase !== 'undefined') db = firebase.database();
+        } catch (e) {
+            console.error("Firebase database init failed:", e);
+        }
+
+        let loadedTokenData = null;
+        let urlToken = null;
+
+        function checkSubmissionToken() {
+            const urlParams = new URLSearchParams(window.location.search);
+            urlToken = urlParams.get('token');
+            if (!urlToken) return;
+
+            // Automatically switch tab to Submit
+            activeTab = 'submit';
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            const submitBtn = document.getElementById('tabSubmit');
+            if (submitBtn) submitBtn.classList.add('active');
+            updateResponsiveLayout();
+
+            if (!db) {
+                showSubmitError("Firebase 설정이 올바르지 않아 토큰 검증을 시작할 수 없습니다. 관리자에게 문의해 주세요.");
+                return;
+            }
+
+            db.ref('tokens/TOKEN_' + urlToken).once('value').then(snapshot => {
+                const tokenData = snapshot.val();
+                if (!tokenData) {
+                    showSubmitError("이 토큰은 존재하지 않거나 유효하지 않습니다. 디스코드에서 발급받은 링크로 다시 접속해주세요.");
+                    return;
+                }
+
+                const nowSeconds = Math.floor(Date.now() / 1000);
+                if (tokenData.used || nowSeconds > tokenData.expiresAt) {
+                    showSubmitError("이 토큰은 만료되었거나 이미 사용되었습니다. 디스코드에서 새로운 경기 등록 링크를 발급받아 주세요.");
+                    return;
+                }
+
+                loadedTokenData = tokenData;
+                showSubmitForm(tokenData);
+            }).catch(err => {
+                console.error(err);
+                showSubmitError("데이터베이스 연동 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+            });
+        }
+
+        function showSubmitError(msg) {
+            document.getElementById('submitTokenError').style.display = 'flex';
+            document.getElementById('submitTokenErrorText').innerText = msg;
+            document.getElementById('submitForm').style.display = 'none';
+        }
+
+        function showSubmitForm(tokenData) {
+            document.getElementById('submitTokenError').style.display = 'none';
+            document.getElementById('submitForm').style.display = 'flex';
+            
+            document.getElementById('submitMode').value = tokenData.mode.toUpperCase();
+            document.getElementById('submitMap').value = tokenData.map.toUpperCase();
+            
+            // Distribute players
+            const half = tokenData.players.length / 2;
+            const redPlayers = tokenData.players.slice(0, half);
+            const bluePlayers = tokenData.players.slice(half);
+
+            const redContainer = document.getElementById('redPlayersSubmitContainer');
+            const blueContainer = document.getElementById('bluePlayersSubmitContainer');
+            redContainer.innerHTML = '';
+            blueContainer.innerHTML = '';
+
+            redPlayers.forEach((p, idx) => {
+                redContainer.innerHTML += `
+                    <div style="display:flex; flex-direction:column; gap:4px; margin-bottom:4px;">
+                        <span style="font-size:0.75rem; font-weight:700; color:#fff;">${p}</span>
+                        <select class="form-control submit-weapon-red" data-player="${p}" style="padding:4px 8px; font-size:0.75rem; height:auto; background:rgba(10,10,12,0.8); color:#fff; border:1px solid rgba(255,255,255,0.08); border-radius:6px; outline:none;">
+                            <option value="CASTIGATE">CASTIGATE</option>
+                            <option value="PHOENIX">PHOENIX</option>
+                            <option value="SIEGE">SIEGE</option>
+                            <option value="MONARCH">MONARCH</option>
+                        </select>
+                    </div>
+                `;
+            });
+
+            bluePlayers.forEach((p, idx) => {
+                blueContainer.innerHTML += `
+                    <div style="display:flex; flex-direction:column; gap:4px; margin-bottom:4px;">
+                        <span style="font-size:0.75rem; font-weight:700; color:#fff;">${p}</span>
+                        <select class="form-control submit-weapon-blue" data-player="${p}" style="padding:4px 8px; font-size:0.75rem; height:auto; background:rgba(10,10,12,0.8); color:#fff; border:1px solid rgba(255,255,255,0.08); border-radius:6px; outline:none;">
+                            <option value="CASTIGATE">CASTIGATE</option>
+                            <option value="PHOENIX">PHOENIX</option>
+                            <option value="SIEGE">SIEGE</option>
+                            <option value="MONARCH">MONARCH</option>
+                        </select>
+                    </div>
+                `;
+            });
+
+            document.getElementById('submitInfoText').innerText = `제출 링크 발급자: ${tokenData.issuedToDiscordName} (${tokenData.issuedToDiscordId})`;
+
+            // Bind submit event
+            const submitBtn = document.getElementById('submitMatchBtn');
+            submitBtn.onclick = () => submitMatchResult();
+        }
+
+        function validateSubmitForm(mode, sr, sb) {
+            if (isNaN(sr) || isNaN(sb)) {
+                alert("점수를 정상적으로 입력해 주세요.");
+                return false;
+            }
+            if (mode === '1v1') {
+                if (sr !== 5 && sb !== 5) {
+                    alert("1v1 듀얼은 5선승제입니다. 한 팀의 점수가 5점이어야 합니다.");
+                    return false;
+                }
+            } else {
+                if (sr !== 4 && sb !== 4) {
+                    alert("2v2 윙맨은 4선승제입니다. 한 팀의 점수가 4점이어야 합니다.");
+                    return false;
+                }
+            }
+            if (sr === sb) {
+                alert("무승부는 인정되지 않습니다.");
+                return false;
+            }
+            return true;
+        }
+
+        function submitMatchResult() {
+            if (!loadedTokenData || !urlToken) return;
+
+            const mode = loadedTokenData.mode;
+            const map = loadedTokenData.map;
+            const sr = parseInt(document.getElementById('submitScoreRed').value);
+            const sb = parseInt(document.getElementById('submitScoreBlue').value);
+
+            if (!validateSubmitForm(mode, sr, sb)) return;
+
+            // Collect player names and weapons
+            const redTeam = [];
+            const blueTeam = [];
+
+            document.querySelectorAll('.submit-weapon-red').forEach(el => {
+                redTeam.push({
+                    name: el.getAttribute('data-player'),
+                    weapon: el.value
+                });
+            });
+
+            document.querySelectorAll('.submit-weapon-blue').forEach(el => {
+                blueTeam.push({
+                    name: el.getAttribute('data-player'),
+                    weapon: el.value
+                });
+            });
+
+            // 1. Firebase runTransaction() 실행 - tokens/TOKEN_ID 노드 원자적 락업 시도
+            const tokenRef = db.ref('tokens/TOKEN_' + urlToken);
+            tokenRef.transaction(currentData => {
+                if (currentData) {
+                    if (currentData.used) {
+                        return; // Abort transaction if already used
+                    }
+                    currentData.used = true;
+                    currentData.usedBy = loadedTokenData.issuedToDiscordId;
+                    currentData.usedAt = Math.floor(Date.now() / 1000);
+                }
+                return currentData;
+            }, (error, committed, snapshot) => {
+                if (error) {
+                    alert("트랜잭션 처리 중 에러가 발생했습니다: " + error.message);
+                } else if (!committed) {
+                    alert("이 토큰은 이미 사용되었거나 다른 기기에서 제출이 완료되었습니다.");
+                    showSubmitError("이 토큰은 만료되었거나 이미 사용되었습니다. 디스코드에서 새로운 경기 등록 링크를 발급받아 주세요.");
+                } else {
+                    // 2. 잠금 성공 시 matchSubmissions 생성 등록
+                    const matchId = 'match_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now();
+                    const submissionData = {
+                        id: matchId,
+                        status: "pending",
+                        tokenId: urlToken,
+                        submittedAt: Math.floor(Date.now() / 1000),
+                        submittedByDiscordId: loadedTokenData.issuedToDiscordId,
+                        submittedByDiscordName: loadedTokenData.issuedToDiscordName,
+                        mode: mode,
+                        map: map,
+                        redTeam: redTeam,
+                        blueTeam: blueTeam,
+                        scoreRed: sr,
+                        scoreBlue: sb
+                    };
+
+                    db.ref('matchSubmissions/' + matchId).set(submissionData).then(() => {
+                        alert("경기 결과 제출이 완료되었습니다! 관리자의 승인을 기다려주세요.");
+                        window.location.href = 'index.html';
+                    }).catch(writeErr => {
+                        console.error("Submission failed, triggering rollback:", writeErr);
+                        // 3. 전적 등록 실패 시 보상 트랜잭션(Rollback) 수행
+                        tokenRef.update({
+                            used: false,
+                            usedBy: null,
+                            usedAt: null
+                        }).then(() => {
+                            alert("전적 제출 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요. 토큰은 아직 사용되지 않았습니다.");
+                        }).catch(rollbackErr => {
+                            console.error("Rollback failed:", rollbackErr);
+                            alert("전적 제출에 실패했으며, 토큰 상태 복구 중 예기치 못한 에러가 발생했습니다. 관리자에게 문의해 주세요.");
+                        });
+                    });
+                }
+            });
+        }
+
+        // Add to DOMContentLoaded listeners
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(checkSubmissionToken, 300);
+        });
 
     </script>
 </body>

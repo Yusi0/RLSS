@@ -10,6 +10,9 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Orbitron:wght@700;900&family=Outfit:wght@500;700;800&display=swap"
         rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         :root {
             --bg-color: #09090b;
@@ -964,6 +967,307 @@
             margin-bottom: 8px;
             display: block;
         }
+
+        /* Summary Cards */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .summary-card {
+            background: rgba(18, 18, 22, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 14px;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .summary-card.pending {
+            border-color: rgba(0, 210, 255, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 210, 255, 0.05);
+        }
+
+        .summary-card.approved {
+            border-color: rgba(0, 230, 118, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 230, 118, 0.05);
+        }
+
+        .summary-card.rejected {
+            border-color: rgba(255, 0, 60, 0.2);
+            box-shadow: 0 4px 15px rgba(255, 0, 60, 0.05);
+        }
+
+        .summary-card-val {
+            font-size: 1.8rem;
+            font-weight: 800;
+            font-family: 'Orbitron', sans-serif;
+            margin-bottom: 4px;
+        }
+
+        .summary-card.pending .summary-card-val { color: var(--blue-neon); }
+        .summary-card.approved .summary-card-val { color: var(--green-neon); }
+        .summary-card.rejected .summary-card-val { color: var(--red-neon); }
+
+        .summary-card-lbl {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Status Filters */
+        .status-filters {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .status-chip {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .status-chip:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .status-chip.active {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--text-primary);
+            color: var(--text-primary);
+        }
+
+        /* Submissions list */
+        .submissions-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .submission-card {
+            background: rgba(18, 18, 22, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .submission-card.status-pending {
+            border-left: 4px solid var(--blue-neon);
+        }
+        .submission-card.status-approved {
+            border-left: 4px solid var(--green-neon);
+        }
+        .submission-card.status-rejected {
+            border-left: 4px solid var(--red-neon);
+        }
+
+        .submission-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+
+        .sub-id-time {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .sub-id {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .sub-time {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+
+        .sub-badge {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .sub-badge.pending {
+            background: rgba(0, 210, 255, 0.1);
+            color: var(--blue-neon);
+            border: 1px solid rgba(0, 210, 255, 0.2);
+        }
+
+        .sub-badge.approved {
+            background: rgba(0, 230, 118, 0.1);
+            color: var(--green-neon);
+            border: 1px solid rgba(0, 230, 118, 0.2);
+        }
+
+        .sub-badge.rejected {
+            background: rgba(255, 0, 60, 0.1);
+            color: var(--red-neon);
+            border: 1px solid rgba(255, 0, 60, 0.2);
+        }
+
+        .submission-card-body {
+            display: grid;
+            grid-template-columns: 2fr 1fr 2fr;
+            align-items: center;
+            text-align: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .sub-team {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .sub-team.red {
+            text-align: left;
+        }
+
+        .sub-team.blue {
+            text-align: right;
+        }
+
+        .sub-team-name {
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+
+        .sub-team.red .sub-team-name { color: var(--red-neon); }
+        .sub-team.blue .sub-team-name { color: var(--blue-neon); }
+
+        .sub-player-item {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .sub-player-weapon {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 4px;
+            font-weight: 600;
+        }
+
+        .sub-score-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .sub-score {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: var(--text-primary);
+            letter-spacing: 1px;
+        }
+
+        .sub-map-mode {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            display: flex;
+            gap: 6px;
+            margin-top: 4px;
+        }
+
+        .submission-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            padding-top: 10px;
+            font-size: 0.7rem;
+        }
+
+        .sub-submitter {
+            color: var(--text-muted);
+        }
+
+        .sub-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-sub-approve {
+            background: var(--green-neon);
+            color: #000;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-sub-approve:hover {
+            box-shadow: 0 0 10px rgba(0, 230, 118, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .btn-sub-reject {
+            background: transparent;
+            color: var(--red-neon);
+            border: 1px solid var(--red-neon);
+            border-radius: 6px;
+            padding: 5px 11px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-sub-reject:hover {
+            background: rgba(255, 0, 60, 0.1);
+            box-shadow: 0 0 10px rgba(255, 0, 60, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .sub-info-note {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            font-style: italic;
+            line-height: 1.3;
+        }
+
+        .sub-info-note span {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
     </style>
 </head>
 
@@ -1029,6 +1333,7 @@
         <div class="admin-tabs">
             <button class="admin-tab-btn active" id="tabBtnEntry" onclick="switchTab('entry')">전적 등록</button>
             <button class="admin-tab-btn" id="tabBtnHistory" onclick="switchTab('history')">매치 관리</button>
+            <button class="admin-tab-btn" id="tabBtnPending" onclick="switchTab('pending')">승인 대기</button>
             <button class="admin-tab-btn" id="tabBtnConfig" onclick="switchTab('config')">GitHub 설정</button>
         </div>
 
@@ -1318,6 +1623,45 @@
             </div>
         </div>
 
+        <!-- ===== TAB: 승인 대기 ===== -->
+        <div class="tab-panel" id="panelPending">
+            <div class="glass-panel">
+                <div class="panel-title">⏳ Match Approval Queue — 전적 승인 대기열</div>
+                
+                <!-- Summary Cards -->
+                <div class="summary-cards">
+                    <div class="summary-card pending">
+                        <div class="summary-card-val" id="statsPendingCount">0</div>
+                        <div class="summary-card-lbl">Pending</div>
+                    </div>
+                    <div class="summary-card approved">
+                        <div class="summary-card-val" id="statsApprovedCount">0</div>
+                        <div class="summary-card-lbl">Approved</div>
+                    </div>
+                    <div class="summary-card rejected">
+                        <div class="summary-card-val" id="statsRejectedCount">0</div>
+                        <div class="summary-card-lbl">Rejected</div>
+                    </div>
+                </div>
+
+                <!-- Status Filter Chips -->
+                <div class="status-filters">
+                    <div class="status-chip active" id="filterStatusPending" onclick="setSubmissionsFilter('pending')">PENDING</div>
+                    <div class="status-chip" id="filterStatusApproved" onclick="setSubmissionsFilter('approved')">APPROVED</div>
+                    <div class="status-chip" id="filterStatusRejected" onclick="setSubmissionsFilter('rejected')">REJECTED</div>
+                    <div class="status-chip" id="filterStatusAll" onclick="setSubmissionsFilter('all')">ALL</div>
+                </div>
+
+                <!-- Submission List Container -->
+                <div class="submissions-list" id="submissionsListContainer">
+                    <div class="empty-state">
+                        <span class="icon">🔄</span>
+                        데이터를 불러오는 중입니다...
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- ===== TAB: GitHub 설정 ===== -->
         <div class="tab-panel" id="panelConfig">
             <div class="glass-panel">
@@ -1456,6 +1800,33 @@
     </div><!-- /adminDashboard -->
 
     <script>
+        // ================================================================
+        // FIREBASE SETUP
+        // ================================================================
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        let db = null;
+        try {
+            if (typeof firebase !== 'undefined') db = firebase.database();
+        } catch (e) {
+            console.error("Firebase database init failed:", e);
+        }
+
+        let submissionsList = [];
+        let submissionsFilter = 'pending';
+
         // ================================================================
         // CONFIGURATION
         // ================================================================
@@ -1611,6 +1982,7 @@
             onModeChangeCustom('1v1');
             updateConfigStatus();
             populateLocalStorageFields();
+            initFirebaseSubmissions(); // Initialize Firebase approvals queue
         }
 
 
@@ -2777,6 +3149,7 @@
         }
 
         async function pushFilesToGitHub(token, owner, repo, branch, files) {
+            let lastCommitSha = '';
             for (const file of files) {
                 const url = `https://api.github.com/repos/${owner}/${repo}/contents/${file.path}`;
                 let sha = '';
@@ -2800,6 +3173,365 @@
                     const msg = await putRes.text();
                     throw new Error(`Failed to push ${file.path}: ${msg}`);
                 }
+                const resData = await putRes.json();
+                if (resData && resData.commit) {
+                    lastCommitSha = resData.commit.sha;
+                }
+            }
+            return lastCommitSha;
+        }
+
+        // ================================================================
+        // MATCH APPROVALS & FIREBASE SUBMISSIONS
+        // ================================================================
+        function initFirebaseSubmissions() {
+            if (!db) {
+                console.error("Firebase not initialized.");
+                const container = document.getElementById('submissionsListContainer');
+                if (container) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <span class="icon">⚠️</span>
+                            Firebase 연결을 실패했습니다. Firebase 설정을 확인해 주세요.
+                        </div>
+                    `;
+                }
+                return;
+            }
+
+            db.ref('matchSubmissions').on('value', (snapshot) => {
+                const data = snapshot.val();
+                submissionsList = [];
+                if (data) {
+                    Object.keys(data).forEach(key => {
+                        submissionsList.push(data[key]);
+                    });
+                    submissionsList.sort((a, b) => b.submittedAt - a.submittedAt);
+                }
+                updateSubmissionsStats();
+                renderSubmissions();
+            }, (error) => {
+                console.error("Firebase fetch error:", error);
+                const container = document.getElementById('submissionsListContainer');
+                if (container) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <span class="icon">⚠️</span>
+                            데이터 수신 오류: ${error.message}
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        function updateSubmissionsStats() {
+            let pendingCount = 0;
+            let approvedCount = 0;
+            let rejectedCount = 0;
+
+            submissionsList.forEach(s => {
+                if (s.status === 'approved') approvedCount++;
+                else if (s.status === 'rejected') rejectedCount++;
+                else pendingCount++;
+            });
+
+            const pendingEl = document.getElementById('statsPendingCount');
+            const approvedEl = document.getElementById('statsApprovedCount');
+            const rejectedEl = document.getElementById('statsRejectedCount');
+
+            if (pendingEl) pendingEl.textContent = pendingCount;
+            if (approvedEl) approvedEl.textContent = approvedCount;
+            if (rejectedEl) rejectedEl.textContent = rejectedCount;
+        }
+
+        function setSubmissionsFilter(f) {
+            submissionsFilter = f;
+            document.querySelectorAll('.status-chip').forEach(c => c.classList.remove('active'));
+            if (f === 'pending') document.getElementById('filterStatusPending').classList.add('active');
+            else if (f === 'approved') document.getElementById('filterStatusApproved').classList.add('active');
+            else if (f === 'rejected') document.getElementById('filterStatusRejected').classList.add('active');
+            else document.getElementById('filterStatusAll').classList.add('active');
+            renderSubmissions();
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function renderSubmissions() {
+            const container = document.getElementById('submissionsListContainer');
+            if (!container) return;
+
+            const filtered = submissionsList.filter(s => {
+                if (submissionsFilter === 'all') return true;
+                return s.status === submissionsFilter;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <span class="icon">📭</span>
+                        해당 상태의 전적 제출 내역이 없습니다.
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = '';
+            filtered.forEach(s => {
+                const card = document.createElement('div');
+                card.className = `submission-card status-${s.status}`;
+                
+                const formattedTime = new Date(s.submittedAt * 1000).toLocaleString('ko-KR');
+                
+                const redTeamHTML = s.redTeam.map(p => `
+                    <div class="sub-player-item">
+                        ${escapeHtml(p.name)}<span class="sub-player-weapon">${escapeHtml(p.weapon)}</span>
+                    </div>
+                `).join('');
+
+                const blueTeamHTML = s.blueTeam.map(p => `
+                    <div class="sub-player-item">
+                        ${escapeHtml(p.name)}<span class="sub-player-weapon">${escapeHtml(p.weapon)}</span>
+                    </div>
+                `).join('');
+
+                let badgeHTML = '';
+                let footerHTML = '';
+
+                if (s.status === 'pending') {
+                    badgeHTML = `<span class="sub-badge pending">대기중</span>`;
+                    footerHTML = `
+                        <div class="sub-submitter">제출자: <strong>${escapeHtml(s.submittedByDiscordName)}</strong> (ID: ${escapeHtml(s.submittedByDiscordId)})</div>
+                        <div class="sub-actions">
+                            <button class="btn-sub-reject" onclick="handleRejectSubmission('${s.id}')">거절</button>
+                            <button class="btn-sub-approve" onclick="handleApproveSubmission('${s.id}')">승인</button>
+                        </div>
+                    `;
+                } else if (s.status === 'approved') {
+                    badgeHTML = `<span class="sub-badge approved">승인됨</span>`;
+                    const approvedTime = s.approvedAt ? new Date(s.approvedAt * 1000).toLocaleString('ko-KR') : '';
+                    footerHTML = `
+                        <div class="sub-info-note">
+                            승인: <span>${escapeHtml(s.approvedBy || 'admin')}</span> (${approvedTime})<br>
+                            Commit SHA: <code style="font-size:0.65rem; background:rgba(255,255,255,0.06); padding:2px 4px; border-radius:4px;">${escapeHtml(s.githubCommitSha || 'N/A')}</code>
+                        </div>
+                    `;
+                } else if (s.status === 'rejected') {
+                    badgeHTML = `<span class="sub-badge rejected">거절됨</span>`;
+                    const rejectedTime = s.rejectedAt ? new Date(s.rejectedAt * 1000).toLocaleString('ko-KR') : '';
+                    footerHTML = `
+                        <div class="sub-info-note">
+                            거절: <span>${escapeHtml(s.rejectedBy || 'admin')}</span> (${rejectedTime})<br>
+                            사유: <strong style="color:var(--red-neon);">${escapeHtml(s.reason || '없음')}</strong>
+                        </div>
+                    `;
+                }
+
+                card.innerHTML = `
+                    <div class="submission-card-header">
+                        <div class="sub-id-time">
+                            <span class="sub-id">Submission ID: ${s.id}</span>
+                            <span class="sub-time">제출 시간: ${formattedTime}</span>
+                        </div>
+                        ${badgeHTML}
+                    </div>
+                    <div class="submission-card-body">
+                        <div class="sub-team red">
+                            <div class="sub-team-name">🔴 RED TEAM</div>
+                            ${redTeamHTML}
+                        </div>
+                        <div class="sub-score-section">
+                            <div class="sub-score">${s.scoreRed} : ${s.scoreBlue}</div>
+                            <div class="sub-map-mode">
+                                <span>${escapeHtml(s.mode)}</span>
+                                <span>|</span>
+                                <span>${escapeHtml(s.map)}</span>
+                            </div>
+                        </div>
+                        <div class="sub-team blue">
+                            <div class="sub-team-name">🔵 BLUE TEAM</div>
+                            ${blueTeamHTML}
+                        </div>
+                    </div>
+                    <div class="submission-card-footer">
+                        ${footerHTML}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        async function handleRejectSubmission(id) {
+            const reason = prompt("이 전적 제출을 거절하는 사유를 입력하세요:");
+            if (reason === null) return;
+            
+            const trimmedReason = reason.trim() || "사유 없음";
+            
+            showSpinner(true, 'REJECTING SUBMISSION...');
+            try {
+                if (!db) throw new Error("Firebase database not connected.");
+                
+                await db.ref(`matchSubmissions/${id}`).update({
+                    status: 'rejected',
+                    reason: trimmedReason,
+                    rejectedAt: Math.floor(Date.now() / 1000),
+                    rejectedBy: currentAdminId || 'admin'
+                });
+                
+                showToast('❌ 전적 제출이 거절되었습니다.', 'info');
+            } catch (err) {
+                console.error("Reject submission failed:", err);
+                showToast('❌ 거절 처리 실패: ' + err.message, 'error');
+            } finally {
+                showSpinner(false);
+            }
+        }
+
+        async function handleApproveSubmission(id) {
+            const submission = submissionsList.find(s => s.id === id);
+            if (!submission) {
+                showToast('제출 정보를 찾을 수 없습니다.', 'error');
+                return;
+            }
+
+            const cfg = await resolveGitConfig();
+            if (!cfg) {
+                showToast('GitHub 설정이 없습니다. GitHub 설정 탭에서 설정을 완료하세요.', 'error');
+                return;
+            }
+
+            if (!confirm(`이 경기 결과를 승인하고 GitHub에 반영하시겠습니까?\n[${submission.mode}] ${submission.map} - ${submission.scoreRed}:${submission.scoreBlue}`)) {
+                return;
+            }
+
+            showSpinner(true, 'FETCHING LATEST DATA FROM GITHUB...');
+            try {
+                await loadData();
+
+                const rounds = getRoundList();
+                const nextRound = rounds.length > 0 ? Math.max(...rounds) + 1 : 1;
+
+                const sr = submission.scoreRed;
+                const sb = submission.scoreBlue;
+                const mode = submission.mode;
+                const map = submission.map;
+                const winningTeam = sr > sb ? 'RED' : 'BLUE';
+                const scoreStr = `${sr}:${sb}`;
+
+                const redTeamPlayers = submission.redTeam.map(p => p.name);
+                const blueTeamPlayers = submission.blueTeam.map(p => p.name);
+
+                const playerKd = {};
+                if (mode === '1v1') {
+                    playerKd[redTeamPlayers[0]] = { k: sr, d: sb };
+                    playerKd[blueTeamPlayers[0]] = { k: sb, d: sr };
+                } else {
+                    const rb = Math.floor(sr / 2), bb = Math.floor(sb / 2);
+                    playerKd[redTeamPlayers[0]] = { k: rb + (sr % 2), d: Math.floor(sb / 2) };
+                    if (redTeamPlayers[1]) {
+                        playerKd[redTeamPlayers[1]] = { k: rb, d: Math.floor(sb / 2) + (sb % 2) };
+                    }
+                    playerKd[blueTeamPlayers[0]] = { k: bb + (sb % 2), d: Math.floor(sr / 2) };
+                    if (blueTeamPlayers[1]) {
+                        playerKd[blueTeamPlayers[1]] = { k: bb, d: Math.floor(sr / 2) + (sr % 2) };
+                    }
+                }
+
+                const matchesCopy = JSON.parse(JSON.stringify(csvMatches));
+                
+                submission.redTeam.forEach(p => {
+                    matchesCopy.push({
+                        Round: nextRound.toString(),
+                        Mode: mode,
+                        Map: map,
+                        Nickname: p.name,
+                        Kills: playerKd[p.name].k.toString(),
+                        Deaths: playerKd[p.name].d.toString(),
+                        Team: 'RED',
+                        'Winning Team': winningTeam,
+                        Score: scoreStr,
+                        Registrant: submission.submittedByDiscordName || 'User',
+                        Weapon: p.weapon || 'CASTIGATE'
+                    });
+                });
+
+                submission.blueTeam.forEach(p => {
+                    matchesCopy.push({
+                        Round: nextRound.toString(),
+                        Mode: mode,
+                        Map: map,
+                        Nickname: p.name,
+                        Kills: playerKd[p.name].k.toString(),
+                        Deaths: playerKd[p.name].d.toString(),
+                        Team: 'BLUE',
+                        'Winning Team': winningTeam,
+                        Score: scoreStr,
+                        Registrant: submission.submittedByDiscordName || 'User',
+                        Weapon: p.weapon || 'CASTIGATE'
+                    });
+                });
+
+                showSpinner(true, 'CALCULATING ELOS...');
+                const results = recalculateAll(matchesCopy);
+                const updatedPlayerStats = results.leaderboardList;
+
+                showSpinner(true, 'PREPARING FILES FOR GITHUB...');
+                const { owner, repo, branch, path, token } = cfg;
+                const lboardHeader = 'Nickname,Elo1v1,Kills1v1,Deaths1v1,Wins1v1,Losses1v1,Matches1v1,Tier1v1,Elo2v2,Kills2v2,Deaths2v2,Wins2v2,Losses2v2,Matches2v2,Tier2v2,EloCombined\n';
+                const lboardContent = lboardHeader + updatedPlayerStats.map(p =>
+                    `${p.Nickname},${p.Elo1v1},${p.Kills1v1},${p.Deaths1v1},${p.Wins1v1},${p.Losses1v1},${p.Matches1v1},${p.Tier1v1},${p.Elo2v2},${p.Kills2v2},${p.Deaths2v2},${p.Wins2v2},${p.Losses2v2},${p.Matches2v2},${p.Tier2v2},${p.EloCombined}`
+                ).join('\n');
+
+                const matchHeader = 'Round,Mode,Map,Nickname,Kills,Deaths,Team,Winning Team,Score,Registrant,Weapon\n';
+                const matchContent = matchHeader + [...matchesCopy].sort((a, b) => parseInt(a.Round) - parseInt(b.Round)).map(m =>
+                    `${m.Round},${m.Mode},${m.Map},${m.Nickname},${m.Kills},${m.Deaths},${m.Team},${m['Winning Team'] || m.WinningTeam},${m.Score},${m.Registrant},${m.Weapon || 'CASTIGATE'}`
+                ).join('\n');
+
+                const aftercalcHeader = 'Round,Nickname,Mode,EloAfterRound,KdrAfterRound\n';
+                const aftercalcContent = aftercalcHeader + results.aftercalcHistory.map(a =>
+                    `${a.Round},${a.Nickname},${a.Mode},${a.EloAfterRound},${a.KdrAfterRound}`
+                ).join('\n');
+
+                const pathPrefix = (path && path.trim() !== '') ? `${path.trim()}/` : '';
+                const files = [
+                    { path: `${pathPrefix}lboard.csv`, content: lboardContent },
+                    { path: `${pathPrefix}match.csv`, content: matchContent },
+                    { path: `${pathPrefix}aftercalc.csv`, content: aftercalcContent }
+                ];
+
+                showSpinner(true, 'PUSHING TO GITHUB...');
+                const commitSha = await pushFilesToGitHub(token, owner, repo, branch, files);
+                
+                showSpinner(true, 'UPDATING FIREBASE STATUS...');
+                await db.ref(`matchSubmissions/${id}`).update({
+                    status: 'approved',
+                    approvedAt: Math.floor(Date.now() / 1000),
+                    approvedBy: currentAdminId || 'admin',
+                    githubCommitSha: commitSha || 'N/A'
+                });
+
+                csvMatches = matchesCopy;
+                playerStats = updatedPlayerStats;
+                localStorage.setItem('redliner_matches', JSON.stringify(csvMatches));
+                localStorage.setItem('redliner_leaderboard', JSON.stringify(playerStats));
+                
+                showToast('✅ 전적이 성공적으로 승인되고 GitHub에 배포되었습니다!', 'success');
+                renderHistory();
+            } catch (err) {
+                console.error("Approval transaction failed:", err);
+                showToast('❌ 승인 처리 실패 (GitHub Rollback): ' + err.message, 'error');
+                try {
+                    await loadData();
+                } catch {}
+            } finally {
+                showSpinner(false);
             }
         }
 
