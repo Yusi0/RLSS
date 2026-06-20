@@ -1940,11 +1940,16 @@
 
         let loadedTokenData = null;
         let urlToken = null;
+        let actualSubmitterId = null;
+        let actualSubmitterName = null;
 
         function checkSubmissionToken() {
             const urlParams = new URLSearchParams(window.location.search);
             urlToken = urlParams.get('token');
             if (!urlToken) return;
+
+            actualSubmitterId = urlParams.get('submitterId');
+            actualSubmitterName = urlParams.get('submitterName');
 
             // Automatically switch tab to Submit
             activeTab = 'submit';
@@ -2030,7 +2035,9 @@
                 `;
             });
 
-            document.getElementById('submitInfoText').innerText = `제출 링크 발급자: ${tokenData.issuedToDiscordName} (${tokenData.issuedToDiscordId})`;
+            const submitterName = actualSubmitterName || tokenData.issuedToDiscordName;
+            const submitterId = actualSubmitterId || tokenData.issuedToDiscordId;
+            document.getElementById('submitInfoText').innerText = `제출자: ${submitterName} (${submitterId})`;
 
             // Bind submit event
             const submitBtn = document.getElementById('submitMatchBtn');
@@ -2096,7 +2103,7 @@
                         return; // Abort transaction if already used
                     }
                     currentData.used = true;
-                    currentData.usedBy = loadedTokenData.issuedToDiscordId;
+                    currentData.usedBy = actualSubmitterId || loadedTokenData.issuedToDiscordId;
                     currentData.usedAt = Math.floor(Date.now() / 1000);
                 }
                 return currentData;
@@ -2114,8 +2121,8 @@
                         status: "pending",
                         tokenId: urlToken,
                         submittedAt: Math.floor(Date.now() / 1000),
-                        submittedByDiscordId: loadedTokenData.issuedToDiscordId,
-                        submittedByDiscordName: loadedTokenData.issuedToDiscordName,
+                        submittedByDiscordId: actualSubmitterId || loadedTokenData.issuedToDiscordId,
+                        submittedByDiscordName: actualSubmitterName || loadedTokenData.issuedToDiscordName,
                         mode: mode,
                         map: map,
                         redTeam: redTeam,
