@@ -872,6 +872,87 @@
                 min-height: 0;
             }
         }
+
+        /* Custom Dropdown Styling */
+        .custom-dropdown {
+            position: relative;
+            width: 100%;
+        }
+
+        .dropdown-trigger {
+            background: rgba(10, 10, 12, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .dropdown-trigger:hover {
+            border-color: var(--red-neon);
+            box-shadow: 0 0 8px rgba(255, 0, 60, 0.2);
+        }
+
+        .dropdown-trigger.open {
+            border-color: var(--red-neon);
+        }
+
+        .dropdown-arrow {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            transition: transform 0.2s;
+        }
+
+        .custom-dropdown.open .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            width: 100%;
+            background: rgba(18, 18, 22, 0.98);
+            border: 1px solid var(--red-neon);
+            border-radius: 8px;
+            z-index: 1000;
+            display: none;
+            max-height: 160px;
+            overflow-y: auto;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        }
+
+        .custom-dropdown.open .dropdown-menu {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 8px 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.15s;
+            text-align: left;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(255, 0, 60, 0.12);
+            color: white;
+        }
+
+        .dropdown-item.active {
+            background: rgba(255, 0, 60, 0.2);
+            color: var(--red-neon);
+            font-weight: 800;
+        }
     </style>
 </head>
 <body>
@@ -1024,14 +1105,26 @@
                 <div class="score-section" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 12px; margin-top: 8px;">
                     <div style="font-size: 0.62rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">최종 스코어 (SCORE)</div>
                     <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
-                        <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
-                            <span style="font-size: 0.6rem; font-weight: 800; color: var(--red-neon);">RED</span>
-                            <input type="number" id="submitScoreRed" class="form-control" style="width: 70px; text-align: center; font-size: 1.1rem; font-weight: 800;" min="0" placeholder="0">
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; width: 80px;">
+                            <span style="font-size: 0.6rem; font-weight: 800; color: var(--red-neon); margin-bottom: 2px;">RED</span>
+                            <div class="custom-dropdown" id="dropdownScoreRed" data-value="0">
+                                <div class="dropdown-trigger" style="text-align: center; justify-content: center; gap: 6px; font-size: 1rem; font-weight: 800; height: 38px;">
+                                    <span class="selected-value">0</span>
+                                    <span class="dropdown-arrow">▼</span>
+                                </div>
+                                <div class="dropdown-menu" id="dropdownMenuScoreRed"></div>
+                            </div>
                         </div>
-                        <span style="font-size: 1.5rem; font-weight: 800; margin-top: 12px; color: var(--text-muted);">:</span>
-                        <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
-                            <span style="font-size: 0.6rem; font-weight: 800; color: var(--blue-neon);">BLUE</span>
-                            <input type="number" id="submitScoreBlue" class="form-control" style="width: 70px; text-align: center; font-size: 1.1rem; font-weight: 800;" min="0" placeholder="0">
+                        <span style="font-size: 1.5rem; font-weight: 800; margin-top: 15px; color: var(--text-muted);">:</span>
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; width: 80px;">
+                            <span style="font-size: 0.6rem; font-weight: 800; color: var(--blue-neon); margin-bottom: 2px;">BLUE</span>
+                            <div class="custom-dropdown" id="dropdownScoreBlue" data-value="0">
+                                <div class="dropdown-trigger" style="text-align: center; justify-content: center; gap: 6px; font-size: 1rem; font-weight: 800; height: 38px;">
+                                    <span class="selected-value">0</span>
+                                    <span class="dropdown-arrow">▼</span>
+                                </div>
+                                <div class="dropdown-menu" id="dropdownMenuScoreBlue"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1938,6 +2031,50 @@
             console.error("Firebase database init failed:", e);
         }
 
+        // Helper to initialize custom dropdown interaction
+        function initCustomDropdown(dropdownEl, onSelect = null) {
+            const trigger = dropdownEl.querySelector('.dropdown-trigger');
+            const menu = dropdownEl.querySelector('.dropdown-menu');
+            if (!trigger || !menu) return;
+            
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                
+                // Close other open custom dropdowns
+                document.querySelectorAll('.custom-dropdown').forEach(d => {
+                    if (d !== dropdownEl) d.classList.remove('open');
+                });
+                
+                dropdownEl.classList.toggle('open');
+            });
+            
+            const items = dropdownEl.querySelectorAll('.dropdown-item');
+            items.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const value = item.getAttribute('data-value');
+                    const label = item.innerText;
+                    
+                    // Set active item
+                    items.forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
+                    
+                    // Set trigger label
+                    trigger.querySelector('.selected-value').innerText = label;
+                    dropdownEl.setAttribute('data-value', value);
+                    
+                    dropdownEl.classList.remove('open');
+                    
+                    if (onSelect) onSelect(value);
+                });
+            });
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.custom-dropdown').forEach(d => d.classList.remove('open'));
+        });
+
         let loadedTokenData = null;
         let urlToken = null;
         let actualSubmitterId = null;
@@ -2008,32 +2145,68 @@
             blueContainer.innerHTML = '';
 
             redPlayers.forEach((p, idx) => {
-                redContainer.innerHTML += `
-                    <div style="display:flex; flex-direction:column; gap:4px; margin-bottom:4px;">
-                        <span style="font-size:0.75rem; font-weight:700; color:#fff;">${p}</span>
-                        <select class="form-control submit-weapon-red" data-player="${p}" style="padding:4px 8px; font-size:0.75rem; height:auto; background:rgba(10,10,12,0.8); color:#fff; border:1px solid rgba(255,255,255,0.08); border-radius:6px; outline:none;">
-                            <option value="CASTIGATE">CASTIGATE</option>
-                            <option value="PHOENIX">PHOENIX</option>
-                            <option value="SIEGE">SIEGE</option>
-                            <option value="MONARCH">MONARCH</option>
-                        </select>
+                const dropdownId = `dropdownWeaponRed_${idx}`;
+                const div = document.createElement('div');
+                div.style.cssText = "display:flex; flex-direction:column; gap:4px; margin-bottom:6px;";
+                div.innerHTML = `
+                    <span style="font-size:0.72rem; font-weight:700; color:#fff;">${p}</span>
+                    <div class="custom-dropdown submit-weapon-red" data-player="${p}" id="${dropdownId}" data-value="CASTIGATE">
+                        <div class="dropdown-trigger" style="padding:6px 10px; font-size:0.72rem;">
+                            <span class="selected-value">CASTIGATE</span>
+                            <span class="dropdown-arrow">▼</span>
+                        </div>
+                        <div class="dropdown-menu">
+                            <div class="dropdown-item active" data-value="CASTIGATE">CASTIGATE</div>
+                            <div class="dropdown-item" data-value="PHOENIX">PHOENIX</div>
+                            <div class="dropdown-item" data-value="SIEGE">SIEGE</div>
+                            <div class="dropdown-item" data-value="MONARCH">MONARCH</div>
+                        </div>
                     </div>
                 `;
+                redContainer.appendChild(div);
+                initCustomDropdown(div.querySelector('.custom-dropdown'));
             });
 
             bluePlayers.forEach((p, idx) => {
-                blueContainer.innerHTML += `
-                    <div style="display:flex; flex-direction:column; gap:4px; margin-bottom:4px;">
-                        <span style="font-size:0.75rem; font-weight:700; color:#fff;">${p}</span>
-                        <select class="form-control submit-weapon-blue" data-player="${p}" style="padding:4px 8px; font-size:0.75rem; height:auto; background:rgba(10,10,12,0.8); color:#fff; border:1px solid rgba(255,255,255,0.08); border-radius:6px; outline:none;">
-                            <option value="CASTIGATE">CASTIGATE</option>
-                            <option value="PHOENIX">PHOENIX</option>
-                            <option value="SIEGE">SIEGE</option>
-                            <option value="MONARCH">MONARCH</option>
-                        </select>
+                const dropdownId = `dropdownWeaponBlue_${idx}`;
+                const div = document.createElement('div');
+                div.style.cssText = "display:flex; flex-direction:column; gap:4px; margin-bottom:6px;";
+                div.innerHTML = `
+                    <span style="font-size:0.72rem; font-weight:700; color:#fff;">${p}</span>
+                    <div class="custom-dropdown submit-weapon-blue" data-player="${p}" id="${dropdownId}" data-value="CASTIGATE">
+                        <div class="dropdown-trigger" style="padding:6px 10px; font-size:0.72rem;">
+                            <span class="selected-value">CASTIGATE</span>
+                            <span class="dropdown-arrow">▼</span>
+                        </div>
+                        <div class="dropdown-menu">
+                            <div class="dropdown-item active" data-value="CASTIGATE">CASTIGATE</div>
+                            <div class="dropdown-item" data-value="PHOENIX">PHOENIX</div>
+                            <div class="dropdown-item" data-value="SIEGE">SIEGE</div>
+                            <div class="dropdown-item" data-value="MONARCH">MONARCH</div>
+                        </div>
                     </div>
                 `;
+                blueContainer.appendChild(div);
+                initCustomDropdown(div.querySelector('.custom-dropdown'));
             });
+
+            // Initialize Custom Score Dropdowns based on Mode (1v1: 5, 2v2: 4)
+            const maxScore = tokenData.mode === '1v1' ? 5 : 4;
+            const renderScoreDropdownMenu = (menuId, dropdownId, defaultValue) => {
+                const menu = document.getElementById(menuId);
+                menu.innerHTML = '';
+                for (let i = 0; i <= maxScore; i++) {
+                    const activeClass = i === defaultValue ? 'active' : '';
+                    menu.innerHTML += `<div class="dropdown-item ${activeClass}" data-value="${i}">${i}</div>`;
+                }
+                const dropdown = document.getElementById(dropdownId);
+                dropdown.setAttribute('data-value', defaultValue);
+                dropdown.querySelector('.selected-value').innerText = defaultValue;
+                initCustomDropdown(dropdown);
+            };
+
+            renderScoreDropdownMenu('dropdownMenuScoreRed', 'dropdownScoreRed', 0);
+            renderScoreDropdownMenu('dropdownMenuScoreBlue', 'dropdownScoreBlue', 0);
 
             const submitterName = actualSubmitterName || tokenData.issuedToDiscordName;
             const submitterId = actualSubmitterId || tokenData.issuedToDiscordId;
@@ -2072,8 +2245,8 @@
 
             const mode = loadedTokenData.mode;
             const map = loadedTokenData.map;
-            const sr = parseInt(document.getElementById('submitScoreRed').value);
-            const sb = parseInt(document.getElementById('submitScoreBlue').value);
+            const sr = parseInt(document.getElementById('dropdownScoreRed').getAttribute('data-value')) || 0;
+            const sb = parseInt(document.getElementById('dropdownScoreBlue').getAttribute('data-value')) || 0;
 
             if (!validateSubmitForm(mode, sr, sb)) return;
 
@@ -2084,14 +2257,14 @@
             document.querySelectorAll('.submit-weapon-red').forEach(el => {
                 redTeam.push({
                     name: el.getAttribute('data-player'),
-                    weapon: el.value
+                    weapon: el.getAttribute('data-value') || 'CASTIGATE'
                 });
             });
 
             document.querySelectorAll('.submit-weapon-blue').forEach(el => {
                 blueTeam.push({
                     name: el.getAttribute('data-player'),
-                    weapon: el.value
+                    weapon: el.getAttribute('data-value') || 'CASTIGATE'
                 });
             });
 
