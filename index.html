@@ -1084,7 +1084,17 @@
                     </div>
                     <div class="form-group" style="display: flex; flex-direction: column; gap: 6px;">
                         <label style="font-size: 0.68rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">맵 (MAP)</label>
-                        <input type="text" id="submitMap" class="form-control" readonly style="background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.08);">
+                        <div class="custom-dropdown" id="dropdownMap" data-value="HIGHRISE">
+                            <div class="dropdown-trigger" style="padding:10px 12px; font-size:0.85rem; height:41px;">
+                                <span class="selected-value">HIGHRISE</span>
+                                <span class="dropdown-arrow">▼</span>
+                            </div>
+                            <div class="dropdown-menu">
+                                <div class="dropdown-item active" data-value="HIGHRISE">HIGHRISE</div>
+                                <div class="dropdown-item" data-value="ARC">ARC</div>
+                                <div class="dropdown-item" data-value="KABUKI">KABUKI</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -2132,7 +2142,23 @@
             document.getElementById('submitForm').style.display = 'flex';
             
             document.getElementById('submitMode').value = tokenData.mode.toUpperCase();
-            document.getElementById('submitMap').value = tokenData.map.toUpperCase();
+            
+            // Initialize custom map dropdown
+            const defaultMap = (tokenData.map || "HIGHRISE").toUpperCase();
+            const mapDropdown = document.getElementById('dropdownMap');
+            mapDropdown.setAttribute('data-value', defaultMap);
+            mapDropdown.querySelector('.selected-value').innerText = defaultMap;
+            
+            const mapItems = mapDropdown.querySelectorAll('.dropdown-item');
+            mapItems.forEach(item => {
+                const val = item.getAttribute('data-value');
+                if (val === defaultMap) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+            initCustomDropdown(mapDropdown);
             
             // Distribute players
             const half = tokenData.players.length / 2;
@@ -2190,8 +2216,8 @@
                 initCustomDropdown(div.querySelector('.custom-dropdown'));
             });
 
-            // Initialize Custom Score Dropdowns based on Mode (1v1: 5, 2v2: 4)
-            const maxScore = tokenData.mode === '1v1' ? 5 : 4;
+            // Initialize Custom Score Dropdowns (Max score is 5 for all modes)
+            const maxScore = 5;
             const renderScoreDropdownMenu = (menuId, dropdownId, defaultValue) => {
                 const menu = document.getElementById(menuId);
                 menu.innerHTML = '';
@@ -2222,19 +2248,12 @@
                 alert("점수를 정상적으로 입력해 주세요.");
                 return false;
             }
-            if (mode === '1v1') {
-                if (sr !== 5 && sb !== 5) {
-                    alert("1v1 듀얼은 5선승제입니다. 한 팀의 점수가 5점이어야 합니다.");
-                    return false;
-                }
-            } else {
-                if (sr !== 4 && sb !== 4) {
-                    alert("2v2 윙맨은 4선승제입니다. 한 팀의 점수가 4점이어야 합니다.");
-                    return false;
-                }
+            if (sr !== 5 && sb !== 5) {
+                alert("각자 5목숨이 주어지므로, 패배한 팀의 데스 수(즉, 승리 팀의 점수)는 반드시 5점이어야 합니다.");
+                return false;
             }
-            if (sr === sb) {
-                alert("무승부는 인정되지 않습니다.");
+            if (sr === 5 && sb === 5) {
+                alert("양쪽 팀이 동시에 5데스를 기록할 수는 없습니다. 한 팀만 5점이어야 합니다.");
                 return false;
             }
             return true;
@@ -2244,7 +2263,7 @@
             if (!loadedTokenData || !urlToken) return;
 
             const mode = loadedTokenData.mode;
-            const map = loadedTokenData.map;
+            const map = document.getElementById('dropdownMap').getAttribute('data-value') || 'HIGHRISE';
             const sr = parseInt(document.getElementById('dropdownScoreRed').getAttribute('data-value')) || 0;
             const sb = parseInt(document.getElementById('dropdownScoreBlue').getAttribute('data-value')) || 0;
 
