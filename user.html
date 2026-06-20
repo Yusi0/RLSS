@@ -523,6 +523,10 @@
                 grid-column: span 1;
             }
 
+            .weapons-panel {
+                grid-column: span 1;
+            }
+
             .history-panel {
                 grid-column: span 2;
             }
@@ -655,6 +659,22 @@
                 </table>
             </div>
 
+            <!-- Weapon Win Rate Statistics -->
+            <div class="glass-panel weapons-panel">
+                <div class="chart-title" style="margin-bottom: 8px;">Weapon Statistics (총기별 통계)</div>
+                <table id="weaponStatsTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 40%;">Weapon (사용 총기)</th>
+                            <th style="width: 20%; text-align: center;">Wins</th>
+                            <th style="width: 20%; text-align: center;">Total</th>
+                            <th style="width: 20%; text-align: right;">Win Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody id="weaponStatsBody"></tbody>
+                </table>
+            </div>
+
             <!-- Match History Section -->
             <div class="glass-panel history-panel" style="padding-bottom: 8px;">
                 <div class="chart-title" style="margin-bottom: 8px;">Player Match History</div>
@@ -662,12 +682,13 @@
                     <table id="matchHistoryTable">
                         <thead>
                             <tr>
-                                <th style="width: 12%; text-align: center;">Round</th>
-                                <th style="width: 15%;">Result</th>
-                                <th style="width: 15%;">Mode</th>
-                                <th style="width: 20%;">Map</th>
-                                <th style="width: 18%; text-align: center;">Score</th>
-                                <th style="width: 20%; text-align: center;">K / D (KDR)</th>
+                                <th style="width: 10%; text-align: center;">Round</th>
+                                <th style="width: 12%;">Result</th>
+                                <th style="width: 12%;">Mode</th>
+                                <th style="width: 16%;">Map</th>
+                                <th style="width: 18%;">Weapon</th>
+                                <th style="width: 14%; text-align: center;">Score</th>
+                                <th style="width: 18%; text-align: center;">K / D (KDR)</th>
                             </tr>
                         </thead>
                         <tbody id="matchHistoryBody"></tbody>
@@ -782,6 +803,7 @@
             } finally {
                 renderProfileStats();
                 renderMapStats();
+                renderWeaponStats();
                 renderMatchHistoryList();
                 buildCharts();
             }
@@ -1073,6 +1095,41 @@
             });
         }
 
+        // Weapon Statistics Rendering
+        function renderWeaponStats() {
+            const body = document.getElementById('weaponStatsBody');
+            body.innerHTML = '';
+
+            const weapons = ['CASTIGATE', 'PHOENIX', 'SIEGE', 'MONARCH'];
+            const weaponStats = {};
+            weapons.forEach(w => weaponStats[w] = { wins: 0, total: 0 });
+
+            filteredMatches.forEach(m => {
+                const weaponKey = (m.Weapon || 'CASTIGATE').toUpperCase();
+                if (weaponStats[weaponKey] !== undefined) {
+                    weaponStats[weaponKey].total++;
+                    const winTeam = m['Winning Team'] || m.WinningTeam;
+                    if (m.Team === winTeam) {
+                        weaponStats[weaponKey].wins++;
+                    }
+                }
+            });
+
+            weapons.forEach(w => {
+                const stat = weaponStats[w];
+                const wr = stat.total > 0 ? ((stat.wins / stat.total) * 100).toFixed(0) + '%' : '0%';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="text-transform:uppercase; font-weight:800;">${w}</td>
+                    <td style="text-align:center;">${stat.wins}</td>
+                    <td style="text-align:center;">${stat.total}</td>
+                    <td style="text-align:right; font-family:Outfit; font-weight:800;" class="${stat.total > 0 ? (stat.wins / stat.total >= 0.5 ? 'positive' : 'negative') : ''}">${wr}</td>
+                `;
+                body.appendChild(tr);
+            });
+        }
+
         // Match History list for this player
         function renderMatchHistoryList() {
             const body = document.getElementById('matchHistoryBody');
@@ -1127,6 +1184,7 @@
                     <td><span class="match-pill ${isWin ? 'pill-win' : 'pill-lose'}">${isWin ? 'WIN' : 'LOSE'}</span></td>
                     <td style="font-weight:800; font-size:0.65rem; color:var(--red-neon); text-transform:uppercase;">${m.Mode}</td>
                     <td style="text-transform:uppercase;">${m.Map}</td>
+                    <td style="text-transform:uppercase; font-size:0.7rem; color:var(--text-muted);">${m.Weapon || 'CASTIGATE'}</td>
                     <td style="text-align:center; font-family:Outfit;">${m.Score}</td>
                     <td style="text-align:center; font-family:Outfit;">${k}/${d} (${kdr})</td>
                 `;
@@ -1152,11 +1210,11 @@
 
         // Open details modal for a single scrim match (same as index.html)
         function openMatchDetails(roundId) {
+            const roundMatches = csvMatches.filter(m => parseInt(m.Round) === roundId);
             document.getElementById('modalRoundTitle').innerText = `Round Details (매치 라운드 #${roundId})`;
             const body = document.getElementById('matchDetailsBody');
             body.innerHTML = '';
 
-            const roundMatches = csvMatches.filter(m => parseInt(m.Round) === roundId);
             const redTeam = roundMatches.filter(m => m.Team === 'RED');
             const blueTeam = roundMatches.filter(m => m.Team === 'BLUE');
 
@@ -1176,11 +1234,15 @@
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="text-red" style="text-align:left;">${redPlayer.Nickname}</td>
+                    <td class="text-red" style="text-align:left; cursor:pointer;" onclick="viewPlayerProfile('${redPlayer.Nickname}')">
+                        ${redPlayer.Nickname !== '-' ? `${redPlayer.Nickname} (${redPlayer.Weapon || 'CASTIGATE'})` : '-'}
+                    </td>
                     <td>${redPlayer.Kills}</td>
                     <td>${redPlayer.Deaths}</td>
                     <td style="color:var(--text-muted); font-family:Outfit;">${redPlayer.Nickname !== '-' ? redElo : '-'}</td>
-                    <td class="text-blue" style="text-align:left;">${bluePlayer.Nickname}</td>
+                    <td class="text-blue" style="text-align:left; cursor:pointer;" onclick="viewPlayerProfile('${bluePlayer.Nickname}')">
+                        ${bluePlayer.Nickname !== '-' ? `${bluePlayer.Nickname} (${bluePlayer.Weapon || 'CASTIGATE'})` : '-'}
+                    </td>
                     <td>${bluePlayer.Kills}</td>
                     <td>${bluePlayer.Deaths}</td>
                     <td style="color:var(--text-muted); font-family:Outfit;">${bluePlayer.Nickname !== '-' ? blueElo : '-'}</td>
@@ -1189,6 +1251,11 @@
             }
 
             openModal('matchModal');
+        }
+
+        function viewPlayerProfile(nickname) {
+            if (nickname === '-') return;
+            window.location.href = `user.html?nickname=${encodeURIComponent(nickname)}&t=${Date.now()}`;
         }
 
         function openModal(id) {

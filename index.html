@@ -1735,11 +1735,11 @@
 
         // Open details modal for a single scrim match
         function openMatchDetails(roundId) {
+            const roundMatches = csvMatches.filter(m => parseInt(m.Round) === roundId);
             document.getElementById('modalRoundTitle').innerText = `Round Details (매치 라운드 #${roundId})`;
             const body = document.getElementById('matchDetailsBody');
             body.innerHTML = '';
 
-            const roundMatches = csvMatches.filter(m => parseInt(m.Round) === roundId);
             const redTeam = roundMatches.filter(m => m.Team === 'RED');
             const blueTeam = roundMatches.filter(m => m.Team === 'BLUE');
             
@@ -1760,11 +1760,15 @@
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="text-red player-name-cell" style="text-align:left;" onclick="viewPlayerProfile('${redPlayer.Nickname}')">${redPlayer.Nickname}</td>
+                    <td class="text-red player-name-cell" style="text-align:left;" onclick="viewPlayerProfile('${redPlayer.Nickname}')">
+                        ${redPlayer.Nickname !== '-' ? `${redPlayer.Nickname} (${redPlayer.Weapon || 'CASTIGATE'})` : '-'}
+                    </td>
                     <td>${redPlayer.Kills}</td>
                     <td>${redPlayer.Deaths}</td>
                     <td style="color:var(--text-muted); font-family:Outfit;">${redPlayer.Nickname !== '-' ? redElo : '-'}</td>
-                    <td class="text-blue player-name-cell" style="text-align:left;" onclick="viewPlayerProfile('${bluePlayer.Nickname}')">${bluePlayer.Nickname}</td>
+                    <td class="text-blue player-name-cell" style="text-align:left;" onclick="viewPlayerProfile('${bluePlayer.Nickname}')">
+                        ${bluePlayer.Nickname !== '-' ? `${bluePlayer.Nickname} (${bluePlayer.Weapon || 'CASTIGATE'})` : '-'}
+                    </td>
                     <td>${bluePlayer.Kills}</td>
                     <td>${bluePlayer.Deaths}</td>
                     <td style="color:var(--text-muted); font-family:Outfit;">${bluePlayer.Nickname !== '-' ? blueElo : '-'}</td>

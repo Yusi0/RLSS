@@ -465,6 +465,22 @@
             background: #18181b;
         }
 
+        .custom-select-wrap {
+            position: relative;
+        }
+
+        .custom-select-trigger {
+            cursor: pointer;
+            position: relative;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 32px;
+            user-select: none;
+            display: flex;
+            align-items: center;
+        }
+
         /* Custom Player Autocomplete Dropdown */
         .player-input-wrap {
             position: relative;
@@ -1024,14 +1040,22 @@
                     <div class="form-row" style="margin-bottom:12px;">
                         <div class="form-group">
                             <label>게임 모드</label>
-                            <select class="form-control" id="formMode" onchange="onModeChange()">
-                                <option value="1v1">1v1 Duels</option>
-                                <option value="2v2" disabled style="color: #64748b;">2v2 Wingman</option>
-                            </select>
+                            <div class="custom-select-wrap">
+                                <div class="custom-select-trigger form-control" id="formModeTrigger" data-value="1v1" onclick="toggleCustomDropdown('formModeDropdown')">1v1 Duels</div>
+                                <div class="player-dropdown" id="formModeDropdown">
+                                    <div class="player-dropdown-item" onclick="selectCustomOption('formModeTrigger', 'formModeDropdown', '1v1 Duels', '1v1'); onModeChangeCustom('1v1');">1v1 Duels</div>
+                                    <div class="player-dropdown-item" style="opacity: 0.4; cursor: not-allowed;" onclick="event.stopPropagation();">2v2 Wingman (비활성)</div>
+                                </div>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label>맵</label>
-                            <select class="form-control" id="formMap"></select>
+                            <div class="custom-select-wrap">
+                                <div class="custom-select-trigger form-control" id="formMapTrigger" data-value="highrise" onclick="toggleCustomDropdown('formMapDropdown')">HIGHRISE</div>
+                                <div class="player-dropdown" id="formMapDropdown">
+                                    <!-- JS에서 동적으로 채워짐 -->
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -1045,12 +1069,23 @@
 
                             <div class="form-group" style="margin-bottom:12px;">
                                 <label>Player 1</label>
-                                <div class="player-input-wrap">
-                                    <input type="text" class="form-control player-field" id="redP1"
-                                        placeholder="닉네임 검색..." autocomplete="off"
-                                        oninput="filterDropdown('redP1','dd-redP1','red')"
-                                        onfocus="openDropdown('dd-redP1')">
-                                    <div class="player-dropdown" id="dd-redP1"></div>
+                                <div style="display:flex; gap:8px;">
+                                    <div class="player-input-wrap" style="flex:2;">
+                                        <input type="text" class="form-control player-field" id="redP1"
+                                            placeholder="닉네임 검색..." autocomplete="off"
+                                            oninput="filterDropdown('redP1','dd-redP1','red')"
+                                            onfocus="openDropdown('dd-redP1')">
+                                        <div class="player-dropdown" id="dd-redP1"></div>
+                                    </div>
+                                    <div class="custom-select-wrap" style="flex:1;">
+                                        <div class="custom-select-trigger form-control" id="redP1WeaponTrigger" data-value="CASTIGATE" onclick="toggleCustomDropdown('redP1WeaponDropdown')">CASTIGATE</div>
+                                        <div class="player-dropdown" id="redP1WeaponDropdown">
+                                            <div class="player-dropdown-item" onclick="selectCustomOption('redP1WeaponTrigger', 'redP1WeaponDropdown', 'CASTIGATE', 'CASTIGATE')">CASTIGATE</div>
+                                            <div class="player-dropdown-item" onclick="selectCustomOption('redP1WeaponTrigger', 'redP1WeaponDropdown', 'PHOENIX', 'PHOENIX')">PHOENIX</div>
+                                            <div class="player-dropdown-item" onclick="selectCustomOption('redP1WeaponTrigger', 'redP1WeaponDropdown', 'SIEGE', 'SIEGE')">SIEGE</div>
+                                            <div class="player-dropdown-item" onclick="selectCustomOption('redP1WeaponTrigger', 'redP1WeaponDropdown', 'MONARCH', 'MONARCH')">MONARCH</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -1062,12 +1097,23 @@
 
                             <div class="form-group" id="redP2Group" style="display:none;margin-bottom:12px;">
                                 <label>Player 2</label>
-                                <div class="player-input-wrap">
-                                    <input type="text" class="form-control player-field" id="redP2"
-                                        placeholder="닉네임 검색..." autocomplete="off"
-                                        oninput="filterDropdown('redP2','dd-redP2','red')"
-                                        onfocus="openDropdown('dd-redP2')">
-                                    <div class="player-dropdown" id="dd-redP2"></div>
+                                <div style="display:flex; gap:8px;">
+                                    <div class="player-input-wrap" style="flex:2;">
+                                        <input type="text" class="form-control player-field" id="redP2"
+                                            placeholder="닉네임 검색..." autocomplete="off"
+                                            oninput="filterDropdown('redP2','dd-redP2','red')"
+                                            onfocus="openDropdown('dd-redP2')">
+                                        <div class="player-dropdown" id="dd-redP2"></div>
+                                    </div>
+                                    <div class="custom-select-wrap" style="flex:1;">
+                                        <div class="custom-select-trigger form-control" id="redP2WeaponTrigger" data-value="CASTIGATE" onclick="toggleCustomDropdown('redP2WeaponDropdown')">CASTIGATE</div>
+                                        <div class="player-dropdown" id="redP2WeaponDropdown">
+                                            <div class="player-dropdown-item" onclick="selectCustomOption('redP2WeaponTrigger', 'redP2WeaponDropdown', 'CASTIGATE', 'CASTIGATE')">CASTIGATE</div>
+                                            <div class="player-dropdown-item" onclick="selectCustomOption('redP2WeaponTrigger', 'redP2WeaponDropdown', 'PHOENIX', 'PHOENIX')">PHOENIX</div>
+                                            <div class="player-dropdown-item" onclick="selectCustomOption('redP2WeaponTrigger', 'redP2WeaponDropdown', 'SIEGE', 'SIEGE')">SIEGE</div>
+                                            <div class="player-dropdown-item" onclick="selectCustomOption('redP2WeaponTrigger', 'redP2WeaponDropdown', 'MONARCH', 'MONARCH')">MONARCH</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -1101,12 +1147,23 @@
 
                             <div class="form-group" style="margin-bottom:12px;">
                                 <label>Player 1</label>
-                                <div class="player-input-wrap">
-                                    <input type="text" class="form-control player-field" id="blueP1"
-                                        placeholder="닉네임 검색..." autocomplete="off"
-                                        oninput="filterDropdown('blueP1','dd-blueP1','blue')"
-                                        onfocus="openDropdown('dd-blueP1')">
-                                    <div class="player-dropdown blue-side" id="dd-blueP1"></div>
+                                <div style="display:flex; gap:8px;">
+                                    <div class="player-input-wrap" style="flex:2;">
+                                        <input type="text" class="form-control player-field" id="blueP1"
+                                            placeholder="닉네임 검색..." autocomplete="off"
+                                            oninput="filterDropdown('blueP1','dd-blueP1','blue')"
+                                            onfocus="openDropdown('dd-blueP1')">
+                                        <div class="player-dropdown blue-side" id="dd-blueP1"></div>
+                                    </div>
+                                    <div class="custom-select-wrap" style="flex:1;">
+                                        <div class="custom-select-trigger form-control" id="blueP1WeaponTrigger" data-value="CASTIGATE" onclick="toggleCustomDropdown('blueP1WeaponDropdown')">CASTIGATE</div>
+                                        <div class="player-dropdown blue-side" id="blueP1WeaponDropdown">
+                                            <div class="player-dropdown-item" onclick="selectCustomOption('blueP1WeaponTrigger', 'blueP1WeaponDropdown', 'CASTIGATE', 'CASTIGATE')">CASTIGATE</div>
+                                            <div class="player-dropdown-item" onclick="selectCustomOption('blueP1WeaponTrigger', 'blueP1WeaponDropdown', 'PHOENIX', 'PHOENIX')">PHOENIX</div>
+                                            <div class="player-dropdown-item" onclick="selectCustomOption('blueP1WeaponTrigger', 'blueP1WeaponDropdown', 'SIEGE', 'SIEGE')">SIEGE</div>
+                                            <div class="player-dropdown-item" onclick="selectCustomOption('blueP1WeaponTrigger', 'blueP1WeaponDropdown', 'MONARCH', 'MONARCH')">MONARCH</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -1118,12 +1175,23 @@
 
                             <div class="form-group" id="blueP2Group" style="display:none;margin-bottom:12px;">
                                 <label>Player 2</label>
-                                <div class="player-input-wrap">
-                                    <input type="text" class="form-control player-field" id="blueP2"
-                                        placeholder="닉네임 검색..." autocomplete="off"
-                                        oninput="filterDropdown('blueP2','dd-blueP2','blue')"
-                                        onfocus="openDropdown('dd-blueP2')">
-                                    <div class="player-dropdown blue-side" id="dd-blueP2"></div>
+                                <div style="display:flex; gap:8px;">
+                                    <div class="player-input-wrap" style="flex:2;">
+                                        <input type="text" class="form-control player-field" id="blueP2"
+                                            placeholder="닉네임 검색..." autocomplete="off"
+                                            oninput="filterDropdown('blueP2','dd-blueP2','blue')"
+                                            onfocus="openDropdown('dd-blueP2')">
+                                        <div class="player-dropdown blue-side" id="dd-blueP2"></div>
+                                    </div>
+                                    <div class="custom-select-wrap" style="flex:1;">
+                                        <div class="custom-select-trigger form-control" id="blueP2WeaponTrigger" data-value="CASTIGATE" onclick="toggleCustomDropdown('blueP2WeaponDropdown')">CASTIGATE</div>
+                                        <div class="player-dropdown blue-side" id="blueP2WeaponDropdown">
+                                            <div class="player-dropdown-item" onclick="selectCustomOption('blueP2WeaponTrigger', 'blueP2WeaponDropdown', 'CASTIGATE', 'CASTIGATE')">CASTIGATE</div>
+                                            <div class="player-dropdown-item" onclick="selectCustomOption('blueP2WeaponTrigger', 'blueP2WeaponDropdown', 'PHOENIX', 'PHOENIX')">PHOENIX</div>
+                                            <div class="player-dropdown-item" onclick="selectCustomOption('blueP2WeaponTrigger', 'blueP2WeaponDropdown', 'SIEGE', 'SIEGE')">SIEGE</div>
+                                            <div class="player-dropdown-item" onclick="selectCustomOption('blueP2WeaponTrigger', 'blueP2WeaponDropdown', 'MONARCH', 'MONARCH')">MONARCH</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -1168,6 +1236,7 @@
                             <tr>
                                 <th>모드</th>
                                 <th>맵</th>
+                                <th>총기</th>
                                 <th>RED 팀</th>
                                 <th>스코어</th>
                                 <th>BLUE 팀</th>
@@ -1539,7 +1608,7 @@
             document.getElementById('loginGate').style.display = 'none';
             document.getElementById('adminDashboard').style.display = 'flex';
             loadData();
-            onModeChange();
+            onModeChangeCustom('1v1');
             updateConfigStatus();
             populateLocalStorageFields();
         }
@@ -1715,19 +1784,60 @@
         });
 
         // ================================================================
+        // CUSTOM DROPDOWN HELPERS
+        // ================================================================
+        function toggleCustomDropdown(ddId) {
+            closeAllDropdowns();
+            const dd = document.getElementById(ddId);
+            if (dd) {
+                dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+            }
+            if (window.event) window.event.stopPropagation();
+        }
+
+        function selectCustomOption(triggerId, ddId, text, value) {
+            const trigger = document.getElementById(triggerId);
+            if (trigger) {
+                trigger.textContent = text;
+                trigger.setAttribute('data-value', value);
+            }
+            const dd = document.getElementById(ddId);
+            if (dd) {
+                dd.style.display = 'none';
+            }
+        }
+
+        // Close custom dropdowns on click outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.custom-select-wrap')) {
+                const dropdowns = document.querySelectorAll('.custom-select-wrap .player-dropdown');
+                dropdowns.forEach(dd => dd.style.display = 'none');
+            }
+        });
+
+        // ================================================================
         // FORM — MATCH ENTRY
         // ================================================================
-        function onModeChange() {
-            const mode = document.getElementById('formMode').value;
-            const mapSel = document.getElementById('formMap');
-            mapSel.innerHTML = '';
+        function onModeChangeCustom(mode) {
+            const mapDropdown = document.getElementById('formMapDropdown');
+            const mapTrigger = document.getElementById('formMapTrigger');
+            mapDropdown.innerHTML = '';
+            
             const maps = mode === '1v1' ? MAPS_1V1 : MAPS_2V2;
             maps.forEach(m => {
-                const opt = document.createElement('option');
-                opt.value = m;
-                opt.textContent = m.toUpperCase();
-                mapSel.appendChild(opt);
+                const div = document.createElement('div');
+                div.className = 'player-dropdown-item';
+                div.textContent = m.toUpperCase();
+                div.onclick = function() {
+                    selectCustomOption('formMapTrigger', 'formMapDropdown', m.toUpperCase(), m);
+                };
+                mapDropdown.appendChild(div);
             });
+
+            if (maps.length > 0) {
+                mapTrigger.textContent = maps[0].toUpperCase();
+                mapTrigger.setAttribute('data-value', maps[0]);
+            }
 
             const is2v2 = mode === '2v2';
             document.getElementById('redP2Group').style.display = is2v2 ? 'block' : 'none';
@@ -1737,7 +1847,7 @@
         }
 
         function validateMatchForm() {
-            const mode = document.getElementById('formMode').value;
+            const mode = document.getElementById('formModeTrigger').getAttribute('data-value');
             const r1 = document.getElementById('redP1').value.trim();
             const b1 = document.getElementById('blueP1').value.trim();
             const sr = parseInt(document.getElementById('scoreRed').value);
@@ -1765,8 +1875,8 @@
         function addMatchToQueue() {
             if (!validateMatchForm()) return;
 
-            const mode = document.getElementById('formMode').value;
-            const map = document.getElementById('formMap').value;
+            const mode = document.getElementById('formModeTrigger').getAttribute('data-value');
+            const map = document.getElementById('formMapTrigger').getAttribute('data-value');
             const sr = parseInt(document.getElementById('scoreRed').value);
             const sb = parseInt(document.getElementById('scoreBlue').value);
 
@@ -1809,10 +1919,25 @@
                 }
             }
 
+            // 개별 총기 선택 값 읽기
+            const redP1W = document.getElementById('redP1WeaponTrigger').getAttribute('data-value') || 'CASTIGATE';
+            const redP2W = document.getElementById('redP2WeaponTrigger').getAttribute('data-value') || 'CASTIGATE';
+            const blueP1W = document.getElementById('blueP1WeaponTrigger').getAttribute('data-value') || 'CASTIGATE';
+            const blueP2W = document.getElementById('blueP2WeaponTrigger').getAttribute('data-value') || 'CASTIGATE';
+
+            const playerWeapons = {};
+            playerWeapons[redTeam[0]] = redP1W;
+            playerWeapons[blueTeam[0]] = blueP1W;
+            if (mode === '2v2') {
+                playerWeapons[redTeam[1]] = redP2W;
+                playerWeapons[blueTeam[1]] = blueP2W;
+            }
+
             // Push to temporary pending queue
             pendingMatchesQueue.push({
                 mode,
                 map,
+                playerWeapons,
                 redTeam,
                 blueTeam,
                 scoreRed: sr,
@@ -1840,6 +1965,16 @@
                 document.getElementById('blueP2D').value = '';
             }
 
+            // Reset weapon dropdowns to CASTIGATE
+            const weaponTriggers = ['redP1WeaponTrigger', 'redP2WeaponTrigger', 'blueP1WeaponTrigger', 'blueP2WeaponTrigger'];
+            weaponTriggers.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.textContent = 'CASTIGATE';
+                    el.setAttribute('data-value', 'CASTIGATE');
+                }
+            });
+
             renderPendingQueue();
             showToast('경기가 대기열에 추가되었습니다.', 'success');
         }
@@ -1863,9 +1998,13 @@
                 tr.innerHTML = `
                     <td><span class="badge badge-mode">${m.mode}</span></td>
                     <td style="font-weight:700;text-transform:uppercase;">${m.map}</td>
-                    <td class="text-red" style="color:var(--red-neon);font-weight:700;">${m.redTeam.join(', ')}</td>
+                    <td class="text-red" style="color:var(--red-neon);font-weight:700;">
+                        ${m.redTeam.map(p => `${p} [${m.playerWeapons[p] || 'CASTIGATE'}]`).join(', ')}
+                    </td>
                     <td style="font-family:'Outfit',sans-serif;font-weight:800;">${m.scoreStr}</td>
-                    <td style="color:var(--blue-neon);font-weight:700;">${m.blueTeam.join(', ')}</td>
+                    <td style="color:var(--blue-neon);font-weight:700;">
+                        ${m.blueTeam.map(p => `${p} [${m.playerWeapons[p] || 'CASTIGATE'}]`).join(', ')}
+                    </td>
                     <td><button class="btn-delete" onclick="removeMatchFromQueue(${idx})">삭제</button></td>
                 `;
                 tbody.appendChild(tr);
@@ -1895,7 +2034,8 @@
                     csvMatches.push({
                         Round: currentRound, Mode: m.mode, Map: m.map, Nickname: p,
                         Kills: m.playerKd[p].k, Deaths: m.playerKd[p].d,
-                        Team: 'RED', 'Winning Team': m.winningTeam, Score: m.scoreStr, Registrant: currentAdminId || 'admin'
+                        Team: 'RED', 'Winning Team': m.winningTeam, Score: m.scoreStr, Registrant: currentAdminId || 'admin',
+                        Weapon: m.playerWeapons[p] || 'CASTIGATE'
                     });
                 });
 
@@ -1903,7 +2043,8 @@
                     csvMatches.push({
                         Round: currentRound, Mode: m.mode, Map: m.map, Nickname: p,
                         Kills: m.playerKd[p].k, Deaths: m.playerKd[p].d,
-                        Team: 'BLUE', 'Winning Team': m.winningTeam, Score: m.scoreStr, Registrant: currentAdminId || 'admin'
+                        Team: 'BLUE', 'Winning Team': m.winningTeam, Score: m.scoreStr, Registrant: currentAdminId || 'admin',
+                        Weapon: m.playerWeapons[p] || 'CASTIGATE'
                     });
                 });
             });
@@ -1998,9 +2139,9 @@
                         <td style="font-family:'Orbitron',sans-serif;font-weight:800;color:var(--text-muted);font-size:0.7rem;">#${r} <span class="badge" style="background:#52525b;color:#fff;text-decoration:none;display:inline-block;font-size:0.55rem;padding:2px 4px;margin-left:4px;">삭제 대기</span></td>
                         <td><span class="badge badge-mode">${first.Mode}</span></td>
                         <td style="font-weight:700;text-transform:uppercase;color:#ffffff;">${first.Map}</td>
-                        <td class="text-red" style="color:var(--red-neon);font-weight:700;">${red.map(m => m.Nickname).join(', ')}</td>
+                        <td class="text-red" style="color:var(--red-neon);font-weight:700;">${red.map(m => `${m.Nickname} [${m.Weapon || 'CASTIGATE'}]`).join(', ')}</td>
                         <td style="font-family:'Outfit',sans-serif;font-weight:800;color:#ffffff;">${first.Score}</td>
-                        <td style="color:var(--blue-neon);font-weight:700;">${blue.map(m => m.Nickname).join(', ')}</td>
+                        <td style="color:var(--blue-neon);font-weight:700;">${blue.map(m => `${m.Nickname} [${m.Weapon || 'CASTIGATE'}]`).join(', ')}</td>
                         <td><span class="badge ${winner === 'RED' ? 'badge-red' : 'badge-blue'}">${winner} WIN</span></td>
                         <td style="color:var(--text-muted);font-size:0.72rem;">${first.Registrant || '-'}</td>
                         <td>
@@ -2025,8 +2166,24 @@
                         </td>
                         <td class="text-red">
                             <div style="display:flex;flex-direction:column;gap:3px;">
-                                <input type="text" id="editRedP1-${r}" class="form-control" style="width:95px;padding:3px;font-size:0.75rem;height:auto;" value="${red[0] ? red[0].Nickname : ''}" placeholder="P1">
-                                <input type="text" id="editRedP2-${r}" class="form-control" style="width:95px;padding:3px;font-size:0.75rem;height:auto;display:${first.Mode === '2v2' ? 'block' : 'none'};" value="${red[1] ? red[1].Nickname : ''}" placeholder="P2">
+                                <div style="display:flex;align-items:center;gap:3px;">
+                                    <input type="text" id="editRedP1-${r}" class="form-control" style="width:95px;padding:3px;font-size:0.75rem;height:auto;" value="${red[0] ? red[0].Nickname : ''}" placeholder="P1">
+                                    <select id="editRedP1Weapon-${r}" class="form-control" style="width:80px;padding:3px;font-size:0.7rem;height:auto;">
+                                        <option value="CASTIGATE" ${(red[0]?.Weapon || 'CASTIGATE') === 'CASTIGATE' ? 'selected' : ''}>CASTIGATE</option>
+                                        <option value="PHOENIX" ${(red[0]?.Weapon || '') === 'PHOENIX' ? 'selected' : ''}>PHOENIX</option>
+                                        <option value="SIEGE" ${(red[0]?.Weapon || '') === 'SIEGE' ? 'selected' : ''}>SIEGE</option>
+                                        <option value="MONARCH" ${(red[0]?.Weapon || '') === 'MONARCH' ? 'selected' : ''}>MONARCH</option>
+                                    </select>
+                                </div>
+                                <div id="editRedP2Container-${r}" style="display:${first.Mode === '2v2' ? 'flex' : 'none'};align-items:center;gap:3px;">
+                                    <input type="text" id="editRedP2-${r}" class="form-control" style="width:95px;padding:3px;font-size:0.75rem;height:auto;" value="${red[1] ? red[1].Nickname : ''}" placeholder="P2">
+                                    <select id="editRedP2Weapon-${r}" class="form-control" style="width:80px;padding:3px;font-size:0.7rem;height:auto;">
+                                        <option value="CASTIGATE" ${(red[1]?.Weapon || 'CASTIGATE') === 'CASTIGATE' ? 'selected' : ''}>CASTIGATE</option>
+                                        <option value="PHOENIX" ${(red[1]?.Weapon || '') === 'PHOENIX' ? 'selected' : ''}>PHOENIX</option>
+                                        <option value="SIEGE" ${(red[1]?.Weapon || '') === 'SIEGE' ? 'selected' : ''}>SIEGE</option>
+                                        <option value="MONARCH" ${(red[1]?.Weapon || '') === 'MONARCH' ? 'selected' : ''}>MONARCH</option>
+                                    </select>
+                                </div>
                             </div>
                         </td>
                         <td>
@@ -2038,8 +2195,24 @@
                         </td>
                         <td style="color:var(--blue-neon);">
                             <div style="display:flex;flex-direction:column;gap:3px;">
-                                <input type="text" id="editBlueP1-${r}" class="form-control" style="width:95px;padding:3px;font-size:0.75rem;height:auto;" value="${blue[0] ? blue[0].Nickname : ''}" placeholder="P1">
-                                <input type="text" id="editBlueP2-${r}" class="form-control" style="width:95px;padding:3px;font-size:0.75rem;height:auto;display:${first.Mode === '2v2' ? 'block' : 'none'};" value="${blue[1] ? blue[1].Nickname : ''}" placeholder="P2">
+                                <div style="display:flex;align-items:center;gap:3px;">
+                                    <input type="text" id="editBlueP1-${r}" class="form-control" style="width:95px;padding:3px;font-size:0.75rem;height:auto;" value="${blue[0] ? blue[0].Nickname : ''}" placeholder="P1">
+                                    <select id="editBlueP1Weapon-${r}" class="form-control" style="width:80px;padding:3px;font-size:0.7rem;height:auto;">
+                                        <option value="CASTIGATE" ${(blue[0]?.Weapon || 'CASTIGATE') === 'CASTIGATE' ? 'selected' : ''}>CASTIGATE</option>
+                                        <option value="PHOENIX" ${(blue[0]?.Weapon || '') === 'PHOENIX' ? 'selected' : ''}>PHOENIX</option>
+                                        <option value="SIEGE" ${(blue[0]?.Weapon || '') === 'SIEGE' ? 'selected' : ''}>SIEGE</option>
+                                        <option value="MONARCH" ${(blue[0]?.Weapon || '') === 'MONARCH' ? 'selected' : ''}>MONARCH</option>
+                                    </select>
+                                </div>
+                                <div id="editBlueP2Container-${r}" style="display:${first.Mode === '2v2' ? 'flex' : 'none'};align-items:center;gap:3px;">
+                                    <input type="text" id="editBlueP2-${r}" class="form-control" style="width:95px;padding:3px;font-size:0.75rem;height:auto;" value="${blue[1] ? blue[1].Nickname : ''}" placeholder="P2">
+                                    <select id="editBlueP2Weapon-${r}" class="form-control" style="width:80px;padding:3px;font-size:0.7rem;height:auto;">
+                                        <option value="CASTIGATE" ${(blue[1]?.Weapon || 'CASTIGATE') === 'CASTIGATE' ? 'selected' : ''}>CASTIGATE</option>
+                                        <option value="PHOENIX" ${(blue[1]?.Weapon || '') === 'PHOENIX' ? 'selected' : ''}>PHOENIX</option>
+                                        <option value="SIEGE" ${(blue[1]?.Weapon || '') === 'SIEGE' ? 'selected' : ''}>SIEGE</option>
+                                        <option value="MONARCH" ${(blue[1]?.Weapon || '') === 'MONARCH' ? 'selected' : ''}>MONARCH</option>
+                                    </select>
+                                </div>
                             </div>
                         </td>
                         <td style="font-size:0.7rem;color:var(--text-muted);font-style:italic;">(자동)</td>
@@ -2062,9 +2235,9 @@
                         </td>
                         <td><span class="badge badge-mode">${first.Mode}</span></td>
                         <td style="font-weight:700;text-transform:uppercase;color:#ffffff;">${first.Map}</td>
-                        <td class="text-red" style="color:var(--red-neon);font-weight:700;">${red.map(m => m.Nickname).join(', ')}</td>
+                        <td class="text-red" style="color:var(--red-neon);font-weight:700;">${red.map(m => `${m.Nickname} [${m.Weapon || 'CASTIGATE'}]`).join(', ')}</td>
                         <td style="font-family:'Outfit',sans-serif;font-weight:800;color:#ffffff;">${first.Score}</td>
-                        <td style="color:var(--blue-neon);font-weight:700;">${blue.map(m => m.Nickname).join(', ')}</td>
+                        <td style="color:var(--blue-neon);font-weight:700;">${blue.map(m => `${m.Nickname} [${m.Weapon || 'CASTIGATE'}]`).join(', ')}</td>
                         <td><span class="badge ${winner === 'RED' ? 'badge-red' : 'badge-blue'}">${winner} WIN</span></td>
                         <td style="color:var(--text-muted);font-size:0.72rem;">${first.Registrant || '-'}</td>
                         <td>
@@ -2149,8 +2322,10 @@
             populateEditMaps(roundId, mode, mapSel.value);
 
             const is2v2 = mode === '2v2';
-            document.getElementById(`editRedP2-${roundId}`).style.display = is2v2 ? 'block' : 'none';
-            document.getElementById(`editBlueP2-${roundId}`).style.display = is2v2 ? 'block' : 'none';
+            const redP2Cont = document.getElementById(`editRedP2Container-${roundId}`);
+            const blueP2Cont = document.getElementById(`editBlueP2Container-${roundId}`);
+            if (redP2Cont) redP2Cont.style.display = is2v2 ? 'flex' : 'none';
+            if (blueP2Cont) blueP2Cont.style.display = is2v2 ? 'flex' : 'none';
         }
 
         function validateEditForm(mode, redTeam, blueTeam, sr, sb) {
@@ -2220,19 +2395,28 @@
             const originalRows = csvMatches.filter(m => parseInt(m.Round) === roundId);
             const registrant = (originalRows[0] && originalRows[0].Registrant) || 'admin';
 
+            const redP1W = document.getElementById(`editRedP1Weapon-${roundId}`).value;
+            const redP2W = mode === '2v2' ? document.getElementById(`editRedP2Weapon-${roundId}`).value : 'CASTIGATE';
+            const blueP1W = document.getElementById(`editBlueP1Weapon-${roundId}`).value;
+            const blueP2W = mode === '2v2' ? document.getElementById(`editBlueP2Weapon-${roundId}`).value : 'CASTIGATE';
+
             const rows = [];
-            redTeam.forEach(p => {
+            redTeam.forEach((p, idx) => {
+                const weapon = idx === 0 ? redP1W : redP2W;
                 rows.push({
                     Round: roundId, Mode: mode, Map: map, Nickname: p,
                     Kills: playerKd[p].k, Deaths: playerKd[p].d,
-                    Team: 'RED', 'Winning Team': winningTeam, Score: scoreStr, Registrant: registrant
+                    Team: 'RED', 'Winning Team': winningTeam, Score: scoreStr, Registrant: registrant,
+                    Weapon: weapon
                 });
             });
-            blueTeam.forEach(p => {
+            blueTeam.forEach((p, idx) => {
+                const weapon = idx === 0 ? blueP1W : blueP2W;
                 rows.push({
                     Round: roundId, Mode: mode, Map: map, Nickname: p,
                     Kills: playerKd[p].k, Deaths: playerKd[p].d,
-                    Team: 'BLUE', 'Winning Team': winningTeam, Score: scoreStr, Registrant: registrant
+                    Team: 'BLUE', 'Winning Team': winningTeam, Score: scoreStr, Registrant: registrant,
+                    Weapon: weapon
                 });
             });
 
@@ -2562,9 +2746,9 @@
                 `${p.Nickname},${p.Elo1v1},${p.Kills1v1},${p.Deaths1v1},${p.Wins1v1},${p.Losses1v1},${p.Matches1v1},${p.Tier1v1},${p.Elo2v2},${p.Kills2v2},${p.Deaths2v2},${p.Wins2v2},${p.Losses2v2},${p.Matches2v2},${p.Tier2v2},${p.EloCombined}`
             ).join('\n');
 
-            const matchHeader = 'Round,Mode,Map,Nickname,Kills,Deaths,Team,Winning Team,Score,Registrant\n';
+            const matchHeader = 'Round,Mode,Map,Nickname,Kills,Deaths,Team,Winning Team,Score,Registrant,Weapon\n';
             const matchContent = matchHeader + [...csvMatches].sort((a, b) => parseInt(a.Round) - parseInt(b.Round)).map(m =>
-                `${m.Round},${m.Mode},${m.Map},${m.Nickname},${m.Kills},${m.Deaths},${m.Team},${m['Winning Team'] || m.WinningTeam},${m.Score},${m.Registrant}`
+                `${m.Round},${m.Mode},${m.Map},${m.Nickname},${m.Kills},${m.Deaths},${m.Team},${m['Winning Team'] || m.WinningTeam},${m.Score},${m.Registrant},${m.Weapon || 'CASTIGATE'}`
             ).join('\n');
 
             const aftercalcHeader = 'Round,Nickname,Mode,EloAfterRound,KdrAfterRound\n';

@@ -71,6 +71,7 @@ def initialize_tables():
         winning_team TEXT, -- 'RED' or 'BLUE'
         score TEXT, -- '5:3', '4:2' 등
         registrant TEXT, -- 등록 관리자 이름
+        weapon TEXT DEFAULT 'CASTIGATE', -- 사용 총기 이름
         FOREIGN KEY(nickname) REFERENCES leaderboard(nickname) ON DELETE CASCADE
     )
     ''')
@@ -88,6 +89,13 @@ def initialize_tables():
         UNIQUE(round, nickname, mode)
     )
     ''')
+
+    # matches 테이블에 weapon 컬럼이 없는 경우 자동 마이그레이션
+    cur.execute("PRAGMA table_info(matches)")
+    columns = [info[1] for info in cur.fetchall()]
+    if 'weapon' not in columns:
+        cur.execute("ALTER TABLE matches ADD COLUMN weapon TEXT DEFAULT 'CASTIGATE'")
+        
     con.commit()
 
 def calculate_tier(elo):
@@ -300,14 +308,14 @@ def export_to_csv():
 
     # 2. match.csv
     cur.execute('''
-        SELECT round, mode, map, nickname, kills, deaths, team, winning_team, score, registrant
+        SELECT round, mode, map, nickname, kills, deaths, team, winning_team, score, registrant, weapon
         FROM matches ORDER BY round ASC, team DESC, nickname ASC
     ''')
     match_rows = cur.fetchall()
     with open("match.csv", "w", newline="", encoding="utf-8-sig") as f:
         writer = csv.writer(f)
         writer.writerow([
-            "Round", "Mode", "Map", "Nickname", "Kills", "Deaths", "Team", "Winning Team", "Score", "Registrant"
+            "Round", "Mode", "Map", "Nickname", "Kills", "Deaths", "Team", "Winning Team", "Score", "Registrant", "Weapon"
         ])
         writer.writerows(match_rows)
 
@@ -337,16 +345,19 @@ def import_csv_to_db():
         header = next(reader)
         for row in reader:
             if not row: continue
-            rnd, mode, map_name, nick, k, d, team, win_team, score, reg = row
+            rnd, mode, map_name, nick, k, d, team, win_team, score, reg = row[:10]
+            weapon = row[10] if len(row) > 10 else 'CASTIGATE'
+            if not weapon:
+                weapon = 'CASTIGATE'
             
             # 플레이어 선등록
             cur.execute("INSERT OR IGNORE INTO leaderboard (nickname) VALUES (?)", (nick,))
             
             # 매치 저장
             cur.execute('''
-                INSERT INTO matches (round, mode, map, nickname, kills, deaths, team, winning_team, score, registrant)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (int(rnd), mode, map_name, nick, int(k), int(d), team, win_team, score, reg))
+                INSERT INTO matches (round, mode, map, nickname, kills, deaths, team, winning_team, score, registrant, weapon)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (int(rnd), mode, map_name, nick, int(k), int(d), team, win_team, score, reg, weapon))
             
     con.commit()
     recalculate_all()
@@ -433,6 +444,21 @@ def add_scrim_prompt():
     winning_team = 'RED' if red_score > blue_score else 'BLUE'
     score_str = f"{red_score}:{blue_score}"
 
+    # 5-2. 총기 입력
+    weapons = ['CASTIGATE', 'PHOENIX', 'SIEGE', 'MONARCH']
+    print("\n총기 리스트:")
+    for i, w in enumerate(weapons, 1):
+        print(f"  {i}. {w}")
+    while True:
+        w_input = input(">> 사용 총기 선택 (기본값 1): ").strip()
+        if not w_input:
+            weapon = 'CASTIGATE'
+            break
+        if w_input in ['1', '2', '3', '4']:
+            weapon = weapons[int(w_input) - 1]
+            break
+        print(Fore.RED + "⚠ 잘못된 입력입니다. 1 ~ 4 사이의 숫자를 입력하거나 엔터를 누르세요.")
+
     # 6. 개별 킬/데스 입력 (목숨 = 점수이므로 점수 기반 자동 매핑 또는 개별 수동 지정 지원)
     player_kd = {}
     use_manual_kd = input(">> 개별 킬/데스를 수동으로 직접 입력하시겠습니까? (y/n, n 입력 시 스코어 기준 자동 배분): ").strip().lower()
@@ -472,16 +498,16 @@ def add_scrim_prompt():
     for p in red_team:
         cur.execute("INSERT OR IGNORE INTO leaderboard (nickname) VALUES (?)", (p,))
         cur.execute('''
-            INSERT INTO matches (round, mode, map, nickname, team, kills, deaths, winning_team, score, registrant)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (next_round, mode, map_name, p, 'RED', player_kd[p][0], player_kd[p][1], winning_team, score_str, registrant))
+            INSERT INTO matches (round, mode, map, nickname, team, kills, deaths, winning_team, score, registrant, weapon)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (next_round, mode, map_name, p, 'RED', player_kd[p][0], player_kd[p][1], winning_team, score_str, registrant, weapon))
         
     for p in blue_team:
         cur.execute("INSERT OR IGNORE INTO leaderboard (nickname) VALUES (?)", (p,))
         cur.execute('''
-            INSERT INTO matches (round, mode, map, nickname, team, kills, deaths, winning_team, score, registrant)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (next_round, mode, map_name, p, 'BLUE', player_kd[p][0], player_kd[p][1], winning_team, score_str, registrant))
+            INSERT INTO matches (round, mode, map, nickname, team, kills, deaths, winning_team, score, registrant, weapon)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (next_round, mode, map_name, p, 'BLUE', player_kd[p][0], player_kd[p][1], winning_team, score_str, registrant, weapon))
 
     con.commit()
     recalculate_all()
