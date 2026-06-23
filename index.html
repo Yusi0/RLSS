@@ -1817,6 +1817,23 @@
             if (submitBtn) submitBtn.classList.add('active');
             updateResponsiveLayout();
 
+            if (urlToken === 'debug' || urlToken === 'debug2v2') {
+                const is2v2 = urlToken === 'debug2v2';
+                loadedTokenData = {
+                    mode: is2v2 ? '2v2' : '1v1',
+                    players: is2v2 
+                        ? ['RedPlayer1', 'RedPlayer2', 'BluePlayer1', 'BluePlayer2']
+                        : ['RedPlayer', 'BluePlayer'],
+                    map: is2v2 ? 'METRO' : 'HIGHRISE',
+                    used: false,
+                    expiresAt: 9999999999,
+                    issuedToDiscordId: '12345',
+                    issuedToDiscordName: 'DebugUser'
+                };
+                showSubmitForm(loadedTokenData);
+                return;
+            }
+
             if (!db) {
                 showSubmitError("Firebase 설정이 올바르지 않아 토큰 검증을 시작할 수 없습니다. 관리자에게 문의해 주세요.");
                 return;
