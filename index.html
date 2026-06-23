@@ -1034,73 +1034,24 @@
             </div>
 
             <form id="submitForm" style="display: none; flex-direction: column; gap: 14px;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div style="display: grid; grid-template-columns: 1fr; gap: 12px;">
                     <div class="form-group" style="display: flex; flex-direction: column; gap: 6px;">
                         <label style="font-size: 0.68rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">모드 (MODE)</label>
                         <input type="text" id="submitMode" class="form-control" readonly style="background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.08);">
                     </div>
-                    <div class="form-group" style="display: flex; flex-direction: column; gap: 6px;">
-                        <label style="font-size: 0.68rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">맵 (MAP)</label>
-                        <div class="custom-dropdown" id="dropdownMap" data-value="HIGHRISE">
-                            <div class="dropdown-trigger" style="padding:10px 12px; font-size:0.85rem; height:41px;">
-                                <span class="selected-value">HIGHRISE</span>
-                                <span class="dropdown-arrow">▼</span>
-                            </div>
-                            <div class="dropdown-menu">
-                                <div class="dropdown-item active" data-value="HIGHRISE">HIGHRISE</div>
-                                <div class="dropdown-item" data-value="ARC">ARC</div>
-                                <div class="dropdown-item" data-value="KABUKI">KABUKI</div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 10px;">
-                    <!-- RED TEAM -->
-                    <div class="team-section" style="border: 1px solid rgba(255, 0, 60, 0.12); padding: 14px; border-radius: 12px; background: rgba(0, 0, 0, 0.2);">
-                        <div class="team-label red" style="color: var(--red-neon); font-size: 0.65rem; font-weight: 800; text-align: center; margin-bottom: 10px; text-transform: uppercase;">RED TEAM</div>
-                        <div id="redPlayersSubmitContainer" style="display: flex; flex-direction: column; gap: 10px;"></div>
-                    </div>
+                <!-- Dynamic sets list container -->
+                <div id="setsContainer" style="display: flex; flex-direction: column; gap: 20px; margin-top: 10px;"></div>
 
-                    <!-- BLUE TEAM -->
-                    <div class="team-section blue" style="border: 1px solid rgba(0, 210, 255, 0.12); padding: 14px; border-radius: 12px; background: rgba(0, 0, 0, 0.2);">
-                        <div class="team-label blue" style="color: var(--blue-neon); font-size: 0.65rem; font-weight: 800; text-align: center; margin-bottom: 10px; text-transform: uppercase;">BLUE TEAM</div>
-                        <div id="bluePlayersSubmitContainer" style="display: flex; flex-direction: column; gap: 10px;"></div>
-                    </div>
+                <div style="display: flex; gap: 12px; margin-top: 10px;">
+                    <button type="button" id="btnAddSetBtn" style="flex: 1; height: 40px; font-weight: 800; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-primary); border-radius: 8px; cursor: pointer; transition: all 0.2s;">+ 매치 기록 추가</button>
+                    <button type="button" class="btn-green" id="submitMatchBtn" style="flex: 1.5; height: 40px; font-weight: 800; border-radius: 8px; cursor: pointer;">경기 결과 제출</button>
                 </div>
-
-                <div class="score-section" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 12px; margin-top: 8px;">
-                    <div style="font-size: 0.62rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">최종 스코어 (SCORE)</div>
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
-                        <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; width: 80px;">
-                            <span style="font-size: 0.6rem; font-weight: 800; color: var(--red-neon); margin-bottom: 2px;">RED</span>
-                            <div class="custom-dropdown" id="dropdownScoreRed" data-value="0">
-                                <div class="dropdown-trigger" style="text-align: center; justify-content: center; gap: 6px; font-size: 1rem; font-weight: 800; height: 38px;">
-                                    <span class="selected-value">0</span>
-                                    <span class="dropdown-arrow">▼</span>
-                                </div>
-                                <div class="dropdown-menu" id="dropdownMenuScoreRed"></div>
-                            </div>
-                        </div>
-                        <span style="font-size: 1.5rem; font-weight: 800; margin-top: 15px; color: var(--text-muted);">:</span>
-                        <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; width: 80px;">
-                            <span style="font-size: 0.6rem; font-weight: 800; color: var(--blue-neon); margin-bottom: 2px;">BLUE</span>
-                            <div class="custom-dropdown" id="dropdownScoreBlue" data-value="0">
-                                <div class="dropdown-trigger" style="text-align: center; justify-content: center; gap: 6px; font-size: 1rem; font-weight: 800; height: 38px;">
-                                    <span class="selected-value">0</span>
-                                    <span class="dropdown-arrow">▼</span>
-                                </div>
-                                <div class="dropdown-menu" id="dropdownMenuScoreBlue"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
+                
                 <div style="margin-top: 10px; font-size: 0.7rem; color: var(--text-muted); text-align: center;" id="submitInfoText">
                     제출자: -
                 </div>
-
-                <button type="button" class="btn-green" id="submitMatchBtn" style="width: 100%; height: 44px; margin-top: 8px; font-weight: 800;">경기 결과 제출</button>
             </form>
         </div>
 
@@ -1152,6 +1103,8 @@
         let activeTab = 'leaderboard'; // Mobile tab: 'leaderboard', 'rounds'
         let currentRoundPage = 1;
         const roundsPerPage = 10;
+        let activeSets = [];
+        let nextSetId = 1;
 
 
         const maps_1v1 = ['highrise', 'kabuki', 'arc'];
@@ -1900,98 +1853,18 @@
             document.getElementById('submitTokenError').style.display = 'none';
             document.getElementById('submitForm').style.display = 'flex';
             
-            document.getElementById('submitMode').value = tokenData.mode.toUpperCase();
+            document.getElementById('submitMode').value = tokenData.mode.toUpperCase() + ' DUELS';
             
-            // Initialize custom map dropdown
-            const defaultMap = (tokenData.map || "HIGHRISE").toUpperCase();
-            const mapDropdown = document.getElementById('dropdownMap');
-            mapDropdown.setAttribute('data-value', defaultMap);
-            mapDropdown.querySelector('.selected-value').innerText = defaultMap;
+            // Reset set lists
+            activeSets = [];
+            nextSetId = 1;
+            document.getElementById('setsContainer').innerHTML = '';
             
-            const mapItems = mapDropdown.querySelectorAll('.dropdown-item');
-            mapItems.forEach(item => {
-                const val = item.getAttribute('data-value');
-                if (val === defaultMap) {
-                    item.classList.add('active');
-                } else {
-                    item.classList.remove('active');
-                }
-            });
-            initCustomDropdown(mapDropdown);
+            // Add initial set card
+            addSetCard();
             
-            // Distribute players
-            const half = tokenData.players.length / 2;
-            const redPlayers = tokenData.players.slice(0, half);
-            const bluePlayers = tokenData.players.slice(half);
-
-            const redContainer = document.getElementById('redPlayersSubmitContainer');
-            const blueContainer = document.getElementById('bluePlayersSubmitContainer');
-            redContainer.innerHTML = '';
-            blueContainer.innerHTML = '';
-
-            redPlayers.forEach((p, idx) => {
-                const dropdownId = `dropdownWeaponRed_${idx}`;
-                const div = document.createElement('div');
-                div.style.cssText = "display:flex; flex-direction:column; gap:4px; margin-bottom:6px;";
-                div.innerHTML = `
-                    <span style="font-size:0.72rem; font-weight:700; color:#fff;">${p}</span>
-                    <div class="custom-dropdown submit-weapon-red" data-player="${p}" id="${dropdownId}" data-value="CASTIGATE">
-                        <div class="dropdown-trigger" style="padding:6px 10px; font-size:0.72rem;">
-                            <span class="selected-value">CASTIGATE</span>
-                            <span class="dropdown-arrow">▼</span>
-                        </div>
-                        <div class="dropdown-menu">
-                            <div class="dropdown-item active" data-value="CASTIGATE">CASTIGATE</div>
-                            <div class="dropdown-item" data-value="PHOENIX">PHOENIX</div>
-                            <div class="dropdown-item" data-value="SIEGE">SIEGE</div>
-                            <div class="dropdown-item" data-value="MONARCH">MONARCH</div>
-                        </div>
-                    </div>
-                `;
-                redContainer.appendChild(div);
-                initCustomDropdown(div.querySelector('.custom-dropdown'));
-            });
-
-            bluePlayers.forEach((p, idx) => {
-                const dropdownId = `dropdownWeaponBlue_${idx}`;
-                const div = document.createElement('div');
-                div.style.cssText = "display:flex; flex-direction:column; gap:4px; margin-bottom:6px;";
-                div.innerHTML = `
-                    <span style="font-size:0.72rem; font-weight:700; color:#fff;">${p}</span>
-                    <div class="custom-dropdown submit-weapon-blue" data-player="${p}" id="${dropdownId}" data-value="CASTIGATE">
-                        <div class="dropdown-trigger" style="padding:6px 10px; font-size:0.72rem;">
-                            <span class="selected-value">CASTIGATE</span>
-                            <span class="dropdown-arrow">▼</span>
-                        </div>
-                        <div class="dropdown-menu">
-                            <div class="dropdown-item active" data-value="CASTIGATE">CASTIGATE</div>
-                            <div class="dropdown-item" data-value="PHOENIX">PHOENIX</div>
-                            <div class="dropdown-item" data-value="SIEGE">SIEGE</div>
-                            <div class="dropdown-item" data-value="MONARCH">MONARCH</div>
-                        </div>
-                    </div>
-                `;
-                blueContainer.appendChild(div);
-                initCustomDropdown(div.querySelector('.custom-dropdown'));
-            });
-
-            // Initialize Custom Score Dropdowns (Max score is 5 for all modes)
-            const maxScore = 5;
-            const renderScoreDropdownMenu = (menuId, dropdownId, defaultValue) => {
-                const menu = document.getElementById(menuId);
-                menu.innerHTML = '';
-                for (let i = 0; i <= maxScore; i++) {
-                    const activeClass = i === defaultValue ? 'active' : '';
-                    menu.innerHTML += `<div class="dropdown-item ${activeClass}" data-value="${i}">${i}</div>`;
-                }
-                const dropdown = document.getElementById(dropdownId);
-                dropdown.setAttribute('data-value', defaultValue);
-                dropdown.querySelector('.selected-value').innerText = defaultValue;
-                initCustomDropdown(dropdown);
-            };
-
-            renderScoreDropdownMenu('dropdownMenuScoreRed', 'dropdownScoreRed', 0);
-            renderScoreDropdownMenu('dropdownMenuScoreBlue', 'dropdownScoreBlue', 0);
+            // Bind Add Set button
+            document.getElementById('btnAddSetBtn').onclick = () => addSetCard();
 
             const submitterName = actualSubmitterName || tokenData.issuedToDiscordName;
             const submitterId = actualSubmitterId || tokenData.issuedToDiscordId;
@@ -2002,49 +1875,242 @@
             submitBtn.onclick = () => submitMatchResult();
         }
 
-        function validateSubmitForm(mode, sr, sb) {
-            if (isNaN(sr) || isNaN(sb)) {
-                alert("점수를 정상적으로 입력해 주세요.");
-                return false;
+        function addSetCard() {
+            const setId = nextSetId++;
+            const setNum = activeSets.length + 1;
+            activeSets.push({ id: setId, num: setNum });
+
+            const container = document.getElementById('setsContainer');
+            const card = document.createElement('div');
+            card.id = `setCard_${setId}`;
+            card.className = 'set-card';
+            card.style.cssText = "border: 1px solid rgba(255,255,255,0.08); padding: 16px; border-radius: 12px; background: rgba(255,255,255,0.01); display: flex; flex-direction: column; gap: 12px; position: relative;";
+
+            const deleteBtnHtml = setNum > 1 
+                ? `<button type="button" class="btn-sub-reject" style="padding: 2px 8px; font-size: 0.65rem; height: auto;" onclick="removeSetCard(${setId})">삭제</button>`
+                : '';
+
+            card.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;">
+                    <span style="font-size: 0.75rem; font-weight: 800; color: var(--red-neon); font-family: 'Orbitron', sans-serif;">SET #${setNum}</span>
+                    ${deleteBtnHtml}
+                </div>
+
+                <div class="form-group" style="display: flex; flex-direction: column; gap: 6px;">
+                    <label style="font-size: 0.6rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">맵 (MAP)</label>
+                    <div class="custom-dropdown submit-map-select" id="dropdownMap_set_${setId}" data-value="HIGHRISE">
+                        <div class="dropdown-trigger" style="padding:8px 10px; font-size:0.75rem; height:34px;">
+                            <span class="selected-value">HIGHRISE</span>
+                            <span class="dropdown-arrow">▼</span>
+                        </div>
+                        <div class="dropdown-menu">
+                            <div class="dropdown-item active" data-value="HIGHRISE">HIGHRISE</div>
+                            <div class="dropdown-item" data-value="ARC">ARC</div>
+                            <div class="dropdown-item" data-value="KABUKI">KABUKI</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div style="border: 1px solid rgba(255, 0, 60, 0.1); padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.15);">
+                        <div style="color: var(--red-neon); font-size: 0.6rem; font-weight: 800; text-align: center; margin-bottom: 8px;">RED TEAM WEAPONS</div>
+                        <div id="redPlayers_set_${setId}" style="display: flex; flex-direction: column; gap: 8px;"></div>
+                    </div>
+                    <div style="border: 1px solid rgba(0, 210, 255, 0.1); padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.15);">
+                        <div style="color: var(--blue-neon); font-size: 0.6rem; font-weight: 800; text-align: center; margin-bottom: 8px;">BLUE TEAM WEAPONS</div>
+                        <div id="bluePlayers_set_${setId}" style="display: flex; flex-direction: column; gap: 8px;"></div>
+                    </div>
+                </div>
+
+                <div style="background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 10px;">
+                    <div style="font-size: 0.58rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; text-align: center;">스코어 (SCORE)</div>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span style="font-size: 0.65rem; font-weight: 800; color: var(--red-neon);">RED</span>
+                            <div class="custom-dropdown submit-score-red" id="dropdownScoreRed_set_${setId}" data-value="0" style="width: 54px;">
+                                <div class="dropdown-trigger" style="text-align: center; justify-content: center; font-size: 0.85rem; font-weight: 800; height: 30px; padding: 0 4px;">
+                                    <span class="selected-value">0</span>
+                                    <span class="dropdown-arrow" style="font-size: 0.5rem; margin-left: 2px;">▼</span>
+                                </div>
+                                <div class="dropdown-menu" id="dropdownMenuScoreRed_set_${setId}" style="max-height: 120px; overflow-y: auto;"></div>
+                            </div>
+                        </div>
+                        <span style="font-size: 1rem; font-weight: 800; color: var(--text-muted);">:</span>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <div class="custom-dropdown submit-score-blue" id="dropdownScoreBlue_set_${setId}" data-value="0" style="width: 54px;">
+                                <div class="dropdown-trigger" style="text-align: center; justify-content: center; font-size: 0.85rem; font-weight: 800; height: 30px; padding: 0 4px;">
+                                    <span class="selected-value">0</span>
+                                    <span class="dropdown-arrow" style="font-size: 0.5rem; margin-left: 2px;">▼</span>
+                                </div>
+                                <div class="dropdown-menu" id="dropdownMenuScoreBlue_set_${setId}" style="max-height: 120px; overflow-y: auto;"></div>
+                            </div>
+                            <span style="font-size: 0.65rem; font-weight: 800; color: var(--blue-neon);">BLUE</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+
+            // Populate Map Dropdown
+            initCustomDropdown(card.querySelector('.submit-map-select'));
+
+            // Populate Players Weapons
+            const redTeamContainer = document.getElementById(`redPlayers_set_${setId}`);
+            const blueTeamContainer = document.getElementById(`bluePlayers_set_${setId}`);
+
+            const half = loadedTokenData.players.length / 2;
+            const redPlayers = loadedTokenData.players.slice(0, half);
+            const bluePlayers = loadedTokenData.players.slice(half);
+
+            redPlayers.forEach((p, idx) => {
+                const div = document.createElement('div');
+                div.style.cssText = "display:flex; flex-direction:column; gap:4px;";
+                div.innerHTML = `
+                    <span style="font-size:0.65rem; font-weight:700; color:#fff;">${p}</span>
+                    <div class="custom-dropdown submit-weapon-red-set-${setId}" data-player="${p}" data-value="CASTIGATE">
+                        <div class="dropdown-trigger" style="padding:4px 8px; font-size:0.65rem; height:28px;">
+                            <span class="selected-value">CASTIGATE</span>
+                            <span class="dropdown-arrow">▼</span>
+                        </div>
+                        <div class="dropdown-menu">
+                            <div class="dropdown-item active" data-value="CASTIGATE">CASTIGATE</div>
+                            <div class="dropdown-item" data-value="PHOENIX">PHOENIX</div>
+                            <div class="dropdown-item" data-value="SIEGE">SIEGE</div>
+                            <div class="dropdown-item" data-value="MONARCH">MONARCH</div>
+                        </div>
+                    </div>
+                `;
+                redTeamContainer.appendChild(div);
+                initCustomDropdown(div.querySelector('.custom-dropdown'));
+            });
+
+            bluePlayers.forEach((p, idx) => {
+                const div = document.createElement('div');
+                div.style.cssText = "display:flex; flex-direction:column; gap:4px;";
+                div.innerHTML = `
+                    <span style="font-size:0.65rem; font-weight:700; color:#fff;">${p}</span>
+                    <div class="custom-dropdown submit-weapon-blue-set-${setId}" data-player="${p}" data-value="CASTIGATE">
+                        <div class="dropdown-trigger" style="padding:4px 8px; font-size:0.65rem; height:28px;">
+                            <span class="selected-value">CASTIGATE</span>
+                            <span class="dropdown-arrow">▼</span>
+                        </div>
+                        <div class="dropdown-menu">
+                            <div class="dropdown-item active" data-value="CASTIGATE">CASTIGATE</div>
+                            <div class="dropdown-item" data-value="PHOENIX">PHOENIX</div>
+                            <div class="dropdown-item" data-value="SIEGE">SIEGE</div>
+                            <div class="dropdown-item" data-value="MONARCH">MONARCH</div>
+                        </div>
+                    </div>
+                `;
+                blueTeamContainer.appendChild(div);
+                initCustomDropdown(div.querySelector('.custom-dropdown'));
+            });
+
+            // Populate Score Dropdowns
+            const maxScore = 5;
+            const renderScoreDropdownMenu = (menuId, dropdownId, defaultValue) => {
+                const dropdown = document.getElementById(dropdownId);
+                const menu = dropdown.querySelector('.dropdown-menu');
+                menu.innerHTML = '';
+                for (let i = 0; i <= maxScore; i++) {
+                    const activeClass = i === defaultValue ? 'active' : '';
+                    menu.innerHTML += `<div class="dropdown-item ${activeClass}" data-value="${i}">${i}</div>`;
+                }
+                dropdown.setAttribute('data-value', defaultValue);
+                dropdown.querySelector('.selected-value').innerText = defaultValue;
+                initCustomDropdown(dropdown);
+            };
+
+            renderScoreDropdownMenu('', `dropdownScoreRed_set_${setId}`, 0);
+            renderScoreDropdownMenu('', `dropdownScoreBlue_set_${setId}`, 0);
+        }
+
+        function removeSetCard(setId) {
+            const card = document.getElementById(`setCard_${setId}`);
+            if (card) {
+                card.remove();
             }
-            if (sr !== 5 && sb !== 5) {
-                alert("각자 5목숨이 주어지므로, 패배한 팀의 데스 수(즉, 승리 팀의 점수)는 반드시 5점이어야 합니다.");
-                return false;
-            }
-            if (sr === 5 && sb === 5) {
-                alert("양쪽 팀이 동시에 5데스를 기록할 수는 없습니다. 한 팀만 5점이어야 합니다.");
-                return false;
-            }
-            return true;
+            activeSets = activeSets.filter(s => s.id !== setId);
+            
+            // Re-index set numbers displayed
+            activeSets.forEach((s, idx) => {
+                s.num = idx + 1;
+                const cardEl = document.getElementById(`setCard_${s.id}`);
+                if (cardEl) {
+                    const titleSpan = cardEl.querySelector('span[style*="font-size: 0.75rem"]');
+                    if (titleSpan) titleSpan.innerText = `SET #${s.num}`;
+                }
+            });
         }
 
         function submitMatchResult() {
             if (!loadedTokenData || !urlToken) return;
+            if (activeSets.length === 0) {
+                alert("제출할 매치 기록이 없습니다.");
+                return;
+            }
 
             const mode = loadedTokenData.mode;
-            const map = document.getElementById('dropdownMap').getAttribute('data-value') || 'HIGHRISE';
-            const sr = parseInt(document.getElementById('dropdownScoreRed').getAttribute('data-value')) || 0;
-            const sb = parseInt(document.getElementById('dropdownScoreBlue').getAttribute('data-value')) || 0;
+            const submissionsDataList = [];
 
-            if (!validateSubmitForm(mode, sr, sb)) return;
+            // Loop and validate all active sets
+            for (let i = 0; i < activeSets.length; i++) {
+                const s = activeSets[i];
+                const setId = s.id;
+                const setNum = s.num;
 
-            // Collect player names and weapons
-            const redTeam = [];
-            const blueTeam = [];
+                const map = document.getElementById(`dropdownMap_set_${setId}`).getAttribute('data-value') || 'HIGHRISE';
+                const sr = parseInt(document.getElementById(`dropdownScoreRed_set_${setId}`).getAttribute('data-value')) || 0;
+                const sb = parseInt(document.getElementById(`dropdownScoreBlue_set_${setId}`).getAttribute('data-value')) || 0;
 
-            document.querySelectorAll('.submit-weapon-red').forEach(el => {
-                redTeam.push({
-                    name: el.getAttribute('data-player'),
-                    weapon: el.getAttribute('data-value') || 'CASTIGATE'
+                // Validate
+                if (isNaN(sr) || isNaN(sb)) {
+                    alert(`SET #${setNum}: 점수를 정상적으로 입력해 주세요.`);
+                    return;
+                }
+                if (sr !== 5 && sb !== 5) {
+                    alert(`SET #${setNum}: 각자 5목숨이 주어지므로, 패배한 팀의 데스 수(즉, 승리 팀의 점수)는 반드시 5점이어야 합니다.`);
+                    return;
+                }
+                if (sr === 5 && sb === 5) {
+                    alert(`SET #${setNum}: 양쪽 팀이 동시에 5데스를 기록할 수는 없습니다. 한 팀만 5점이어야 합니다.`);
+                    return;
+                }
+
+                // Collect weapons
+                const redTeam = [];
+                const blueTeam = [];
+
+                document.querySelectorAll(`.submit-weapon-red-set-${setId}`).forEach(el => {
+                    redTeam.push({
+                        name: el.getAttribute('data-player'),
+                        weapon: el.getAttribute('data-value') || 'CASTIGATE'
+                    });
                 });
-            });
 
-            document.querySelectorAll('.submit-weapon-blue').forEach(el => {
-                blueTeam.push({
-                    name: el.getAttribute('data-player'),
-                    weapon: el.getAttribute('data-value') || 'CASTIGATE'
+                document.querySelectorAll(`.submit-weapon-blue-set-${setId}`).forEach(el => {
+                    blueTeam.push({
+                        name: el.getAttribute('data-player'),
+                        weapon: el.getAttribute('data-value') || 'CASTIGATE'
+                    });
                 });
-            });
+
+                const matchId = 'match_' + Math.random().toString(36).substring(2, 9) + '_' + (Date.now() + i);
+                submissionsDataList.push({
+                    id: matchId,
+                    status: "pending",
+                    tokenId: urlToken,
+                    submittedAt: Math.floor(Date.now() / 1000),
+                    submittedByDiscordId: actualSubmitterId || loadedTokenData.issuedToDiscordId,
+                    submittedByDiscordName: actualSubmitterName || loadedTokenData.issuedToDiscordName,
+                    mode: mode,
+                    map: map,
+                    redTeam: redTeam,
+                    blueTeam: blueTeam,
+                    scoreRed: sr,
+                    scoreBlue: sb
+                });
+            }
 
             // 1. Firebase runTransaction() 실행 - tokens/TOKEN_ID 노드 원자적 락업 시도
             const tokenRef = db.ref('tokens/TOKEN_' + urlToken);
@@ -2065,25 +2131,13 @@
                     alert("이 토큰은 이미 사용되었거나 다른 기기에서 제출이 완료되었습니다.");
                     showSubmitError("이 토큰은 만료되었거나 이미 사용되었습니다. 디스코드에서 새로운 경기 등록 링크를 발급받아 주세요.");
                 } else {
-                    // 2. 잠금 성공 시 matchSubmissions 생성 등록
-                    const matchId = 'match_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now();
-                    const submissionData = {
-                        id: matchId,
-                        status: "pending",
-                        tokenId: urlToken,
-                        submittedAt: Math.floor(Date.now() / 1000),
-                        submittedByDiscordId: actualSubmitterId || loadedTokenData.issuedToDiscordId,
-                        submittedByDiscordName: actualSubmitterName || loadedTokenData.issuedToDiscordName,
-                        mode: mode,
-                        map: map,
-                        redTeam: redTeam,
-                        blueTeam: blueTeam,
-                        scoreRed: sr,
-                        scoreBlue: sb
-                    };
+                    // 2. 잠금 성공 시 모든 matchSubmissions 생성 등록
+                    const writePromises = submissionsDataList.map(sub => {
+                        return db.ref('matchSubmissions/' + sub.id).set(sub);
+                    });
 
-                    db.ref('matchSubmissions/' + matchId).set(submissionData).then(() => {
-                        alert("경기 결과 제출이 완료되었습니다! 관리자의 승인을 기다려주세요.");
+                    Promise.all(writePromises).then(() => {
+                        alert(`${submissionsDataList.length}건의 경기 결과 제출이 완료되었습니다! 관리자의 승인을 기다려주세요.`);
                         window.location.href = 'index.html';
                     }).catch(writeErr => {
                         console.error("Submission failed, triggering rollback:", writeErr);
