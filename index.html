@@ -926,6 +926,22 @@
             color: var(--red-neon);
             font-weight: 800;
         }
+
+        /* Custom scrollbar for sets container */
+        #setsContainer::-webkit-scrollbar {
+            width: 4px;
+        }
+        #setsContainer::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.01);
+            border-radius: 10px;
+        }
+        #setsContainer::-webkit-scrollbar-thumb {
+            background: rgba(255, 0, 60, 0.25);
+            border-radius: 10px;
+        }
+        #setsContainer::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 0, 60, 0.5);
+        }
     </style>
 </head>
 <body>
@@ -1042,7 +1058,7 @@
                 </div>
 
                 <!-- Dynamic sets list container -->
-                <div id="setsContainer" style="display: flex; flex-direction: column; gap: 20px; margin-top: 10px;"></div>
+                <div id="setsContainer" style="display: flex; flex-direction: column; gap: 20px; margin-top: 10px; max-height: 55vh; overflow-y: auto; padding-right: 6px;"></div>
 
                 <div style="display: flex; gap: 12px; margin-top: 10px;">
                     <button type="button" id="btnAddSetBtn" style="flex: 1; height: 40px; font-weight: 800; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-primary); border-radius: 8px; cursor: pointer; transition: all 0.2s;">+ 매치 기록 추가</button>
