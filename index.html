@@ -927,19 +927,19 @@
             font-weight: 800;
         }
 
-        /* Custom scrollbar for sets container */
-        #setsContainer::-webkit-scrollbar {
+        /* Custom scrollbar for submitPanel */
+        #submitPanel::-webkit-scrollbar {
             width: 4px;
         }
-        #setsContainer::-webkit-scrollbar-track {
+        #submitPanel::-webkit-scrollbar-track {
             background: rgba(255, 255, 255, 0.01);
             border-radius: 10px;
         }
-        #setsContainer::-webkit-scrollbar-thumb {
+        #submitPanel::-webkit-scrollbar-thumb {
             background: rgba(255, 0, 60, 0.25);
             border-radius: 10px;
         }
-        #setsContainer::-webkit-scrollbar-thumb:hover {
+        #submitPanel::-webkit-scrollbar-thumb:hover {
             background: rgba(255, 0, 60, 0.5);
         }
     </style>
@@ -1039,7 +1039,7 @@
         </div>
 
         <!-- Scrim Match Submission Panel -->
-        <div class="glass-panel" id="submitPanel" style="display: none; flex-direction: column; gap: 16px; width: 100%; max-width: 600px; margin: 0 auto; padding: 24px;">
+        <div class="glass-panel" id="submitPanel" style="display: none; flex-direction: column; gap: 16px; width: 100%; max-width: 600px; margin: 0 auto; padding: 24px 16px 24px 24px; max-height: 100%; overflow-y: auto;">
             <div style="font-size: 0.85rem; font-weight: 800; color: var(--red-neon); border-bottom: 1px dashed rgba(255, 255, 255, 0.08); padding-bottom: 8px; text-transform: uppercase;">
                 Scrim Match Submission (경기 결과 제출)
             </div>
@@ -1058,7 +1058,7 @@
                 </div>
 
                 <!-- Dynamic sets list container -->
-                <div id="setsContainer" style="display: flex; flex-direction: column; gap: 20px; margin-top: 10px; max-height: 55vh; overflow-y: auto; padding-right: 6px;"></div>
+                <div id="setsContainer" style="display: flex; flex-direction: column; gap: 20px; margin-top: 10px;"></div>
 
                 <div style="display: flex; gap: 12px; margin-top: 10px;">
                     <button type="button" id="btnAddSetBtn" style="flex: 1; height: 40px; font-weight: 800; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-primary); border-radius: 8px; cursor: pointer; transition: all 0.2s;">+ 매치 기록 추가</button>
